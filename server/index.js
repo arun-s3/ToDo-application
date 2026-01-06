@@ -16,6 +16,7 @@ const todoModel = require('./Model/todoModel');
 
 app.post('/add', (req,res)=>{
     const {title, desc, date} = req.body.task
+    console.group("req.body.task---->", JSON.stringify(req.body.task))
     todoModel.create({title:title, desc:desc, date:date})
              .then(result=>res.json(result))
              .catch(error=>console.log(error))
