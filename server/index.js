@@ -1,59 +1,52 @@
 const express = require('express');
-const app = express();
+const path = require('node:path')
 
-const mongoose = require('mongoose');
-mongoose.connect("mongodb://localhost:27017/todo-v2");
-mongoose.connection.on("connected", ()=>console.log("Connected to database..."))
-mongoose.connection.on("error", (error)=>console.log(error))
-mongoose.connection.on("disconnected", ()=>console.log("Disconnected from the database..."))
+require('dotenv').config()
+
+const connectDB = require("./Config/database.js");
+
+const app = express()
+
+connectDB()
+
+const nocache = require('nocache')
+app.use(nocache())
+
+app.use('/Public',express.static(path.join(__dirname,'/Public')))
+
+const session = require("express-session")
+app.use(
+    session({
+      secret: "zentaskSession", 
+      resave: false,
+      saveUninitialized: true,
+      cookie: { maxAge: 300000 }
+    })
+)
 
 app.use(express.json());
+app.use(express.urlencoded({extended: true, limit:'10mb'}))
+const cookieParser = require('cookie-parser')
+app.use(cookieParser())
 
-const cors = require('cors');
-app.use(cors());
+const cors = require('cors')
+app.use(cors({
+    origin:['http://localhost:3000'],
+    method:['GET','POST','PUT','PATCH','DELETE'],
+    credentials:true
+}))
 
-const todoModel = require('./Model/todoModel');
+const globalErrorHandler = require('./Middlewares/globalError.js')
 
-app.post('/add', (req,res)=>{
-    const {title, desc, date} = req.body.task
-    console.group("req.body.task---->", JSON.stringify(req.body.task))
-    todoModel.create({title:title, desc:desc, date:date})
-             .then(result=>res.json(result))
-             .catch(error=>console.log(error))
-})
+// const authRoutes = require('./Routes/user.route.js')
+const taskRoutes = require('./Routes/tasks.route.js')
 
-app.get('/tasks', (req,res)=>{
-    todoModel.find().then(result=> res.json(result))
-                    .catch(error=>{console.log(error)})
-})
+// app.use('/', authRoutes)
+app.use('/tasks', taskRoutes)
 
-app.put('/done/:id', (req,res)=>{
-    const {id} = req.params
-    todoModel.findByIdAndUpdate({_id:id},{done:req.body.done})
-             .then(result=> res.json(result))
-             .catch(error=> res.json(error))
-})
-app.put('/update/:id',(req,res)=> {
-    const {id} = req.params
-    req.body.title? todoModel.findByIdAndUpdate({_id:id},{title:req.body.title})
-                             .then(result=> res.json(result))
-                             .catch(error=> res.json(error))
-                  : todoModel.findByIdAndUpdate({_id:id},{desc:req.body.desc})
-                             .then(result=> res.json(result))
-                             .catch(error=> res.json(error))
-})
-app.put('/done/:id', (req,res)=>{
-    const {id} = req.params
-    todoModel.FindByIdAndUpdate({_id:id},{done:req.body.done})
-             .then(result=> res.json(result))
-             .catch(error=> res.json(error))
-})
-app.delete('/delete/:id', (req,res)=>{
-    const {id} = req.params
-    todoModel.deleteOne({_id:id})
-             .then(result=> res.json(result))
-             .catch(error=> res.json(error))
-})
+app.use(globalErrorHandler)
 
-app.listen('3001', ()=>{console.log("Server is running...")});
+const port = process.env.PORT || 3001
+app.listen(port, ()=>{ console.log(`Listening to port ${port}...`)})
+
 
