@@ -1,0 +1,437 @@
+.task-creater {
+  display: flex;
+  width: 100%;
+  max-width: 35rem;
+  gap: 0.8rem;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 2rem 0;
+  animation: slideDown 0.5s ease-out;
+}
+
+/* Updated button styling for new modal-based design */
+.btn-add-task-large {
+  padding: 12px 24px;
+  background-color: #287fe5;
+  color: white;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: "poppins", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn-add-task-large:hover {
+  background-color: #1e5fa8;
+  box-shadow: 0 8px 20px rgba(40, 127, 229, 0.3);
+  transform: translateY(-3px);
+}
+
+.btn-add-task-large:active {
+  transform: scale(0.97);
+}
+
+.icon-plus {
+  color: white;
+  flex-shrink: 0;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0; /* top, right, bottom, left = 0 */
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h3 {
+  font-family: "Roboto", sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  color: #000;
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.section-label svg {
+  color: #287fe5;
+  flex-shrink: 0;
+}
+
+/* Added styling for title and description inputs inside modal */
+.title-input,
+.description-input {
+  padding: 12px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-family: "poppins", sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+  background: white;
+  color: #1a1a1a;
+  resize: vertical;
+}
+
+.title-input:focus,
+.description-input:focus {
+  border-color: #287fe5;
+  box-shadow: 0 4px 12px rgba(40, 127, 229, 0.15);
+}
+
+.title-input::placeholder,
+.description-input::placeholder {
+  color: #999;
+}
+
+.description-input {
+  min-height: 100px;
+  font-size: 13px;
+}
+
+/* Priority Options */
+.priority-options {
+  display: flex;
+  gap: 10px;
+}
+
+.priority-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  background: #f8f9fa;
+  cursor: pointer;
+  font-family: "poppins", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.priority-btn:hover {
+  border-color: #287fe5;
+  background: #f0f5ff;
+}
+
+.priority-btn.active {
+  background: #287fe5;
+  color: white;
+  border-color: #287fe5;
+  transform: scale(1.05);
+}
+
+/* Deadline Input */
+.deadline-input {
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-family: "poppins", sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.deadline-input:focus {
+  border-color: #287fe5;
+  box-shadow: 0 2px 8px rgba(40, 127, 229, 0.15);
+}
+
+/* Checklist Input */
+.checklist-input-group,
+.tag-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.checklist-input,
+.tag-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-family: "poppins", sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.checklist-input:focus,
+.tag-input:focus {
+  border-color: #287fe5;
+  box-shadow: 0 2px 8px rgba(40, 127, 229, 0.15);
+}
+
+.btn-add-item {
+  padding: 8px 12px;
+  background-color: #287fe5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.btn-add-item:hover {
+  background-color: #1e5fa8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(40, 127, 229, 0.3);
+}
+
+/* Checklist Items */
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.checklist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 13px;
+  animation: itemSlideIn 0.3s ease;
+}
+
+@keyframes itemSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.btn-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #dd5746;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-remove:hover {
+  color: #ff3b3b;
+  transform: rotate(90deg) scale(1.2);
+}
+
+/* Tags List */
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #287fe5 0%, #1e5fa8 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  animation: tagAppear 0.3s ease;
+}
+
+@keyframes tagAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.tag-remove:hover {
+  opacity: 0.7;
+  transform: scale(1.2);
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-modal-cancel,
+.btn-modal-save {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-family: "poppins", sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-modal-cancel {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btn-modal-cancel:hover {
+  background: #e0e0e0;
+}
+
+.btn-modal-save {
+  background: #287fe5;
+  color: white;
+}
+
+.btn-modal-save:hover {
+  background: #1e5fa8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(40, 127, 229, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .task-creater {
+    max-width: 100%;
+    margin: 1.5rem 0;
+  }
+
+  .btn-add-task-large span {
+    display: none;
+  }
+
+  .modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .modal-header h3 {
+    font-size: 18px;
+  }
+}
