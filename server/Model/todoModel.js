@@ -15,6 +15,23 @@ const checklistItemSchema = new mongoose.Schema({
 
 const todoSchema = mongoose.Schema({
 
+    isGuest: {
+        type: Boolean,
+        required: true 
+    },
+    userId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: function () {
+          return this.isGuest === false
+        }
+    },
+    guestId: {
+        type: String,
+        required: function () {
+          return this.isGuest === true
+        }
+    },
     title: {
         type: String,
         required: true,

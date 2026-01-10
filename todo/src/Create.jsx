@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react"
 import "./Create.css"
 
-import axios from "axios"
+import { api } from "./api/axiosInstance"
 import { Plus, X, ListTodo, Flag, Calendar, Tag } from "lucide-react"
 import { toast } from 'sonner'
 
@@ -33,7 +33,7 @@ function Create({ onsubmit, isModalOpen, onModalClose }) {
       alert("Please enter a task title")
       return
     }
-    axios.post(`${API_URL}/tasks/delete/add`, {task})
+    api.post(`tasks/delete/add`, {task})
         .then(result=> console.log(result))
         .catch(error=> {
                toast.error(error.response.data.message)

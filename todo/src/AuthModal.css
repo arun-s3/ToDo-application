@@ -1,10 +1,18 @@
 .auth-backdrop {
-  min-height: 100vh;
+  /* min-height: 100vh;
   display: flex;
   justify-content: center;
+  align-items: center; */
+  /* background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a); */
+  /* padding: 1rem; */
+
+  position: fixed;
+  inset: 0; /* top, right, bottom, left = 0 */
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
-  padding: 1rem;
+  justify-content: center;
+  z-index: 9999;
 }
 
 .auth-wrapper {
@@ -29,12 +37,28 @@
 .auth-header h1 {
   font-size: 1.875rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
 }
 
 .auth-header p {
   font-size: 0.875rem;
   color: #dbeafe;
+}
+
+.auth-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.auth-close:hover {
+  color: #000;
+  transform: rotate(90deg);
 }
 
 .auth-body {
@@ -98,16 +122,20 @@ input.error {
 
 .error-text {
   margin-top: 0.4rem;
-  font-size: 0.75rem;
+  font-size: 10px;
   color: #dc2626;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.4rem;
+}
+
+.error-text > svg {
+  margin-top: 3px;
 }
 
 .eye-btn {
   position: absolute;
-  right: 0.75rem;
+  right: 3rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -118,9 +146,9 @@ input.error {
 
 .eye-btn:hover {
   color: #475569;
-}
+} 
 
-.submit-btn {
+.submit-btn { 
   width: 100%;
   margin-top: 1.5rem;
   padding: 0.75rem;
@@ -143,6 +171,30 @@ input.error {
   transform: scale(0.95);
 }
 
+.cancel-btn { 
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: #2563eb;
+  background: white;
+  box-shadow: 0 10px 20px rgb(116 136 179 / 35%);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.cancel-btn:hover {
+  color: #0b58fc;
+  background: linear-gradient(to right, #dfe4f4, #d5dcf1);
+  border: 1px solid #becdf6;
+}
+
+.cancel-btn:active {
+  transform: scale(0.95);
+}
+
 .toggle-text {
   margin-top: 1.5rem;
   text-align: center;
@@ -151,6 +203,7 @@ input.error {
 }
 
 .toggle-text button {
+  margin-left: 5px;
   background: none;
   border: none;
   color: #2563eb;
@@ -166,5 +219,5 @@ input.error {
   text-align: center;
   margin-top: 1.5rem;
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #a1acbc;
 }

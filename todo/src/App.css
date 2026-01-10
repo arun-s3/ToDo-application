@@ -587,8 +587,30 @@ a {
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-.sign-in-btn:active {
+.sign-in-btn:active, .sign-out-btn:active {
   transform: scale(0.97);
+}
+
+.sign-out-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgb(225, 61, 61) 0%, rgb(222, 34, 34) 100%);
+  color: white;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 4px 12px rgb(186, 101, 101);
+}
+
+.sign-out-btn:hover { 
+  background: linear-gradient(135deg, rgb(225, 61, 61) 0%, rgb(222, 34, 34) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgb(186, 101, 101);
 }
 
 /* Main app content area with sidebar offset */

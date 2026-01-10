@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import "./Home.css"
 
-import axios from "axios"
+import { api } from "./api/apiInstance"
 import { toast } from 'sonner'
 import {Trash2, Edit2, CheckCircle2, Circle, ChevronDown, ChevronUp, Flag, Calendar, Tag, Star, Search, Plus,
   ClipboardList, SquareCheck, Clock, Zap
@@ -32,10 +32,8 @@ function Home({ activeTab = "all" }) {
   const descRef = useRef(null)
   const titleRef = useRef(null)
 
-  const API_URL = process.env.REACT_APP_API_URL;
-
   const getTasks = () => {
-    axios.get(`${API_URL}/tasks`)
+    api.get('/tasks')
         .then(result=> {
                 console.log("result.data--->", result.data.todos)
                 setTodo(result.data.todos)
@@ -110,7 +108,7 @@ function Home({ activeTab = "all" }) {
     const toggleDoneHandler = (e, currentTodo) => {
         e.stopPropagation()
         const newDone = !currentTodo.done
-        axios.patch(`${API_URL}/tasks/done/${currentTodo._id}`, { done: newDone })
+        api.patch(`tasks/done/${currentTodo._id}`, { done: newDone })
             .then(result=> {
                 if(result){
                     console.log(result)
@@ -130,7 +128,7 @@ function Home({ activeTab = "all" }) {
     }
 
     const handleTrash = (id)=>{
-        axios.delete(`${API_URL}/tasks/delete/${id}`)
+        api.delete(`tasks/delete/${id}`)
              .then(result=> console.log(result))
              .catch(error=> {
                     toast.error(error.response.data.message)
@@ -149,7 +147,7 @@ function Home({ activeTab = "all" }) {
         const title = e.target.value
         console.log("title--->", title)
         e.target.style.borderBottom = ""
-        axios.put(`${API_URL}/tasks/update/${currentTodo._id}`, {title:title})
+        api.put(`tasks/update/${currentTodo._id}`, {title:title})
             .then(result=> {
                 if(result){
                     console.log(result)
@@ -173,7 +171,7 @@ function Home({ activeTab = "all" }) {
         const desc = e.target.value
         e.target.style.borderBottom = ""
         e.target.placeholder = ""
-        axios.put(`${API_URL}/tasks/update/${currentTodo._id}`, {desc:desc})
+        api.put(`tasks/update/${currentTodo._id}`, {desc:desc})
             .then(result=> {
                 if(result){
                     console.log(result)
@@ -198,7 +196,7 @@ function Home({ activeTab = "all" }) {
       if (todo._id === taskId) {
         const updatedChecklist = [...todo.checklist]
         updatedChecklist[itemIndex].completed = !updatedChecklist[itemIndex].completed
-        // axios
+        // api
         //   .put("http://localhost:3001/update/" + taskId, {
         //     checklist: updatedChecklist,
         //   })
@@ -240,7 +238,7 @@ function Home({ activeTab = "all" }) {
     const updatedTodos = todos.map((todo) => {
       if (todo._id === taskId) {
         const newStarred = !todo.starred
-        // axios
+        // api
         //   .put("http://localhost:3001/update/" + taskId, { starred: newStarred })
         //   .catch((error) => console.log(error))
         return { ...todo, starred: newStarred }
