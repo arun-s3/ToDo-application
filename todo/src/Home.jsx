@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from "react"
 import "./Home.css"
 
-import { api } from "./api/apiInstance"
+import { api } from "./api/axiosInstance"
 import { toast } from 'sonner'
 import {Trash2, Edit2, CheckCircle2, Circle, ChevronDown, ChevronUp, Flag, Calendar, Tag, Star, Search, Plus,
   ClipboardList, SquareCheck, Clock, Zap
 } from "lucide-react"
+import {BsPencilSquare } from 'react-icons/bs'     
 
 import Create from "./Create"
+import EditableField from "./EditableFIeld"
 
 
 function Home({ activeTab = "all" }) {
@@ -138,9 +140,8 @@ function Home({ activeTab = "all" }) {
         setTodo(newTodos)
     }
 
-    const initiateEditing = (id) => {
-        setEditingId(id)
-        titleRef.current?.focus()
+    const initiateTaskEditing = (id) => {
+
     }
 
     const handleEditTitle = (e, currentTodo)=> {
@@ -164,7 +165,7 @@ function Home({ activeTab = "all" }) {
                     toast.error(error.response.data.message)
                     console.log("Error---->", error.response.data.message)
              })
-        descRef.current.focus()
+        setEditingId(null)
     }
   
     const handleEditDescription = (e, currentTodo)=> {
@@ -292,142 +293,196 @@ function Home({ activeTab = "all" }) {
     const taskColor = getPriorityColor(todo.priority)
 
     return (
-      <div
-        className="task"
-        key={todo._id}
-        style={{
-          animationDelay: `${index * 0.1}s`,
-          borderTopColor: taskColor,
-        }}
-        onMouseLeave={() => {
-          if (editingId) {
-            setEditingId(null)
-          }
-        }}
-      >
-        <div className="task-header">
-          <button
-            className={`star-button ${todo.starred ? "starred" : ""}`}
-            onClick={() => handleToggleStar(todo._id)}
-            title="Star this task"
-          >
-            <Star size={20} fill={todo.starred ? "currentColor" : "none"} />
-          </button>
-        </div>
-
-        <div className="task-top">
-          <div className="checkbox">
-            {todo.done ? (
-              <CheckCircle2 className="check-icon" onClick={(e) => toggleDoneHandler(e, todo)} size={20} />
-            ) : (
-              <Circle className="check-icon" onClick={(e) => toggleDoneHandler(e, todo)} size={20} />
-            )}
-            <div className={`field ${editingId === todo._id ? "editing" : ""}`}>
-              <input
-                type="text"
-                disabled={editingId !== todo._id}
-                className={todo.done ? "crossed todo" : "todo"}
-                defaultValue={todo.title}
-                ref={titleRef}
-                onBlur={(e) => handleEditTitle(e, todo)}
-              />
+        <div
+            className="task"
+            key={todo._id}
+            style={{
+                animationDelay: `${index * 0.1}s`,
+                borderTopColor: taskColor,
+            }}
+        >
+            <div className="task-header">
+                <button
+                    className={`star-button ${todo.starred ? "starred" : ""}`}
+                    onClick={() => handleToggleStar(todo._id)}
+                    title="Star this task"
+                >
+                    <Star
+                        size={20}
+                        fill={todo.starred ? "currentColor" : "none"}
+                    />
+                </button>
             </div>
-          </div>
-          <div className="task-actions">
-            <Trash2 className="trash" size={18} onClick={() => handleTrash(todo._id)} />
-          </div>
-        </div>
 
-        {todo.desc && (
-          <div className={`field ${editingId === todo._id ? "editing" : ""}`}>
-            <textarea
-              className="description"
-              defaultValue={todo.desc}
-              ref={descRef}
-              disabled={editingId !== todo._id}
-              placeholder={editingId === todo._id && !todo.desc ? "Write Description (Optional)" : ""}
-              onBlur={(e) => handleEditDescription(e, todo)}
-            />
-          </div>
-        )}
-
-        <div className="task-metadata">
-          {todo.deadline && (
-            <div className="metadata-item deadline-badge">
-              <Calendar size={14} />
-              <span>{showDate(new Date(todo.deadline))}</span>
-            </div>
-          )}
-          {todo.priority && (
-            <div className="metadata-item priority-badge" style={{ borderColor: taskColor }}>
-              <Flag size={14} fill={taskColor} color={taskColor} />
-              <span>{todo.priority}</span>
-            </div>
-          )}
-          {todo.tags && todo.tags.length > 0 && (
-            <div className="metadata-item tags-badge">
-              <Tag size={14} />
-              <span>{todo.tags.length}</span>
-            </div>
-          )}
-        </div>
-
-        {todo.checklist && todo.checklist.length > 0 && (
-          <div className="progress-section">
-            <div className="progress-header">
-              <span className="progress-label">Progress</span>
-              <span className="progress-text">{progress}%</span>
-            </div>
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${progress}%` }} />
-            </div>
-          </div>
-        )}
-
-        {todo.checklist && todo.checklist.length > 0 && (
-          <div className="checklist-section">
-            <button
-              className="checklist-toggle"
-              onClick={() => setExpandedChecklistId(expandedChecklistId === todo._id ? null : todo._id)}
-            >
-              <span className="checklist-count">
-                {todo.checklist.filter((i) => i.completed).length}/{todo.checklist.length} completed
-              </span>
-              {expandedChecklistId === todo._id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-            </button>
-
-            {expandedChecklistId === todo._id && (
-              <div className="checklist-items-list">
-                {todo.checklist.map((item, idx) => (
-                  <div key={idx} className="checklist-item-row">
-                    <button
-                      className={`checklist-checkbox ${item.completed ? "checked" : ""}`}
-                      onClick={() => toggleChecklistItem(todo._id, idx)}
+            <div className="task-top">
+                <div className="checkbox">
+                    {todo.done ? (
+                        <CheckCircle2
+                            className="check-icon"
+                            onClick={(e) => toggleDoneHandler(e, todo)}
+                            size={20}
+                        />
+                    ) : (
+                        <Circle
+                            className="check-icon"
+                            onClick={(e) => toggleDoneHandler(e, todo)}
+                            size={20}
+                        />
+                    )}
+                    <div
+                        className={`field ${
+                            editingId === todo._id ? "editing" : ""
+                        }`}
                     >
-                      {item.completed && <span>✓</span>}
-                    </button>
-                    <span className={`checklist-text ${item.completed ? "completed" : ""}`}>{item.text}</span>
-                  </div>
-                ))}
-              </div>
+                        <EditableField
+                            value={todo.title}
+                            disabled={editingId !== todo._id}
+                            className={`todo-input ${todo.done && "crossed"}`}
+                            onStartEdit={() => setEditingId(todo._id)}
+                            onStopEdit={() => setEditingId(null)}
+                            onBlur={(e) => handleEditTitle(e, todo)}
+                        />
+                    </div>
+                </div>
+                <div className="task-actions">
+                    <Trash2
+                        className="trash"
+                        size={18}
+                        onClick={() => handleTrash(todo._id)}
+                    />
+                </div>
+            </div>
+
+            {todo.desc && (
+                <div
+                    className={`field ${
+                        editingId === todo._id ? "editing" : ""
+                    }`}
+                >
+                    <EditableField
+                        value={todo.desc}
+                        disabled={editingId !== todo._id}
+                        className="description"
+                        placeholder={
+                            editingId === todo._id && !todo.desc
+                                ? "Write Description (Optional)"
+                                : ""
+                        }
+                        onStartEdit={() => setEditingId(todo._id)}
+                        onStopEdit={() => setEditingId(null)}
+                        onBlur={(e) => handleEditDescription(e, todo)}
+                    />
+                </div>
             )}
-          </div>
-        )}
 
-        {todo.tags && todo.tags.length > 0 && (
-          <div className="tags-display">
-            {todo.tags.map((tag, idx) => (
-              <span key={idx} className="tag-chip">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+            <div className="task-metadata">
+                {todo.deadline && (
+                    <div className="metadata-item deadline-badge">
+                        <Calendar size={14} />
+                        <span>{showDate(new Date(todo.deadline))}</span>
+                    </div>
+                )}
+                {todo.priority && (
+                    <div
+                        className="metadata-item priority-badge"
+                        style={{ borderColor: taskColor }}
+                    >
+                        <Flag size={14} fill={taskColor} color={taskColor} />
+                        <span>{todo.priority}</span>
+                    </div>
+                )}
+                {todo.tags && todo.tags.length > 0 && (
+                    <div className="metadata-item tags-badge">
+                        <Tag size={14} />
+                        <span>{todo.tags.length}</span>
+                    </div>
+                )}
+            </div>
 
-        <div className="task-bottom">
-          <Edit2 className="editor" size={18} onClick={() => initiateEditing(todo._id)} />
+            {todo.checklist && todo.checklist.length > 0 && (
+                <div className="progress-section">
+                    <div className="progress-header">
+                        <span className="progress-label">Progress</span>
+                        <span className="progress-text">{progress}%</span>
+                    </div>
+                    <div className="progress-bar">
+                        <div
+                            className="progress-fill"
+                            style={{ width: `${progress}%` }}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {todo.checklist && todo.checklist.length > 0 && (
+                <div className="checklist-section">
+                    <button
+                        className="checklist-toggle"
+                        onClick={() =>
+                            setExpandedChecklistId(
+                                expandedChecklistId === todo._id
+                                    ? null
+                                    : todo._id
+                            )
+                        }
+                    >
+                        <span className="checklist-count">
+                            {todo.checklist.filter((i) => i.completed).length}/
+                            {todo.checklist.length} completed
+                        </span>
+                        {expandedChecklistId === todo._id ? (
+                            <ChevronUp size={18} />
+                        ) : (
+                            <ChevronDown size={18} />
+                        )}
+                    </button>
+
+                    {expandedChecklistId === todo._id && (
+                        <div className="checklist-items-list">
+                            {todo.checklist.map((item, idx) => (
+                                <div key={idx} className="checklist-item-row">
+                                    <button
+                                        className={`checklist-checkbox ${
+                                            item.completed ? "checked" : ""
+                                        }`}
+                                        onClick={() =>
+                                            toggleChecklistItem(todo._id, idx)
+                                        }
+                                    >
+                                        {item.completed && <span>✓</span>}
+                                    </button>
+                                    <span
+                                        className={`checklist-text ${
+                                            item.completed ? "completed" : ""
+                                        }`}
+                                    >
+                                        {item.text}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {todo.tags && todo.tags.length > 0 && (
+                <div className="tags-display">
+                    {todo.tags.map((tag, idx) => (
+                        <span key={idx} className="tag-chip">
+                            {tag}
+                        </span>
+                    ))}
+                </div>
+            )}
+
+            <div className="task-bottom">
+                <BsPencilSquare
+                    className="full-editor"
+                    size={15}
+                    onClick={() => initiateTaskEditing(todo._id)}
+                />
+            </div>
         </div>
-      </div>
     )
   }
 

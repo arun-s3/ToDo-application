@@ -10,6 +10,8 @@ const createTodo = async (req, res, next) => {
 
         const { isGuest, userId, guestId } = getUserIdentity(req)
 
+        console.log("req.body.task --->", JSON.stringify(req.body.task))
+
         const {
           title,
           desc,

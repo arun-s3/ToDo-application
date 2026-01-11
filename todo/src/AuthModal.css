@@ -1,13 +1,7 @@
 .auth-backdrop {
-  /* min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center; */
-  /* background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a); */
-  /* padding: 1rem; */
 
   position: fixed;
-  inset: 0; /* top, right, bottom, left = 0 */
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
@@ -100,7 +94,7 @@ label {
   color: #94a3b8;
 }
 
-input {
+.auth-body .input-wrapper input {
   width: 100%;
   padding: 0.75rem 2.75rem 0.75rem 2.5rem;
   border-radius: 0.5rem;

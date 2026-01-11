@@ -30,7 +30,6 @@ export default function ZenTaskPage() {
       <div className={`app-container ${isDarkMode ? "dark" : ""}`}>
           <Sidebar currentView={currentView} onViewChange={setCurrentView} />
 
-          {/* Top Navbar with theme toggle and sign-in */}
           <nav className={`top-navbar ${isDarkMode ? "dark" : ""}`}>
               <div className="navbar-spacer" />
               <div className="navbar-actions-right">
@@ -58,7 +57,6 @@ export default function ZenTaskPage() {
               </div>
           </nav>
 
-          {/* Main Content Area */}
           <main className={`app-main ${isDarkMode ? "dark" : ""}`}>
               {isHomeView && <Home activeTab={currentView} />}
               {isDashboardView && <p> Dashboard </p>}

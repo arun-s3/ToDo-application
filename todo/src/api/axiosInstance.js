@@ -7,6 +7,8 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
     const guestId = localStorage.getItem("guestId")
+
+    console.log("guestId from axiosInstance---->", guestId)
     
     if (guestId) {
       config.headers["x-guest-id"] = guestId

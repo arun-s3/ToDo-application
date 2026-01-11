@@ -26,15 +26,16 @@ function Create({ onsubmit, isModalOpen, onModalClose }) {
   const titleRef = useRef(null)
   const descriptionRef = useRef(null)
 
-  const API_URL = process.env.REACT_APP_API_URL;
-
   const handleSubmit = () => {
     if (!task.title.trim()) {
       alert("Please enter a task title")
       return
     }
-    api.post(`tasks/delete/add`, {task})
-        .then(result=> console.log(result))
+    api.post(`tasks/add`, {task})
+        .then(result=> {
+            console.log(result)
+            onsubmit()
+        })
         .catch(error=> {
                toast.error(error.response.data.message)
                console.log("Error---->", error.response.data.message)

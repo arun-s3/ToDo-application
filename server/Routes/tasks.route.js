@@ -6,7 +6,7 @@ const {createTodo, migrateGuestTodos, getAllTodos, updateTodoStatus, updateTodoC
     deleteTodo} = require("../Controllers/tasks.controller")
 
 
-taskRouter.post("/", createTodo)
+taskRouter.post("/add", isLogin, createTodo)
 taskRouter.get("/", getAllTodos)
 taskRouter.put("/update/:id", updateTodoContent)
 taskRouter.patch("/done/:id", updateTodoStatus)

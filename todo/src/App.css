@@ -1,4 +1,3 @@
-/* Global Styles */
 * {
   margin: 0;
   padding: 0;
@@ -25,7 +24,6 @@ body {
   color: #999;
 }
 
-/* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -44,7 +42,6 @@ body {
   background: #1e5fa8;
 }
 
-/* Typography */
 h1,
 h2,
 h3,
@@ -60,7 +57,6 @@ p {
   color: #666;
 }
 
-/* Button Resets */
 button {
   font-family: inherit;
 }
@@ -71,7 +67,6 @@ select {
   font-family: inherit;
 }
 
-/* General animations and transitions */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -124,7 +119,6 @@ select {
   }
 }
 
-/* Layout Containers */
 .container {
   width: 100%;
   max-width: 1200px;
@@ -132,7 +126,6 @@ select {
   padding: 0 1rem;
 }
 
-/* Responsive Typography */
 @media (max-width: 768px) {
   h1 {
     font-size: 1.8rem;
@@ -151,7 +144,6 @@ select {
   }
 }
 
-/* Utility classes for animations */
 .fade-in {
   animation: fadeIn 0.3s ease-out;
 }
@@ -172,7 +164,6 @@ select {
   animation: pulseGlow 2s infinite;
 }
 
-/* Focus States */
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
@@ -181,7 +172,6 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-/* Smooth transitions for all interactive elements */
 button,
 input,
 textarea,
@@ -190,7 +180,6 @@ a {
   transition: all 0.2s ease;
 }
 
-/* Print styles */
 @media print {
   body {
     background: white;
@@ -201,7 +190,6 @@ a {
   }
 }
 
-/* Accessibility */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -214,7 +202,6 @@ a {
   border-width: 0;
 }
 
-/* Loading animation */
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -231,7 +218,6 @@ a {
   animation: spin 0.8s linear infinite;
 }
 
-/* Responsive Grid */
 .responsive-grid {
   display: grid;
   gap: 1.5rem;
@@ -244,7 +230,6 @@ a {
   }
 }
 
-/* Shadows */
 .shadow-sm {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
@@ -261,7 +246,6 @@ a {
   box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* Colors */
 .text-primary {
   color: #287fe5;
 }
@@ -298,8 +282,6 @@ a {
   display: grid;
   gap: 2.5rem;
   width: 100%;
-  /* margin-top: 10px;
-    margin-left: 5rem; */
   margin: 1rem auto;
   padding: 0 4rem;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -307,28 +289,7 @@ a {
 .all-tasks h2 {
   animation: emptyPulse 1.5s ease-in-out infinite alternate;
 }
-.task {
-  width: 100%;
-  max-width: 345px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  width: 345px;
-  background-color: #fff;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 7px;
-  border-top: 3px solid #ffc470;
-  box-shadow: 1px 1px 6px #296de0;
-  opacity: 0;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  animation: taskReveal 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-  will-change: transform, opacity;
-}
-.task:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 25px rgba(41, 109, 224, 0.25);
-}
+
 .task .task-top {
   display: flex;
   align-items: center;
@@ -360,23 +321,15 @@ a {
 .field.editing::after {
   transform: scaleX(1);
 }
-/* .field input,
-.field textarea {
-    width: 100%;
-    border: none;
-    border-bottom: 1px solid rgba(221, 87, 70, 0.3);
-    outline: none;
-    background: transparent;
-} */
 
 .task .task-bottom {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: flex-start;
 }
 .task .task-bottom .editor {
   font-size: 14px;
-  color: #dd5746;
+  color: #6e7a8e;
   cursor: pointer;
 }
 .task .date {
@@ -404,16 +357,7 @@ a {
   outline: none;
   transition: color 0.25s ease, text-decoration-color 0.25s ease, opacity 0.25s ease;
 }
-.checkbox .check-icon {
-  margin-right: 5px;
-  font-size: 15px;
-  color: #296de0;
-  cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease;
-}
-.checkbox .check-icon:active {
-  transform: scale(1.25);
-}
+
 .task div span {
   margin: 0px 5px 0px 4px;
 }
@@ -428,8 +372,7 @@ a {
   font-size: 14px;
   cursor: pointer;
 }
-.task .trash,
-.task .editor {
+.task .trash {
   transition: transform 0.2s ease, color 0.2s ease;
 }
 .task .trash:hover {
@@ -505,7 +448,6 @@ a {
   }
 }
 
-/* App Navigation & Layout */
 .app-container {
   width: 100%;
   min-height: 100vh;
@@ -516,7 +458,6 @@ a {
   flex-direction: column;
 }
 
-/* New top navbar styling with sign-in button */
 .top-navbar {
   position: fixed;
   top: 0;
@@ -564,7 +505,6 @@ a {
   transform: scale(0.95);
 }
 
-/* Sign-in button with modern styling */
 .sign-in-btn {
   display: flex;
   align-items: center;
@@ -613,7 +553,6 @@ a {
   box-shadow: 0 6px 20px rgb(186, 101, 101);
 }
 
-/* Main app content area with sidebar offset */
 .app-main {
   flex: 1;
   margin-left: 260px;
@@ -633,7 +572,6 @@ a {
   }
 }
 
-/* Responsive sidebar offset adjustments */
 @media (max-width: 768px) {
   .app-main {
     margin-left: 240px;
@@ -684,7 +622,6 @@ a {
 
 }
 
-/* Responsive navbar */
 @media (max-width: 768px) {
   .app-navbar {
     padding: 0 1rem;

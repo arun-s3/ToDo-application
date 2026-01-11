@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
 
-import { api } from "./api/apiInstance"
+import { api } from "../api/axiosInstance"
 import { toast } from 'sonner'
 
 const AuthContext = createContext()
@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
     }
     catch {
       setUser(null)
+      loadUserAsGuest()
     }
     finally {
       setAuthLoading(false)
@@ -52,7 +53,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     console.log("User in AuthContext--->", user)
-  }, [user])
+    console.log("isGuest in AuthContext--->", isGuest)
+    console.log("guestId in AuthContext--->", guestId)
+  }, [user, isGuest, guestId])
 
   const migrateGuest = async()=> {
     await api.post(`/tasks/migrate-guest`, { guestId: localStorage.getItem("guestId") });
