@@ -67,8 +67,16 @@ export default function ZenTaskPage() {
           </nav>
 
           <main className={`app-main ${isDarkMode ? "dark" : ""}`}>
-              {isHomeView && <Home activeTab={currentView} />}
-              {isDashboardView && <p> Dashboard </p>}
+              {
+                isHomeView && 
+
+                    <Home activeTab={currentView} />
+              }
+              {
+                isDashboardView && 
+                
+                    <p> Dashboard </p>
+              }
           </main>
 
           {openSignInModal && !user && (

@@ -94,17 +94,114 @@ const migrateGuestTodos = async (req, res, next) => {
 }
 
 
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const getAllTodos = async (req, res, next) => {
     try {
-        console.log("Inside getAllTodos controller")
+        console.log("Getting all tasks..")
 
-        const todos = await Todo.find().sort({ createdAt: -1 })
-        
-        console.log("todos--->", JSON.stringify(todos))
+        const { isGuest, userId, guestId } = getUserIdentity(req)
 
-        return res.status(200).json({success: true, count: todos.length, todos});
-    }
-    catch (error) {
+        const {
+            type = "all",
+            sortBy = "created",
+            sort = -1,
+            search = "",
+            page = 1,
+            limit = 5,
+        } = req.body.taskQueryOptions || {}
+
+        const query = {}
+
+        if (isGuest) {
+            query.isGuest = true
+            query.guestId = guestId
+        } else {
+            query.isGuest = false
+            query.userId = userId
+        }
+
+        const todayStart = new Date()
+        todayStart.setHours(0, 0, 0, 0)
+
+        const todayEnd = new Date()
+        todayEnd.setHours(23, 59, 59, 999)
+
+        switch (type) {
+            case "pending":
+                query.done = false
+                break
+            case "completed":
+                query.done = true
+                break
+            case "dueToday":
+                query.deadline = { $gte: todayStart, $lte: todayEnd }
+                break
+            case "highPriority":
+                query.priority = "high"
+                break
+            case "all":
+            default:
+                break
+        }
+
+        if (search && search.trim()) {
+            const regex = new RegExp(search, "i")
+            query.$or = [{ title: regex }, { desc: regex }, { tags: regex }]
+        }
+
+        const sortMap = {
+            priority: "priorityRank",
+            starred: "starred",
+            deadline: "deadline",
+            created: "createdAt",
+        }
+
+        const sortField = sortMap[sortBy] || "createdAt"
+
+        const sortObj = {
+            [sortField]: sort,
+            _id: -1,
+        }
+
+        const skip = (page - 1) * limit
+
+        const total = await Todo.countDocuments(query)
+
+        const todos = await Todo.find(query).sort(sortObj).skip(skip).limit(limit)
+
+        res.status(200).json({
+            success: true,
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+            hasNext: page * limit < total,
+            hasPrev: page > 1,
+            todos,
+        })
+    } catch (error) {
         console.error("Error fetching todos:", error.message)
         next(error)
     }

@@ -53,6 +53,10 @@ const todoSchema = mongoose.Schema({
         enum: ["low", "medium", "high"],
         default: "medium",
     },
+    priorityRank: {
+      type: Number,
+      default: 2
+    },
     deadline: {
         type: Date,
         default: null,
@@ -77,6 +81,10 @@ const todoSchema = mongoose.Schema({
 
 todoSchema.pre("save", function (next) {
     this.updatedAt = Date.now();
+
+    this.priorityRank = this.priority === "high" ? 3 : this.priority === "medium" ? 2 : 1
+    this.updatedAt = Date.now()
+
     next();
 });
 

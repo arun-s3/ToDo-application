@@ -7,12 +7,12 @@ const {createTodo, migrateGuestTodos, getAllTodos, updateTodoStatus, updateTodoC
 
 
 taskRouter.post("/add", isLogin, createTodo)
-taskRouter.get("/", getAllTodos)
+taskRouter.post("/", isLogin, getAllTodos)
 taskRouter.put("/update/:id", isLogin, updateTodoContent) , 
 taskRouter.patch("/:todoId/checklist/:itemId/toggle", isLogin, toggleChecklistItem)
 taskRouter.patch("/:todoId/star/toggle", isLogin, toggleStar)
-taskRouter.patch("/done/:id", updateTodoStatus)
-taskRouter.delete("/delete/:id", deleteTodo)
+taskRouter.patch("/done/:id", isLogin, updateTodoStatus)
+taskRouter.delete("/delete/:id", isLogin, deleteTodo)
 taskRouter.post("/migrate-guest", isLogin, migrateGuestTodos)
 
 

@@ -9,6 +9,7 @@ import CreateTask from "../Modals/CreateTask"
 import TaskCard from "./TaskCard"
 import FilterBar from "./FilterBar"
 import TaskDeleteModal from "../Modals/TaskDeleteModal"
+import Pagination from "./Pagination"
 
 
 export default function Home({ activeTab = "all" }) {
@@ -18,7 +19,8 @@ export default function Home({ activeTab = "all" }) {
 
     const [editingId, setEditingId] = useState({title: false, desc: false, taskId: null})
 
-    const [sortBy, setSortBy] = useState("date-desc")
+    const [sortBy, setSortBy] = useState("created")
+    const [sort, setSort] = useState(-1)
 
     const [searchQuery, setSearchQuery] = useState("")
     const [searchResults, setSearchResults] = useState([])
@@ -31,25 +33,57 @@ export default function Home({ activeTab = "all" }) {
 
     const [updateTask, setUpdateTask] = useState(null)
 
-    const getTasks = () => {
-        api.get('/tasks')
-            .then(result=> {
-                    console.log("result.data--->", result.data.todos)
-                    setTodo(result.data.todos)
-            })
-            .catch((error) => toast.error(error.response.data.message || "Something went wrong. Check your network!"))
-    }
-
-    useEffect(() => {
-        getTasks()
-    }, [])
+    const [currentPage, setCurrentPage] = useState(1)
+    const [limit, setLimit] = useState(5)
+    const [totalTodos, setTotalTodos] = useState(0)
 
     useEffect(() => {
         if (fetchTasks) {
-        getTasks()
-        setFetchTasks(false)
+            getTasks()
         }
-    }, [fetchTasks])
+    }, [fetchTasks]) 
+
+    const getTasks = async (taskQueryOptions) => {
+        try {
+            console.log("Getting tasks with the options--->", taskQueryOptions)
+            const response = await api.post("/tasks", { taskQueryOptions })
+
+            if (response && response?.data?.success) {
+                setTodo(response.data.todos)
+                setTotalTodos(response.data.total)
+            }
+        } catch (error) {
+            console.error("Error while getting tasks:", error)
+
+            if (error.response?.data?.message) {
+                toast.error(error.response.data.message)
+            } else {
+                toast.error("Something went wrong! Please check your network and retry again later.")
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (!activeTab) return
+
+        const activeTabMap = {
+            "today": "dueToday",
+            "high-priority": "highPriority",
+        }
+        const activeTabValue = activeTab === "today" || activeTab === "high-priority" ? activeTabMap[activeTab] : activeTab
+
+        const taskQueryOptions = {
+            type: activeTabValue,
+            page: currentPage,
+            limit,
+            sortBy,
+            sort,
+            search: searchQuery,
+        }
+
+        getTasks(taskQueryOptions)
+    }, [activeTab, currentPage, limit, sortBy, sort, searchQuery])
+
 
     const handleSearch = (query) => {
         setSearchQuery(query)
@@ -245,11 +279,11 @@ export default function Home({ activeTab = "all" }) {
         if(!response) return
 
         const updatedTodos = todos.map((todo) => {
-        if (todo._id === taskId) {
-            const newStarred = !todo.starred
-            return { ...todo, starred: newStarred }
-        }
-        return todo
+            if (todo._id === taskId) {
+                const newStarred = !todo.starred
+                return { ...todo, starred: newStarred }
+            }
+            return todo
         })
         setTodo(updatedTodos) 
     }
@@ -358,37 +392,6 @@ export default function Home({ activeTab = "all" }) {
               </button>
           </div>
 
-          {showSearchResults && (
-              <div className='search-results-container'>
-                  <div className='search-results-header'>
-                      <h3>Search Results</h3>
-                      {searchResults.length > 0 && <span className='result-count'>{searchResults.length} found</span>}
-                  </div>
-                  {searchResults.length === 0 ? (
-                      <div className='no-results'>
-                          <p>No tasks found matching "{searchQuery}"</p>
-                      </div>
-                  ) : (
-                      <div className='search-results-grid'>
-                          {searchResults.map((todo, index) => (
-                              <TaskCard
-                                  todo={todo}
-                                  index={index}
-                                  editingId={editingId}
-                                  setEditingId={setEditingId}
-                                  onToggleStar={handleToggleStar}
-                                  onTaskDone={toggleDoneHandler}
-                                  onEditTitleDesc={handleEditTitleDesc}
-                                  onToggleChecklistItem={toggleChecklistItem}
-                                  onTaskEdit={initiateTaskEditing}
-                                  onDeleteTask={askUserConfirmation}
-                              />
-                          ))}
-                      </div>
-                  )}
-              </div>
-          )}
-
           <CreateTask
               onsubmit={() => setFetchTasks(true)}
               isModalOpen={showModal}
@@ -397,9 +400,16 @@ export default function Home({ activeTab = "all" }) {
               onUpdateSuccess={updateTaskCard}
           />
 
+          {searchQuery && <span className='result-count'>{totalTodos} {`${totalTodos === 1 ? 'Task' : 'Tasks'}`} found</span>}
+
           <FilterBar
               sortOption={sortBy}
-              onSortChange={setSortBy}
+              onSortByChange={setSortBy}
+              sortWay={sort}
+              onSortChange={setSort}
+              itemsPerPage={limit}
+              onItemsPerPageChange={setLimit}
+              onPageChange={setCurrentPage}
           />
 
           <div className='all-tasks'>
@@ -410,6 +420,7 @@ export default function Home({ activeTab = "all" }) {
               ) : (
                   filteredTodos.map((todo, index) => (
                       <TaskCard
+                          key={todo._id}
                           todo={todo}
                           index={index}
                           editingId={editingId}
@@ -424,6 +435,13 @@ export default function Home({ activeTab = "all" }) {
                   ))
               )}
           </div>
+
+          <Pagination
+              currentPage={currentPage}
+              totalItems={totalTodos}
+              itemsPerPage={limit}
+              onPageChange={setCurrentPage}
+          />
 
           <TaskDeleteModal
               isOpen={openTaskDeleteModal.id}

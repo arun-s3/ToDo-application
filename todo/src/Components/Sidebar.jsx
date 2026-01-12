@@ -10,8 +10,8 @@ const Sidebar = ({ currentView, onViewChange }) => {
     { id: "all", label: "All Tasks", icon: ClipboardList },
     { id: "pending", label: "Pending", icon: Clock },
     { id: "completed", label: "Completed", icon: SquareCheck },
-    { id: "today", label: "Due Today", icon: Calendar },
-    { id: "high-priority", label: "High Priority", icon: Zap },
+    { id: "dueToday", label: "Due Today", icon: Calendar },
+    { id: "highPriority", label: "High Priority", icon: Zap },
   ]
 
   return (
