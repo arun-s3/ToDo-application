@@ -141,33 +141,134 @@ const updateTodoStatus = async (req, res, next) => {
 
 const updateTodoContent = async (req, res, next) => {
     try {
-        console.log("Inside updateTodoContent controller")
+        console.log("Inside updateTodoContent")
 
+        const { isGuest, userId, guestId } = getUserIdentity(req)
         const { id } = req.params
-        const { title, desc } = req.body
+        const updates = req.body.task
 
-        if (!title && !desc) {
+        console.log("updates--->", JSON.stringify(updates))
+
+        if (!updates || Object.keys(updates).length === 0) {
             return next(errorHandler(400, "Nothing to update"))
         }
 
-        const updatePayload = {}
-        if (title) updatePayload.title = title
-        if (desc) updatePayload.desc = desc
-
-        const updatedTodo = await Todo.findByIdAndUpdate(
-            id,
-            updatePayload,
-            { new: true, runValidators: true }
-        );
-
-        if (!updatedTodo) {
+        const todo = await Todo.findById(id)
+        if (!todo) {
             return next(errorHandler(404, "Todo not found"))
         }
 
-        return res.status(200).json({success: true, data: updatedTodo});
+        if (todo.isGuest) {
+            if (!isGuest || todo.guestId !== guestId) {
+                return next(
+                    errorHandler(403, "Not authorized to update this todo")
+                )
+            }
+        } else {
+            if (isGuest || todo.userId.toString() !== userId.toString()) {
+                return next(
+                    errorHandler(403, "Not authorized to update this todo")
+                )
+            }
+        }
+
+        const allowedFields = [
+            "title",
+            "desc",
+            "done",
+            "checklist",
+            "priority",
+            "deadline",
+            "tags",
+            "starred",
+        ]
+
+        allowedFields.forEach((field) => {
+            if (updates[field] !== undefined) {
+                todo[field] = updates[field]
+            }
+        })
+
+        const updatedTodo = await todo.save()
+
+        return res.status(200).json({success: true, data: updatedTodo})
     }
     catch (error) {
-        console.error("Error updating todo content:", error.message)
+        console.error("Error updating todo:", error.message)
+        next(error)
+    }
+}
+
+
+const toggleChecklistItem = async (req, res, next) => {
+    try {
+        console.log("Inside toggleChecklistItem")
+
+        const { isGuest, userId, guestId } = getUserIdentity(req)
+        const { todoId, itemId } = req.params
+
+        const todo = await Todo.findById(todoId)
+        if (!todo) {
+            return next(errorHandler(404, "Todo not found"))
+        }
+
+        if (todo.isGuest) {
+            if (!isGuest || todo.guestId !== guestId) {
+                return next(errorHandler(403, "Not authorized"))
+            }
+        } else {
+            if (isGuest || todo.userId.toString() !== userId.toString()) {
+                return next(errorHandler(403, "Not authorized"))
+            }
+        }
+
+        const item = todo.checklist.id(itemId)
+        if (!item) {
+            return next(errorHandler(404, "Checklist item not found"))
+        }
+
+        item.completed = !item.completed
+
+        await todo.save()
+
+        return res.status(200).json({success: true})
+    } 
+    catch (error) {
+        console.error("Checklist toggle error:", error.message)
+        next(error)
+    }
+}
+
+
+const toggleStar = async (req, res, next) => {
+    try {
+        const { todoId } = req.params
+
+        const { isGuest, userId, guestId } = getUserIdentity(req)
+
+        const filter = { _id: todoId }
+
+        if (isGuest) {
+            filter.guestId = guestId
+            filter.isGuest = true
+        } else {
+            filter.userId = userId
+            filter.isGuest = false
+        }
+
+        const todo = await Todo.findOne(filter)
+
+        if (!todo) {
+            return next(errorHandler(404, "Todo not found"))
+        }
+
+        todo.starred = !todo.starred
+        await todo.save()
+
+        res.status(200).json({success: true,  starred: todo.starred})
+    }
+    catch (error) {
+        console.error("Error toggling star:", error.message)
         next(error)
     }
 }
@@ -199,5 +300,5 @@ const deleteTodo = async (req, res, next) => {
 
 
 
-
-module.exports = {createTodo, migrateGuestTodos, getAllTodos, updateTodoStatus, updateTodoContent, deleteTodo};
+module.exports = {createTodo, migrateGuestTodos, getAllTodos, updateTodoStatus, updateTodoContent, toggleChecklistItem, toggleStar,
+     deleteTodo}

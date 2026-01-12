@@ -2,13 +2,15 @@ const express = require("express");
 const taskRouter = express.Router();
 const {isLogin, isLogout} = require('../Middlewares/authentication')
 
-const {createTodo, migrateGuestTodos, getAllTodos, updateTodoStatus, updateTodoContent, 
+const {createTodo, migrateGuestTodos, getAllTodos, updateTodoStatus, updateTodoContent, toggleChecklistItem, toggleStar,
     deleteTodo} = require("../Controllers/tasks.controller")
 
 
 taskRouter.post("/add", isLogin, createTodo)
 taskRouter.get("/", getAllTodos)
-taskRouter.put("/update/:id", updateTodoContent)
+taskRouter.put("/update/:id", isLogin, updateTodoContent) , 
+taskRouter.patch("/:todoId/checklist/:itemId/toggle", isLogin, toggleChecklistItem)
+taskRouter.patch("/:todoId/star/toggle", isLogin, toggleStar)
 taskRouter.patch("/done/:id", updateTodoStatus)
 taskRouter.delete("/delete/:id", deleteTodo)
 taskRouter.post("/migrate-guest", isLogin, migrateGuestTodos)

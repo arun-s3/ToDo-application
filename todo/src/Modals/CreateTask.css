@@ -1,15 +1,4 @@
-.task-creater {
-  display: flex;
-  width: 100%;
-  max-width: 35rem;
-  gap: 0.8rem;
-  align-items: flex-start;
-  justify-content: center;
-  margin: 2rem 0;
-  animation: slideDown 0.5s ease-out;
-}
 
-/* Updated button styling for new modal-based design */
 .btn-add-task-large {
   padding: 12px 24px;
   background-color: #287fe5;
@@ -42,10 +31,9 @@
   flex-shrink: 0;
 }
 
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
-  inset: 0; /* top, right, bottom, left = 0 */
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -156,7 +144,6 @@
   flex-shrink: 0;
 }
 
-/* Added styling for title and description inputs inside modal */
 .title-input,
 .description-input {
   padding: 12px 14px;
@@ -187,7 +174,6 @@
   font-size: 13px;
 }
 
-/* Priority Options */
 .priority-options {
   display: flex;
   gap: 10px;
@@ -218,7 +204,6 @@
   transform: scale(1.05);
 }
 
-/* Deadline Input */
 .deadline-input {
   padding: 10px 12px;
   border: 2px solid #e0e0e0;
@@ -234,7 +219,6 @@
   box-shadow: 0 2px 8px rgba(40, 127, 229, 0.15);
 }
 
-/* Checklist Input */
 .checklist-input-group,
 .tag-input-group {
   display: flex;
@@ -278,7 +262,6 @@
   box-shadow: 0 4px 10px rgba(40, 127, 229, 0.3);
 }
 
-/* Checklist Items */
 .checklist-items {
   display: flex;
   flex-direction: column;
@@ -327,7 +310,6 @@
   transform: rotate(90deg) scale(1.2);
 }
 
-/* Tags List */
 .tags-list {
   display: flex;
   flex-wrap: wrap;
@@ -375,7 +357,6 @@
   transform: scale(1.2);
 }
 
-/* Modal Footer */
 .modal-footer {
   padding: 16px 20px;
   border-top: 1px solid #e0e0e0;
@@ -415,7 +396,6 @@
   box-shadow: 0 6px 16px rgba(40, 127, 229, 0.4);
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .task-creater {
     max-width: 100%;

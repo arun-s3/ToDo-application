@@ -16,12 +16,14 @@ const Sidebar = ({ currentView, onViewChange }) => {
 
   return (
     <div className="sidebar">
+      {/* Top Section */}
       <div className="sidebar-top">
         <div className="sidebar-logo">
           <img src='./ZenTaskLogo.png' alt='ZenTask' />
           <h2> Zen <span> Task </span></h2>
         </div>
 
+        {/* Dashboard */}
         <div className="sidebar-section">
           <div
             className={`sidebar-item ${currentView === "dashboard" ? "active" : ""}`}
@@ -32,6 +34,7 @@ const Sidebar = ({ currentView, onViewChange }) => {
           </div>
         </div>
 
+        {/* Tasks Section */}
         <div className="sidebar-section">
           <h3 className="sidebar-section-title">Tasks</h3>
           <div className="sidebar-items-group">

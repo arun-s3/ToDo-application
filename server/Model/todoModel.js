@@ -14,63 +14,66 @@ const checklistItemSchema = new mongoose.Schema({
 });
 
 const todoSchema = mongoose.Schema({
-
     isGuest: {
         type: Boolean,
-        required: true 
+        required: true,
     },
-    userId:{
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: function () {
-          return this.isGuest === false
-        }
+            return this.isGuest === false
+        },
     },
     guestId: {
         type: String,
         required: function () {
-          return this.isGuest === true
-        }
+            return this.isGuest === true
+        },
     },
     title: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
     },
     desc: {
         type: String,
-        trim: true
+        trim: true,
     },
     done: {
         type: Boolean,
-        default: false
+        default: false,
     },
     checklist: {
         type: [checklistItemSchema],
-        default: []
+        default: [],
     },
     priority: {
         type: String,
         enum: ["low", "medium", "high"],
-        default: "medium"
+        default: "medium",
     },
     deadline: {
         type: Date,
-        default: null
+        default: null,
+    },
+    starred: {
+        type: Boolean,
+        default: false,
     },
     tags: {
         type: [String],
-        default: []
+        default: [],
     },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
     },
     updatedAt: {
         type: Date,
-        default: Date.now
-    }
-});
+        default: Date.now,
+    },
+})
 
 todoSchema.pre("save", function (next) {
     this.updatedAt = Date.now();

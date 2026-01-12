@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import "./AuthModal.css"
 
-import { api } from "./api/axiosInstance"
+import { api } from "../api/axiosInstance"
 import { toast } from 'sonner'
 import {Lock, User, Eye, EyeOff, X, CheckCircle, AlertCircle} from "lucide-react"
 

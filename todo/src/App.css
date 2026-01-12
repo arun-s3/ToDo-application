@@ -480,6 +480,13 @@ a {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.nav-dark{
+    background: linear-gradient(to right, transparent, #efefef 100%);
+    backdrop-filter: blur(35px);
 }
 
 .theme-toggle {
