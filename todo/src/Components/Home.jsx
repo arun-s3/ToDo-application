@@ -9,10 +9,16 @@ import CreateTask from "../Modals/CreateTask"
 import TaskCard from "./TaskCard"
 import FilterBar from "./FilterBar"
 import TaskDeleteModal from "../Modals/TaskDeleteModal"
+import GuestModeModal from "../Modals/GuestModeModal"
+import HeroSection from "./HeroSection"
 import Pagination from "./Pagination"
 
+import { useAuth } from "../Context/AuthContext"
+import { shouldShowGuestSignupModal } from '../Utils/GuestPrompt'
+import { dummyTask } from "../data/dummyTask"
 
-export default function Home({ activeTab = "all" }) {
+
+export default function Home({ activeTab = "all", openAuthModal }) {
 
     const [todos, setTodo] = useState([])
     const [fetchTasks, setFetchTasks] = useState(false)
@@ -24,7 +30,6 @@ export default function Home({ activeTab = "all" }) {
 
     const [searchQuery, setSearchQuery] = useState("")
     const [searchResults, setSearchResults] = useState([])
-    const [showSearchResults, setShowSearchResults] = useState(false)
 
     const [showModal, setShowModal] = useState(false)
 
@@ -37,11 +42,61 @@ export default function Home({ activeTab = "all" }) {
     const [limit, setLimit] = useState(5)
     const [totalTodos, setTotalTodos] = useState(0)
 
+    const [openGuestModeModal, setOpenGuestModeModal] = useState(false)
+
+    const { isGuest, user } = useAuth()
+
     useEffect(() => {
         if (fetchTasks) {
             getTasks()
+            setFetchTasks(false)
         }
     }, [fetchTasks]) 
+
+    useEffect(() => {
+        setFetchTasks(true)
+    }, [isGuest, user]) 
+
+    const addDummyTask = ()=> {
+        api.post(`tasks/add`, { task: dummyTask })
+            .then((response) => {
+                if (response.data.data.isDemo && isGuest) {
+                    const hasGuestSeen = localStorage.getItem("hasSeenDemoTask") === "true"
+                    if (!hasGuestSeen) {
+                        localStorage.setItem("hasSeenDemoTask", "true")
+                    }
+                }
+                console.log(response)
+                setFetchTasks(true)
+            })
+            .catch((error) => {
+                console.log("Error---->", error.response.data.message)
+            })
+    }
+
+    useEffect(() => {
+        if (!isGuest) return
+
+        const hasSeen = localStorage.getItem("hasSeenDemoTask") === "true"
+
+        const alreadyInjected = todos.some((todo) => todo.isDemo)
+
+        if (!hasSeen && !alreadyInjected && todos.length === 0) {
+            addDummyTask()
+        }
+    }, [isGuest, todos])
+
+    useEffect(() => {
+        if (isGuest) return
+        if (!user) return
+
+        const alreadyInjected = todos.some((todo) => todo.isDemo)
+
+        if (!user.hasSeenDemoTask && !alreadyInjected && todos.length === 0) {
+            addDummyTask()
+        }
+    }, [user, todos])
+
 
     const getTasks = async (taskQueryOptions) => {
         try {
@@ -84,11 +139,19 @@ export default function Home({ activeTab = "all" }) {
         getTasks(taskQueryOptions)
     }, [activeTab, currentPage, limit, sortBy, sort, searchQuery])
 
+    const createNewTask = ()=> {
+        if (isGuest && shouldShowGuestSignupModal()) {
+            setOpenGuestModeModal(true) 
+            localStorage.setItem("guestSignupPromptLastShown", Date.now())
+            return
+        }
+        setShowModal(true)
+    }
+
 
     const handleSearch = (query) => {
         setSearchQuery(query)
         if (query.trim() === "") {
-            setShowSearchResults(false)
             setSearchResults([])
             return
         }
@@ -101,7 +164,6 @@ export default function Home({ activeTab = "all" }) {
         )
 
         setSearchResults(sortTasks(filtered))
-        setShowSearchResults(true)
     }
 
     const getFilteredTasks = () => {
@@ -131,7 +193,7 @@ export default function Home({ activeTab = "all" }) {
                 filtered = todos
         }
 
-        return sortTasks(filtered)
+        return todos
     }
 
     const toggleDoneHandler = (e, currentTodo) => {
@@ -386,7 +448,7 @@ export default function Home({ activeTab = "all" }) {
                   </div>
               </div>
 
-              <button className='add-task-btn' onClick={() => setShowModal(true)} title='Create a new task'>
+              <button className='add-task-btn' onClick={() => createNewTask()} title='Create a new task'>
                   <Plus size={20} />
                   <span>Add Task</span>
               </button>
@@ -400,55 +462,95 @@ export default function Home({ activeTab = "all" }) {
               onUpdateSuccess={updateTaskCard}
           />
 
-          {searchQuery && <span className='result-count'>{totalTodos} {`${totalTodos === 1 ? 'Task' : 'Tasks'}`} found</span>}
+          {searchQuery && (
+              <span className='result-count'>
+                  {totalTodos} {`${totalTodos === 1 ? "Task" : "Tasks"}`} found
+              </span>
+          )}
 
-          <FilterBar
-              sortOption={sortBy}
-              onSortByChange={setSortBy}
-              sortWay={sort}
-              onSortChange={setSort}
-              itemsPerPage={limit}
-              onItemsPerPageChange={setLimit}
-              onPageChange={setCurrentPage}
-          />
+          {filteredTodos.length === 6 && (
+              <FilterBar
+                  sortOption={sortBy}
+                  onSortByChange={setSortBy}
+                  sortWay={sort}
+                  onSortChange={setSort}
+                  itemsPerPage={limit}
+                  onItemsPerPageChange={setLimit}
+                  onPageChange={setCurrentPage}
+              />
+          )}
 
-          <div className='all-tasks'>
-              {filteredTodos.length === 0 ? (
+          <div 
+            className='all-tasks'
+            style={
+                filteredTodos.length === 0 || (filteredTodos.length === 1 && filteredTodos[0].isDemo) 
+                    ? {display: "inline-block"} 
+                    : {}
+            }
+          >
+
+            {
+                filteredTodos.length === 0 || (filteredTodos.length === 1 && filteredTodos[0].isDemo) &&
+                
+                    <HeroSection onCreateTask={createNewTask} />
+            }
+            
+
+            {filteredTodos.length === 0 ? (
+
                   <div className='empty-state'>
                       <h2>No tasks in this category</h2>
                   </div>
-              ) : (
-                  filteredTodos.map((todo, index) => (
-                      <TaskCard
-                          key={todo._id}
-                          todo={todo}
-                          index={index}
-                          editingId={editingId}
-                          setEditingId={setEditingId}
-                          onToggleStar={handleToggleStar}
-                          onTaskDone={toggleDoneHandler}
-                          onEditTitleDesc={handleEditTitleDesc}
-                          onToggleChecklistItem={toggleChecklistItem}
-                          onTaskEdit={initiateTaskEditing}
-                          onDeleteTask={askUserConfirmation}
-                      />
-                  ))
-              )}
+
+            ) : (
+                filteredTodos.map((todo, index) => (
+                    <TaskCard
+                        key={todo._id}
+                        todo={todo}
+                        index={index}
+                        editingId={editingId}
+                        setEditingId={setEditingId}
+                        onToggleStar={handleToggleStar}
+                        onTaskDone={toggleDoneHandler}
+                        onEditTitleDesc={handleEditTitleDesc}
+                        onToggleChecklistItem={toggleChecklistItem}
+                        onTaskEdit={initiateTaskEditing}
+                        onDeleteTask={askUserConfirmation}
+                    />
+                ))
+            )}
           </div>
 
-          <Pagination
-              currentPage={currentPage}
-              totalItems={totalTodos}
-              itemsPerPage={limit}
-              onPageChange={setCurrentPage}
-          />
+          {filteredTodos.length === 6 && (
+              <Pagination
+                  currentPage={currentPage}
+                  totalItems={totalTodos}
+                  itemsPerPage={limit}
+                  onPageChange={setCurrentPage}
+              />
+          )}
 
           <TaskDeleteModal
               isOpen={openTaskDeleteModal.id}
               taskName={openTaskDeleteModal.title}
-              onConfirm={() => handleTrash(openTaskDeleteModal.id)}
+              onConfirm={() => {
+                handleTrash(openTaskDeleteModal.id)
+                setOpenTaskDeleteModal({ id: null, title: null })
+              }}
               onCancel={() => setOpenTaskDeleteModal({ id: null, title: null })}
               isLoading={isDeleting}
+          />
+
+          <GuestModeModal
+              isOpen={openGuestModeModal}
+              onCancel={() => {
+                setOpenGuestModeModal(false)
+                setShowModal(true)
+              }}
+              onSignup={() => {
+                  setOpenGuestModeModal(false)
+                  openAuthModal()
+              }}
           />
       </div>
   )

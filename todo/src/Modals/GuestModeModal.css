@@ -1,61 +1,83 @@
-.auth-overlay {
+.guest-auth-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(6px);
+  inset: 0; 
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: 9999;
 }
 
-.auth-wrapper {
+.guest-auth-wrapper {
   width: 100%;
   max-width: 420px;
-  margin: 0 16px;
 }
 
-.auth-card {
+.guest-auth-card {
   background: #fff;
   border-radius: 1rem;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
 
-.auth-header {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+.guest-auth-header {
+  position: relative;
   padding: 2rem 2rem 1.5rem;
   text-align: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  overflow: hidden;
 }
 
-.auth-icon-wrapper {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(6px);
+.guest-auth-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(37, 99, 235, 0.75), rgba(30, 64, 175, 0.85));
+}
+
+.guest-auth-header > * {
+  position: relative;
+  z-index: 2;
+}
+
+.guest-auth-icon-wrapper {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
   padding: 0.75rem;
   border-radius: 0.75rem;
   display: inline-flex;
   margin-bottom: 1rem;
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
-.auth-icon {
+
+.guest-auth-icon {
   width: 24px;
   height: 24px;
   color: #fff;
 }
 
-.auth-title {
+.guest-auth-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #fff;
   margin-bottom: 0.5rem;
 }
 
-.auth-subtitle {
+.guest-auth-subtitle {
   font-size: 0.875rem;
   color: #dbeafe;
 }
 
-.auth-content {
+.guest-auth-content {
   padding: 2rem;
 }
 
@@ -101,7 +123,7 @@
   background: #e5e7eb;
 }
 
-.auth-divider {
+.guest-auth-divider {
   text-align: center;
   font-size: 0.875rem;
   font-weight: 500;
@@ -114,7 +136,7 @@
   height: 20px;
 }
 
-.auth-warning {
+.guest-auth-warning {
   background: #fffbeb;
   border: 1px solid #fde68a;
   border-radius: 0.5rem;
@@ -132,23 +154,24 @@
   flex-shrink: 0;
 }
 
-.auth-warning p {
-  font-size: 0.875rem;
+.guest-auth-warning p {
+  font-size: 12px;
   color: #92400e;
 }
 
-.auth-footer {
+.guest-auth-footer {
   font-size: 0.75rem;
   text-align: center;
   color: #6b7280;
 }
 
-.auth-footer a {
+.guest-auth-footer a {
   color: #2563eb;
   font-weight: 600;
   text-decoration: none;
+  margin-inline: 2px;
 }
 
-.auth-footer a:hover {
+.guest-auth-footer a:hover {
   color: #1d4ed8;
 }

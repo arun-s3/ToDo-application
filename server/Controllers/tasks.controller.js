@@ -1,4 +1,5 @@
 const Todo = require("../Model/todoModel")
+const User = require("../Model/userModel")
 const getUserIdentity = require("../Utils/userIdentity")
 
 const {errorHandler} = require("../Middlewares/errorHandler")
@@ -20,6 +21,7 @@ const createTodo = async (req, res, next) => {
           deadline = null,
           tags = [],
           starred = false,
+          isDemo = false
         } = req.body.task
 
         if (!title || !title.trim()) {
@@ -35,6 +37,7 @@ const createTodo = async (req, res, next) => {
           deadline,
           tags,
           starred,
+          isDemo
         }
 
         if (isGuest){
@@ -44,6 +47,24 @@ const createTodo = async (req, res, next) => {
         }
 
         const todo = await Todo.create(todoData)
+
+        if (!isDemo) {
+            if (isGuest) {
+              await Todo.deleteMany({isGuest: true, guestId, isDemo: true})
+            }else {
+              await User.updateOne({ _id: userId }, { hasSeenDemoTask: true})
+          
+              await Todo.deleteMany({isGuest: false, userId, isDemo: true})
+            }
+        }else{
+            const existingDemo = await Todo.findOne({
+                isDemo: true,
+                ...(isGuest ? { guestId } : { userId }),
+            }) 
+            if (existingDemo) {
+                return res.status(200).json({ success: true, data: existingDemo, message: "Demo already exists"})
+            }
+        }
 
         return res.status(201).json({success: true, data: todo})
     }
@@ -58,11 +79,15 @@ const migrateGuestTodos = async (req, res, next) => {
     try {
         console.log("Migrating guest todos...")
 
-        const { guestId } = req.body
+        const { guestId, hasSeenDemoTask } = req.body
         const userId = req.user._id
 
         if (!guestId) {
             return next(errorHandler(400, "Guest ID missing"))
+        }
+
+        if (hasSeenDemoTask === true) {
+            await User.updateOne({ _id: userId }, { $set: { hasSeenDemoTask: true } })
         }
 
         const guestTodos = await Todo.find({ isGuest: true, guestId })
@@ -71,6 +96,10 @@ const migrateGuestTodos = async (req, res, next) => {
             return res
                 .status(200)
                 .json({ success: true, message: "No guest todos to migrate" })
+        }
+
+        if (hasSeenDemoTask === true) {
+            await Todo.deleteOne({ isGuest: true, guestId, isDemo: true })
         }
 
         await Todo.updateMany(
@@ -94,34 +123,13 @@ const migrateGuestTodos = async (req, res, next) => {
 }
 
 
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const getAllTodos = async (req, res, next) => {
     try {
         console.log("Getting all tasks..")
 
         const { isGuest, userId, guestId } = getUserIdentity(req)
+
+        console.log("req.body.taskQueryOptions --->", JSON.stringify(req.body.taskQueryOptions))
 
         const {
             type = "all",
@@ -382,6 +390,12 @@ const deleteTodo = async (req, res, next) => {
             return next(errorHandler(404, "Todo not found"))
         }
 
+        if (todo.isDemo) {
+            if (!isGuest) {
+                await User.updateOne({ _id: userId }, { hasSeenDemoTask: true })
+            }
+        }
+
         await Todo.findByIdAndDelete(id);
 
         return res.status(200).json({
@@ -397,5 +411,5 @@ const deleteTodo = async (req, res, next) => {
 
 
 
-module.exports = {createTodo, migrateGuestTodos, getAllTodos, updateTodoStatus, updateTodoContent, toggleChecklistItem, toggleStar,
-     deleteTodo}
+module.exports = {createTodo, migrateGuestTodos, getAllTodos, updateTodoStatus, updateTodoContent, toggleChecklistItem, 
+    toggleStar, deleteTodo}

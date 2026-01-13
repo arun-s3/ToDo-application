@@ -18,3 +18,12 @@ body{
     box-sizing:border-box;
     font-family: "Poppins", sans-serif;
 }
+
+:root {
+  --primary: #2563eb;
+  --text-dark: #0f172a;
+  --text-mid: #475569;
+  --text-light: #cbd5e1;
+  --border: #e2e8f0;
+  --bg-light: #f0f9ff;
+}

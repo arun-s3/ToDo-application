@@ -69,6 +69,10 @@ const todoSchema = mongoose.Schema({
         type: [String],
         default: [],
     },
+    isDemo: {
+      type: Boolean,
+      default: false
+    },
     createdAt: {
         type: Date,
         default: Date.now,

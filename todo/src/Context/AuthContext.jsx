@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
     if (!currentGuestId) {
       currentGuestId = crypto.randomUUID()
       localStorage.setItem("guestId", currentGuestId);
+      localStorage.setItem("hasSeenDemoTask", "false")
     }
     setIsGuest(true)
     setGuestId(currentGuestId)
@@ -58,15 +59,23 @@ export const AuthProvider = ({ children }) => {
   }, [user, isGuest, guestId])
 
   const migrateGuest = async()=> {
-    await api.post(`/tasks/migrate-guest`, { guestId: localStorage.getItem("guestId") });
+    let hasSeenDemoTask = false
+    if (localStorage.getItem("hasSeenDemoTask") === "true") {
+        hasSeenDemoTask = true
+    }
+    
+    await api.post(`/tasks/migrate-guest`, { guestId: localStorage.getItem("guestId"), hasSeenDemoTask })
+
     localStorage.removeItem("guestId")
+    setGuestId(null)
+    setIsGuest(false)
   }
 
   const logout = async () => {
     try{
       const response = await api.get(`/signout`)
       if(response.status === 200){
-        setUser(null)
+        loadUserAsGuest()
       }
     }
     catch(error){

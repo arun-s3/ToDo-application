@@ -12,34 +12,35 @@ import { useAuth } from "./Context/AuthContext"
 
 export default function ZenTaskPage() {
 
-  const [currentView, setCurrentView] = useState("all")
-  const [isDarkMode, setIsDarkMode] = useState(false)
+    const [currentView, setCurrentView] = useState("all")
+    const [isDarkMode, setIsDarkMode] = useState(false)
 
-  const isHomeView = ["all", "pending", "completed", "today", "high-priority"].includes(currentView)
-  const isDashboardView = currentView === "dashboard"
+    const isHomeView = ["all", "pending", "completed", "today", "high-priority"].includes(currentView)
+    const isDashboardView = currentView === "dashboard"
 
-  const [openSignInModal, setOpenSignInModal] = useState(false)
+    const [openSignInModal, setOpenSignInModal] = useState(false)
 
-  const { user, setUser, isGuest, guestId, migrateGuest, logout } = useAuth();
+    const { user, setUser, isGuest, guestId, migrateGuest, logout } = useAuth()
 
-  const navRef = useRef(null)
+    const navRef = useRef(null)
 
-  const scrollHandler = () => {
-      if (!navRef.current) return
-  
-      window.scrollY >= 80 ? navRef.current.classList.add("nav-dark") : navRef.current.classList.remove("nav-dark")
-  }
-  
-  useEffect(() => {
-      window.addEventListener("scroll", scrollHandler)
-  
-      return () => {
-          window.removeEventListener("scroll", scrollHandler)
-      }
-  }, [])
+    const scrollHandler = () => {
+        if (!navRef.current) return
+    
+        window.scrollY >= 80 ? navRef.current.classList.add("nav-dark") : navRef.current.classList.remove("nav-dark")
+    }
+
+    useEffect(() => {
+        window.addEventListener("scroll", scrollHandler)
+    
+        return () => {
+            window.removeEventListener("scroll", scrollHandler)
+        }
+    }, [])
 
 
-  return (
+    return (
+
       <div className={`app-container ${isDarkMode ? "dark" : ""}`}>
           <Sidebar currentView={currentView} onViewChange={setCurrentView} />
 
@@ -70,7 +71,10 @@ export default function ZenTaskPage() {
               {
                 isHomeView && 
 
-                    <Home activeTab={currentView} />
+                    <Home 
+                        activeTab={currentView} 
+                        openAuthModal={()=> setOpenSignInModal(true)}
+                    />
               }
               {
                 isDashboardView && 

@@ -10,20 +10,18 @@ const Sidebar = ({ currentView, onViewChange }) => {
     { id: "all", label: "All Tasks", icon: ClipboardList },
     { id: "pending", label: "Pending", icon: Clock },
     { id: "completed", label: "Completed", icon: SquareCheck },
-    { id: "dueToday", label: "Due Today", icon: Calendar },
-    { id: "highPriority", label: "High Priority", icon: Zap },
+    { id: "today", label: "Due Today", icon: Calendar },
+    { id: "high-priority", label: "High Priority", icon: Zap },
   ]
 
   return (
     <div className="sidebar">
-      {/* Top Section */}
       <div className="sidebar-top">
         <div className="sidebar-logo">
           <img src='./ZenTaskLogo.png' alt='ZenTask' />
           <h2> Zen <span> Task </span></h2>
         </div>
 
-        {/* Dashboard */}
         <div className="sidebar-section">
           <div
             className={`sidebar-item ${currentView === "dashboard" ? "active" : ""}`}
@@ -34,7 +32,6 @@ const Sidebar = ({ currentView, onViewChange }) => {
           </div>
         </div>
 
-        {/* Tasks Section */}
         <div className="sidebar-section">
           <h3 className="sidebar-section-title">Tasks</h3>
           <div className="sidebar-items-group">

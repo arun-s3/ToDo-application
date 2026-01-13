@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import "./CreateTask.css"
 
 import { api } from "../api/axiosInstance"
@@ -6,7 +6,7 @@ import { Plus, X, ListTodo, Flag, Calendar, Tag } from "lucide-react"
 import { toast } from 'sonner'
 
 import ModalPortal from "../ModalPortal"
-import { useEffect } from "react"
+
 
 function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalClose }) {
 
@@ -48,8 +48,8 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
 
     const addNewTask = ()=> {
         api.post(`tasks/add`, { task })
-            .then((result) => {
-                console.log(result)
+            .then((response) => {
+                console.log(response)
                 resetForm()
                 onsubmit()
             })

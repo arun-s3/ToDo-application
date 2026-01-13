@@ -9,17 +9,21 @@ const userSchema = new mongoose.Schema(
             unique: true,
             trim: true,
             minlength: 3,
-            maxlength: 100,
-        },  
+            maxlength: 100
+        },
         password: {
             type: String,
             required: true,
             minlength: 6,
-            select: false, 
-        }
+            select: false
+        },
+        hasSeenDemoTask: {
+            type: Boolean,
+            default: false
+        },
     },
-  { timestamps: true }
-);
+    { timestamps: true }
+)
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
