@@ -30,9 +30,11 @@ const globalErrorHandler = require('./Middlewares/globalError.js')
 
 const authRoutes = require('./Routes/user.route.js')
 const taskRoutes = require('./Routes/tasks.route.js')
+const dashboardRoutes = require("./Routes/dashboard.route.js")
 
 app.use('/', authRoutes)
 app.use('/tasks', taskRoutes)
+app.use("/dashboard", dashboardRoutes)
 
 app.use(globalErrorHandler)
 
