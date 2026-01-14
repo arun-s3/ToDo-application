@@ -58,10 +58,12 @@ export default function Home({ activeTab = "all", openAuthModal }) {
     }, [isGuest, user]) 
 
     const addDummyTask = ()=> {
+        console.log(`Adding dummy task for ${isGuest ? "guest" : "user"}`)
         api.post(`tasks/add`, { task: dummyTask })
             .then((response) => {
                 if (response.data.data.isDemo && isGuest) {
                     const hasGuestSeen = localStorage.getItem("hasSeenDemoTask") === "true"
+                    console.log(`Was hasGuestSeen true for guest?---->${hasGuestSeen ? 'yes' : 'no'}`)
                     if (!hasGuestSeen) {
                         localStorage.setItem("hasSeenDemoTask", "true")
                     }
@@ -80,6 +82,9 @@ export default function Home({ activeTab = "all", openAuthModal }) {
         const hasSeen = localStorage.getItem("hasSeenDemoTask") === "true"
 
         const alreadyInjected = todos.some((todo) => todo.isDemo)
+        console.log("Demo task alreadyInjected for guest---->", alreadyInjected)
+
+        console.log(`hasSeen----> ${hasSeen}, todos.length----> ${todos.length}`)
 
         if (!hasSeen && !alreadyInjected && todos.length === 0) {
             addDummyTask()
@@ -91,6 +96,9 @@ export default function Home({ activeTab = "all", openAuthModal }) {
         if (!user) return
 
         const alreadyInjected = todos.some((todo) => todo.isDemo)
+        console.log("Demo task alreadyInjected for user---->", alreadyInjected)
+
+        console.log(`user.hasSeenDemoTask----> ${user.hasSeenDemoTask}, todos.length----> ${todos.length}`)
 
         if (!user.hasSeenDemoTask && !alreadyInjected && todos.length === 0) {
             addDummyTask()
@@ -468,60 +476,57 @@ export default function Home({ activeTab = "all", openAuthModal }) {
               </span>
           )}
 
-          {filteredTodos.length === 6 && (
-              <FilterBar
-                  sortOption={sortBy}
-                  onSortByChange={setSortBy}
-                  sortWay={sort}
-                  onSortChange={setSort}
-                  itemsPerPage={limit}
-                  onItemsPerPageChange={setLimit}
-                  onPageChange={setCurrentPage}
-              />
-          )}
+          {filteredTodos.length === 0 ||
+                  (filteredTodos.length === 1 && filteredTodos[0].isDemo && (
+                      <HeroSection onCreateTask={createNewTask} />
+                  ))
+          }
 
-          <div 
-            className='all-tasks'
-            style={
-                filteredTodos.length === 0 || (filteredTodos.length === 1 && filteredTodos[0].isDemo) 
-                    ? {display: "inline-block"} 
-                    : {}
-            }
-          >
+          {filteredTodos.length > 0 &&
+              (
+                  <FilterBar
+                      sortOption={sortBy}
+                      onSortByChange={setSortBy}
+                      sortWay={sort}
+                      onSortChange={setSort}
+                      itemsPerPage={limit}
+                      onItemsPerPageChange={setLimit}
+                      onPageChange={setCurrentPage}
+                  />
+              )}
 
-            {
-                filteredTodos.length === 0 || (filteredTodos.length === 1 && filteredTodos[0].isDemo) &&
-                
-                    <HeroSection onCreateTask={createNewTask} />
-            }
-            
+          <div
+              className='all-tasks'
+              style={
+                  filteredTodos.length === 0 || (filteredTodos.length === 1 && filteredTodos[0].isDemo)
+                      ? { display: "inline-block" }
+                      : {}
+              }>
 
-            {filteredTodos.length === 0 ? (
-
+              {filteredTodos.length === 0 ? (
                   <div className='empty-state'>
                       <h2>No tasks in this category</h2>
                   </div>
-
-            ) : (
-                filteredTodos.map((todo, index) => (
-                    <TaskCard
-                        key={todo._id}
-                        todo={todo}
-                        index={index}
-                        editingId={editingId}
-                        setEditingId={setEditingId}
-                        onToggleStar={handleToggleStar}
-                        onTaskDone={toggleDoneHandler}
-                        onEditTitleDesc={handleEditTitleDesc}
-                        onToggleChecklistItem={toggleChecklistItem}
-                        onTaskEdit={initiateTaskEditing}
-                        onDeleteTask={askUserConfirmation}
-                    />
-                ))
-            )}
+              ) : (
+                  filteredTodos.map((todo, index) => (
+                      <TaskCard
+                          key={todo._id}
+                          todo={todo}
+                          index={index}
+                          editingId={editingId}
+                          setEditingId={setEditingId}
+                          onToggleStar={handleToggleStar}
+                          onTaskDone={toggleDoneHandler}
+                          onEditTitleDesc={handleEditTitleDesc}
+                          onToggleChecklistItem={toggleChecklistItem}
+                          onTaskEdit={initiateTaskEditing}
+                          onDeleteTask={askUserConfirmation}
+                      />
+                  ))
+              )}
           </div>
 
-          {filteredTodos.length === 6 && (
+          {filteredTodos.length > 0 && (
               <Pagination
                   currentPage={currentPage}
                   totalItems={totalTodos}
@@ -534,8 +539,8 @@ export default function Home({ activeTab = "all", openAuthModal }) {
               isOpen={openTaskDeleteModal.id}
               taskName={openTaskDeleteModal.title}
               onConfirm={() => {
-                handleTrash(openTaskDeleteModal.id)
-                setOpenTaskDeleteModal({ id: null, title: null })
+                  handleTrash(openTaskDeleteModal.id)
+                  setOpenTaskDeleteModal({ id: null, title: null })
               }}
               onCancel={() => setOpenTaskDeleteModal({ id: null, title: null })}
               isLoading={isDeleting}
@@ -544,8 +549,8 @@ export default function Home({ activeTab = "all", openAuthModal }) {
           <GuestModeModal
               isOpen={openGuestModeModal}
               onCancel={() => {
-                setOpenGuestModeModal(false)
-                setShowModal(true)
+                  setOpenGuestModeModal(false)
+                  setShowModal(true)
               }}
               onSignup={() => {
                   setOpenGuestModeModal(false)

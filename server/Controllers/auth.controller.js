@@ -75,11 +75,12 @@ const getCurrentUser = async (req, res, next) => {
         }
 
         res.status(200).json({
-          success: true,
-          user: {
-            _id: req.user._id,
-            username: req.user.username,
-          }
+            success: true,
+            user: {
+                _id: req.user._id,
+                username: req.user.username,
+                hasSeenDemoTask: req.user.hasSeenDemoTask,
+            },
         })
     }
   catch (error) {

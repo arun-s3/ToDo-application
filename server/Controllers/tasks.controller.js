@@ -28,6 +28,8 @@ const createTodo = async (req, res, next) => {
           return next(errorHandler(400, "Title is required"))
         }
 
+        console.log(`Creating ${isDemo ? 'demo' : 'non-demo'} task for ${isGuest ? 'guest' : 'user'}`)
+
         const todoData = {
           isGuest,
           title: title.trim(),
@@ -82,11 +84,13 @@ const migrateGuestTodos = async (req, res, next) => {
         const { guestId, hasSeenDemoTask } = req.body
         const userId = req.user._id
 
+        const user = await User.findOne({ _id: userId })
+
         if (!guestId) {
             return next(errorHandler(400, "Guest ID missing"))
         }
 
-        if (hasSeenDemoTask === true) {
+        if (hasSeenDemoTask === true || user.hasSeenDemoTask) {
             await User.updateOne({ _id: userId }, { $set: { hasSeenDemoTask: true } })
         }
 
@@ -98,7 +102,7 @@ const migrateGuestTodos = async (req, res, next) => {
                 .json({ success: true, message: "No guest todos to migrate" })
         }
 
-        if (hasSeenDemoTask === true) {
+        if (hasSeenDemoTask === true || user.hasSeenDemoTask) {
             await Todo.deleteOne({ isGuest: true, guestId, isDemo: true })
         }
 

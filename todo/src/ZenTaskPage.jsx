@@ -4,6 +4,7 @@ import "./App.css"
 import { Moon, Sun, LogIn, LogOut } from "lucide-react"
 
 import Home from "./Components/Home"
+import Dashboard from "./Components/Dashboard"
 import Sidebar from "./Components/Sidebar"
 import ModalPortal from "./ModalPortal"
 import AuthModal from "./Modals/AuthModal"
@@ -79,7 +80,7 @@ export default function ZenTaskPage() {
               {
                 isDashboardView && 
                 
-                    <p> Dashboard </p>
+                     <Dashboard />
               }
           </main>
 

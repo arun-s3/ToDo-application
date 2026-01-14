@@ -5,6 +5,7 @@ const getUserIdentity = (req) => {
         return {
             isGuest: false,
             userId: req.user._id,
+            guestId: null
         }
     }
 
@@ -13,6 +14,7 @@ const getUserIdentity = (req) => {
     return {
         isGuest: true,
         guestId: req.guestId,
+        userId: null
     }
 }
 

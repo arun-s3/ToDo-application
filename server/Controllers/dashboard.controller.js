@@ -1,3 +1,5 @@
+const mongoose = require("mongoose")
+
 const Todo = require("../Model/todoModel")
 const User = require("../Model/userModel")
 const getUserIdentity = require("../Utils/userIdentity")
@@ -11,8 +13,10 @@ const getTasksStats = async (req, res, next) => {
 
         const { isGuest, userId, guestId } = getUserIdentity(req)
 
+        console.log(`isGuest----> ${isGuest}, userId----> ${userId} and guestId----> ${guestId}`)
+
         const baseMatch = {
-            isDemo: false, 
+            $or: [{ isDemo: false }, { isDemo: { $exists: false } }],
         }
 
         if (isGuest) {
@@ -20,7 +24,7 @@ const getTasksStats = async (req, res, next) => {
             baseMatch.guestId = guestId
         } else {
             baseMatch.isGuest = false
-            baseMatch.userId = userId
+            baseMatch.userId = new mongoose.Types.ObjectId(userId)
         }
 
         const todayStart = new Date()
@@ -28,6 +32,7 @@ const getTasksStats = async (req, res, next) => {
 
         const todayEnd = new Date()
         todayEnd.setHours(23, 59, 59, 999)
+        
 
         const stats = await Todo.aggregate([
             { $match: baseMatch },
@@ -41,6 +46,8 @@ const getTasksStats = async (req, res, next) => {
                     pendingTasks: [{ $match: { done: false } }, { $count: "count" }],
 
                     highPriorityTasks: [{ $match: { priority: "high" } }, { $count: "count" }],
+
+                    starredTasks: [{ $match: { starred: true } }, { $count: "count" }],
 
                     dueTodayTasks: [
                         {
@@ -62,22 +69,23 @@ const getTasksStats = async (req, res, next) => {
             completedTasks: result.completedTasks[0]?.count || 0,
             pendingTasks: result.pendingTasks[0]?.count || 0,
             highPriorityTasks: result.highPriorityTasks[0]?.count || 0,
+            starredTasks: result.starredTasks[0]?.count || 0,
             dueTodayTasks: result.dueTodayTasks[0]?.count || 0,
         })
-    }
-    catch (error) {
+    } catch (error) {
         console.error("Error fetching task stats:", error)
         next(error)
     }
 }
 
-
 const getProductivityTrend = async (req, res, next) => {
     try {
+        console.log("Inside getProductivityTrend function")
+
         const { isGuest, userId, guestId } = getUserIdentity(req)
 
         const baseMatch = {
-            isDemo: false,
+            $or: [{ isDemo: false }, { isDemo: { $exists: false } }],
         }
 
         if (isGuest) {
@@ -142,22 +150,27 @@ const getProductivityTrend = async (req, res, next) => {
             })
         }
 
-        res.status(200).json({success: true, trend})
-    }
-    catch (error) {
+        res.status(200).json({ success: true, trend })
+    } catch (error) {
         console.error("Error fetching productivity trend:", error)
         next(error)
     }
 }
 
-
 const getDeadlineInsights = async (req, res, next) => {
     try {
+        console.log("Inside getDeadlineInsights function")
+
         const { isGuest, userId, guestId } = getUserIdentity(req)
 
+        // const baseMatch = {
+        //     isDemo: false,
+        //     deadline: { $ne: null },
+        // }
+
         const baseMatch = {
-            isDemo: false,
-            deadline: { $ne: null },
+            $or: [{ isDemo: false }, { isDemo: { $exists: false } }],
+            deadline: { $ne: null }
         }
 
         if (isGuest) {
@@ -212,20 +225,16 @@ const getDeadlineInsights = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            data: [
-                {
-                    Overdue: result.Overdue,
-                    "This Week": result["This Week"],
-                    Later: result.Later,
-                },
-            ],
+            insights: {
+                overdue: result.Overdue,
+                thisWeek: result["This Week"],
+                later: result.Later,
+            },
         })
     } catch (error) {
         console.error("Deadline compliance error:", error)
         next(error)
     }
 }
-
-
 
 module.exports = { getTasksStats, getProductivityTrend, getDeadlineInsights }
