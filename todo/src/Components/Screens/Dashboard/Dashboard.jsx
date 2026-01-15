@@ -5,11 +5,11 @@ import {LineChart, Line, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Carte
     ResponsiveContainer,
 } from "recharts"
 
-import { api } from "../api/axiosInstance"
+import { api } from "../../../api/axiosInstance"
 import { toast } from 'sonner'
 import { BarChart3, TrendingUp, CheckCircle2, AlertCircle, Star, Calendar } from "lucide-react"
 
-import { useTheme } from "../Context/ThemeContext"
+import { useTheme } from "../../../Context/ThemeContext"
 
 
 export default function Dashboard() {

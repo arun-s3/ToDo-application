@@ -14,8 +14,6 @@ export const AuthProvider = ({ children }) => {
 
   const [authLoading, setAuthLoading] = useState(true)
 
-  const API_URL = process.env.REACT_APP_API_URL;
-
   const loadUserAsGuest = ()=> {
     let currentGuestId = localStorage.getItem("guestId")
     if (!currentGuestId) {

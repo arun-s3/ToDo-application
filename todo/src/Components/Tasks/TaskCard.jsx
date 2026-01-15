@@ -1,5 +1,5 @@
 import React, {useState} from "react"
-import "./Home.css"
+import "./../Screens/Home/Home.css"
 
 import {Trash2, CheckCircle2, Circle, ChevronDown, ChevronUp, Flag, Calendar, Tag, Star} from "lucide-react"
 import {BsPencilSquare } from 'react-icons/bs'     

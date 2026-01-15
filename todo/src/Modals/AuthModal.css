@@ -1,6 +1,6 @@
 .auth-backdrop {
   position: fixed;
-  inset: 0; /* top, right, bottom, left = 0 */
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
@@ -213,4 +213,112 @@ input.error {
   margin-top: 1.5rem;
   font-size: 0.75rem;
   color: #a1acbc;
+}
+
+/* GUEST MODE */
+
+.dark-mode .auth-backdrop {
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+.dark-mode .auth-card {
+  background: #020617;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
+  border: 1px solid rgb(74 78 84);
+}
+
+.dark-mode .auth-header {
+  background: linear-gradient(to right, #1e3a8a, #0f172a);
+}
+
+.dark-mode .auth-header p {
+  color: #c7d2fe;
+}
+
+.dark-mode .auth-  {
+  background: #020617;
+}
+
+.dark-mode label {
+  color: #e2e8f0;
+}
+
+.dark-mode .auth-  .input-wrapper input {
+  background: #020617;
+  border-color: #1e293b;
+  color: #e5e7eb;
+}
+
+.dark-mode .auth-  .input-wrapper input::placeholder {
+  color: #64748b;
+}
+
+.dark-mode input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.dark-mode .input-wrapper svg {
+  color: #64748b;
+}
+
+.dark-mode .eye-btn {
+  color: #64748b;
+}
+
+.dark-mode .eye-btn:hover {
+  color: #e2e8f0;
+}
+
+.dark-mode input.error {
+  border-color: #f87171;
+  background: rgba(127, 29, 29, 0.25);
+}
+
+.dark-mode .error-text {
+  color: #fca5a5;
+}
+
+.dark-mode .success-box {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+.dark-mode .submit-btn {
+  background: linear-gradient(to right, #2563eb, #1e3a8a);
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
+}
+
+.dark-mode .submit-btn:hover {
+  background: linear-gradient(to right, #3b82f6, #1e40af);
+}
+
+.dark-mode .cancel-btn {
+  background: #020617;
+  color: #93c5fd;
+  border: 1px solid #1e293b;
+  box-shadow: none;
+}
+
+.dark-mode .cancel-btn:hover {
+  background: #0f172a;
+  color: #bfdbfe;
+}
+
+.dark-mode .toggle-text {
+  color: #94a3b8;
+}
+
+.dark-mode .toggle-text button {
+  color: #60a5fa;
+}
+
+.dark-mode .toggle-text button:hover {
+  color: #93c5fd;
+}
+
+.dark-mode .auth-footer {
+  color: #64748b;
 }

@@ -187,3 +187,82 @@
     transform: scale(1);
   }
 }
+
+/* DARK MODE */
+
+.dark-mode .delete-modal {
+  background: #0f172a;
+  border: 1px solid #7c6262;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+}
+
+.dark-mode .delete-header {
+  border-bottom-color: #1e293b;
+}
+
+.dark-mode .delete-header h2 {
+  color: #f8fafc;
+}
+
+.dark-mode .delete-icon-wrapper {
+  background: rgba(220, 38, 38, 0.15);
+}
+
+.dark-mode .delete-icon-wrapper svg {
+  color: #f87171;
+}
+
+.dark-mode .delete-close {
+  color: #94a3b8;
+}
+
+.dark-mode .delete-close:hover {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+.dark-mode .delete-text {
+  color: #cbd5f5;
+}
+
+.dark-mode .delete-task-box {
+  background: #020617;
+  border-color: #1e293b;
+}
+
+.dark-mode .delete-task-label {
+  color: #94a3b8;
+}
+
+.dark-mode .delete-task-name {
+  color: #f8fafc;
+}
+
+.dark-mode .delete-warning {
+  background: rgba(220, 38, 38, 0.15);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #fecaca;
+}
+
+.dark-mode .delete-footer {
+  background: #020617;
+  border-top: 1px solid #1e293b;
+}
+
+.dark-mode .btn-cancel {
+  background: #020617;
+  border-color: #1e293b;
+  color: #cbd5e1;
+}
+
+.dark-mode .btn-cancel:hover {
+  background: #1e293b;
+}
+
+.dark-mode .btn-delete {
+  background: #b91c1c;
+}
+
+.dark-mode .btn-delete:hover {
+  background: #991b1b;
+}

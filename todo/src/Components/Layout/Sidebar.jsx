@@ -3,9 +3,12 @@ import "./Sidebar.css"
 
 import { ChartNoAxesCombined, ClipboardList, SquareCheck, Clock, Zap, Calendar, X} from "lucide-react"
 
+import { useTheme } from "../../Context/ThemeContext"
+
 
 const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen }) => {
 
+  const { isDarkMode } = useTheme()
 
   const taskFilters = [
     { id: "all", label: "All Tasks", icon: ClipboardList },
@@ -17,11 +20,11 @@ const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen 
 
 
   return (
-      <div className={`sidebar ${mobileMenuOpen ? "open" : "close"}`}>
+      <div className={`sidebar ${mobileMenuOpen ? "open" : "close"} ${isDarkMode ? "dark-mode" : ""}`}>
           <div className='sidebar-top'>
               <div className='mobile-header-close'>
-                  <button onClick={() => setMobileMenuOpen(false)}>
-                    <X/>
+                  <button onClick={() => setMobileMenuOpen(false)} style={mobileMenuOpen ? {display: 'hidden'} : {}}>
+                      <X />
                   </button>
               </div>
               <div className='sidebar-logo'>
@@ -35,11 +38,11 @@ const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen 
               <div className='sidebar-section'>
                   <div
                       className={`sidebar-item ${currentView === "dashboard" ? "active" : ""}`}
-                      onClick={() =>{
-                         onViewChange("dashboard")
-                         if (mobileMenuOpen) {
-                             setMobileMenuOpen(false)
-                         }
+                      onClick={() => {
+                          onViewChange("dashboard")
+                          if (mobileMenuOpen) {
+                              setMobileMenuOpen(false)
+                          }
                       }}>
                       <ChartNoAxesCombined size={20} className={`${currentView === "dashboard" ? "active" : ""}`} />
                       <span>Dashboard</span>
@@ -55,11 +58,11 @@ const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen 
                               <div
                                   key={filter.id}
                                   className={`sidebar-item ${currentView === filter.id ? "active" : ""}`}
-                                  onClick={() =>{
-                                     onViewChange(filter.id)
-                                     if(mobileMenuOpen){
-                                        setMobileMenuOpen(false)
-                                     }
+                                  onClick={() => {
+                                      onViewChange(filter.id)
+                                      if (mobileMenuOpen) {
+                                          setMobileMenuOpen(false)
+                                      }
                                   }}>
                                   <Icon size={18} className={`${currentView === filter.id ? "active" : ""}`} />
                                   <span>{filter.label}</span>

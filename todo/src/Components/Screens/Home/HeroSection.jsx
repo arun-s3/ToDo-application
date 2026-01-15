@@ -3,7 +3,7 @@ import "./HeroSection.css"
 
 import {CheckCircle2, Star, Flag, Calendar, Tag, Plus, ArrowRight, Zap, TrendingUp, ClipboardList, Clock, AlertCircle} from "lucide-react"
 
-import { useTheme } from "../Context/ThemeContext"
+import { useTheme } from "../../../Context/ThemeContext"
 
 
 export default function HeroSection({ onCreateTask }) {

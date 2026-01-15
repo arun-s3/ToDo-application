@@ -4,35 +4,14 @@ import "./TaskDeleteModal.css"
 import { AlertCircle, Trash2, X } from "lucide-react"
 
 import ModalPortal from "../ModalPortal"
+import useModalClose from "../Hooks/useModalClose"
 
 
 export default function TaskDeleteModal({ isOpen, taskName, onConfirm, onCancel, isLoading = false }) {
 
     const modalRef = useRef(null)
-
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (modalRef.current && !modalRef.current.contains(e.target)) {
-                onCancel()
-            }
-        }
-
-        document.addEventListener("mousedown", handleClickOutside)
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside)
-        }
-    }, [])
-
-    useEffect(() => {
-        const handleKey = (e) => {
-            if (e.key === "Escape") onCancel()
-        }
-
-        document.addEventListener("keydown", handleKey)
-        return () => document.removeEventListener("keydown", handleKey)
-    }, [])
-
+    useModalClose(modalRef, onCancel)
+    
     if (!isOpen) return null
 
 

@@ -19,7 +19,7 @@ const isLogin = async (req, res, next) => {
             req.guestId = req.headers["x-guest-id"]
             next()
         }else{
-            return res.status(401).json({ message: "No identity" });
+            console.log("No identity as of now!")
         }
     }
     catch (error) {

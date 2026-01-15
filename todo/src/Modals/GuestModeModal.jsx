@@ -4,40 +4,23 @@ import "./GuestModeModal.css"
 import { LogIn, User } from "lucide-react"
 
 import ModalPortal from "../ModalPortal"
+import useModalClose from "../Hooks/useModalClose"
+import { useTheme } from "../Context/ThemeContext"
 
 
 export default function GuestModeModal({ isOpen, onCancel, onSignup }) {
 
     const modalRef = useRef(null)
+    useModalClose(modalRef, onCancel)
 
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (modalRef.current && !modalRef.current.contains(e.target)) {
-                onCancel()
-            }
-        }
-
-        document.addEventListener("mousedown", handleClickOutside)
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside)
-        }
-    }, [])
-
-    useEffect(() => {
-        const handleKey = (e) => {
-            if (e.key === "Escape") onCancel()
-        }
-
-        document.addEventListener("keydown", handleKey)
-        return () => document.removeEventListener("keydown", handleKey)
-    }, [])
+    const { isDarkMode } = useTheme()
 
     if (!isOpen) return null
 
+
     return (
         <ModalPortal>
-            <div className='guest-auth-overlay'>
+            <div className={`guest-auth-overlay ${isDarkMode ? "dark-mode" : ""}`}>
                 <div className='guest-auth-wrapper'>
                     <div className='guest-auth-card' ref={modalRef}>
                         <div className='guest-auth-header' style={{ backgroundImage: 'url("./ZenTaskLogo.png")' }}>

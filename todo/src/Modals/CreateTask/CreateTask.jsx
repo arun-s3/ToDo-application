@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react"
 import "./CreateTask.css"
 
-import { api } from "../api/axiosInstance"
+import { api } from "../../api/axiosInstance"
 import { Plus, X, ListTodo, Flag, Calendar, Tag } from "lucide-react"
 import { toast } from 'sonner'
 
-import ModalPortal from "../ModalPortal"
+import ModalPortal from "../../ModalPortal"
+import useModalClose from "../../Hooks/useModalClose"
 
 
 function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalClose }) {
@@ -27,14 +28,17 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
     const titleRef = useRef(null)
     const descriptionRef = useRef(null)
 
-    useEffect(() => {
-        const handleKey = (e) => {
-            if (e.key === "Escape") onModalClose()
-        }
+    const modalRef = useRef(null)
+    useModalClose(modalRef, onModalClose, false)
 
-        document.addEventListener("keydown", handleKey)
-        return () => document.removeEventListener("keydown", handleKey)
-    }, [])
+    // useEffect(() => {
+    //     const handleKey = (e) => {
+    //         if (e.key === "Escape") onModalClose()
+    //     }
+
+    //     document.addEventListener("keydown", handleKey)
+    //     return () => document.removeEventListener("keydown", handleKey)
+    // }, [])
 
     useEffect(() => {
         if(editTask){
@@ -142,7 +146,7 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
         <div className="task-creater">
             {isModalOpen && (
                 <ModalPortal>
-                    <div className="modal-overlay" onClick={onModalClose}>
+                    <div className="modal-overlay" onClick={onModalClose} ref={modalRef}>
                         <div
                             className="modal-content"
                             onClick={(e) => e.stopPropagation()}

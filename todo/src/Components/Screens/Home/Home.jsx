@@ -1,28 +1,27 @@
 import React, { useState, useEffect, useRef } from "react"
 import "./Home.css"
 
-import { api } from "../api/axiosInstance"
+import { api } from "../../../api/axiosInstance"
 import { toast } from 'sonner'
 import { Calendar, Search, Plus, ClipboardList, SquareCheck, Clock, Zap } from "lucide-react"
 
-import CreateTask from "../Modals/CreateTask"
-import TaskCard from "./TaskCard"
+import CreateTask from "../../../Modals/CreateTask/CreateTask"
+import TaskCard from "../../Tasks/TaskCard"
 import FilterBar from "./FilterBar"
-import TaskDeleteModal from "../Modals/TaskDeleteModal"
-import GuestModeModal from "../Modals/GuestModeModal"
+import TaskDeleteModal from "../../../Modals/TaskDeleteModal"
+import GuestModeModal from "../../../Modals/GuestModeModal"
 import HeroSection from "./HeroSection"
 import Pagination from "./Pagination"
 
-import { useAuth } from "../Context/AuthContext"
-import { useTheme } from "../Context/ThemeContext"
-import { shouldShowGuestSignupModal } from '../Utils/GuestPrompt'
-import { dummyTask } from "../data/dummyTask"
+import { useAuth } from "../../../Context/AuthContext"
+import { useTheme } from "../../../Context/ThemeContext"
+import { shouldShowGuestSignupModal } from '../../../Utils/GuestPrompt'
+import { dummyTask } from "../../../data/dummyTask"
 
 
-export default function Home({ activeTab = "all", openAuthModal }) {
+export default function Home({ activeTab = "all", openAuthModal, fetchTasks, setFetchTasks }) {
 
     const [todos, setTodo] = useState([])
-    const [fetchTasks, setFetchTasks] = useState(false)
 
     const [editingId, setEditingId] = useState({title: false, desc: false, taskId: null})
 
@@ -79,6 +78,18 @@ export default function Home({ activeTab = "all", openAuthModal }) {
             })
     }
 
+    const removeDuplicateDemoTasks = async()=> {
+        try {
+            const response = await api.delete(`demo/delete`)
+
+            if (response && response?.data?.success) {
+                console.log("Remove duplicate demo tasks")
+            }
+        } catch (error) {
+            console.error("Error while removing duplicate demo tasks:", error)
+        }
+    }
+
     useEffect(() => {
         if (!isGuest) return
 
@@ -108,6 +119,15 @@ export default function Home({ activeTab = "all", openAuthModal }) {
         }
     }, [user, todos])
 
+    useEffect(() => {
+        const demoTasksCount = todos.filter((todo) => todo.isDemo).length
+        console.log("demoTasksCount---->", demoTasksCount)
+
+        if (demoTasksCount > 1) {
+            console.log("Removing duplicates---->")
+            removeDuplicateDemoTasks()
+        }
+    }, [isGuest, user])
 
     const getTasks = async (taskQueryOptions) => {
         try {
@@ -175,36 +195,6 @@ export default function Home({ activeTab = "all", openAuthModal }) {
         )
 
         setSearchResults(sortTasks(filtered))
-    }
-
-    const getFilteredTasks = () => {
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-
-        let filtered = todos
-
-        switch (activeTab) {
-            case "pending":
-                filtered = todos.filter((t) => !t.done)
-                break
-            case "completed":
-                filtered = todos.filter((t) => t.done)
-                break
-            case "today":
-                filtered = todos.filter((t) => {
-                const taskDate = new Date(t.date)
-                taskDate.setHours(0, 0, 0, 0)
-                return taskDate.getTime() === today.getTime()
-                })
-                break
-            case "high-priority":
-                filtered = todos.filter((t) => t.priority === "high" && !t.done)
-                break
-            default:
-                filtered = todos
-        }
-
-        return todos
     }
 
     const toggleDoneHandler = (e, currentTodo) => {
@@ -398,8 +388,6 @@ export default function Home({ activeTab = "all", openAuthModal }) {
         }
     }
 
-    const filteredTodos = getFilteredTasks()
-
     const getTabLabel = () => {
         const labels = {
             all: "All Tasks",
@@ -434,133 +422,154 @@ export default function Home({ activeTab = "all", openAuthModal }) {
         return <Icon />
     }
 
+    const getFilteredTasks = () => {
+        let hasSeenDemoTask = false
 
-  return (
-      <div className={`home ${isDarkMode ? "dark" : ""}`}>
-          <div className='home-header'>
-              <div className='tab-wrapper'>
-                  <i className='icon'>{getTabIcon()}</i>
-                  <h2 className='title'>{getTabLabel()}</h2>
-              </div>
-              <p className='subtitle'>{getTabSubtitle()}</p>
-          </div>
+        if (user) {
+            hasSeenDemoTask = !!user.hasSeenDemoTask
+        } else if (isGuest) {
+            hasSeenDemoTask = !!localStorage.getItem("hasSeenDemoTask")
+        }
 
-          <div className='search-and-add-wrapper'>
-              <div className='search-container'>
-                  <div className='search-input-wrapper'>
-                      <Search size={20} className='search-icon' />
-                      <input
-                          type='text'
-                          placeholder='Search tasks by title, description, or tags...'
-                          value={searchQuery}
-                          onChange={(e) => handleSearch(e.target.value)}
-                          className='search-input'
-                      />
-                  </div>
-              </div>
+        let demoShown = false
 
-              <button className='add-task-btn' onClick={() => createNewTask()} title='Create a new task'>
-                  <Plus size={20} />
-                  <span>Add Task</span>
-              </button>
-          </div>
+        return todos.filter((todo) => {
+            if (!todo.isDemo) return true
+            if (hasSeenDemoTask) return false
+            if (!demoShown) {
+                demoShown = true
+                return true
+            }
+            return false
+        })
+    }
 
-          <CreateTask
-              onsubmit={() => setFetchTasks(true)}
-              isModalOpen={showModal}
-              onModalClose={() => setShowModal(false)}
-              editTask={updateTask}
-              onUpdateSuccess={updateTaskCard}
-          />
+    const filteredTodos = getFilteredTasks()
 
-          {searchQuery && (
-              <span className='result-count'>
-                  {totalTodos} {`${totalTodos === 1 ? "Task" : "Tasks"}`} found
-              </span>
-          )}
 
-          {filteredTodos.length === 0 ||
-                  (filteredTodos.length === 1 && filteredTodos[0].isDemo && (
-                      <HeroSection onCreateTask={createNewTask} />
-                  ))
-          }
+    return (
+        <div className={`home ${isDarkMode ? "dark" : ""}`}>
+            <div className='home-header'>
+                <div className='tab-wrapper'>
+                    <i className='icon'>{getTabIcon()}</i>
+                    <h2 className='title'>{getTabLabel()}</h2>
+                </div>
+                <p className='subtitle'>{getTabSubtitle()}</p>
+            </div>
 
-          {filteredTodos.length > 0 &&
-              (
-                  <FilterBar
-                      sortOption={sortBy}
-                      onSortByChange={setSortBy}
-                      sortWay={sort}
-                      onSortChange={setSort}
-                      itemsPerPage={limit}
-                      onItemsPerPageChange={setLimit}
-                      onPageChange={setCurrentPage}
-                  />
-              )}
+            <div className='search-and-add-wrapper'>
+                <div className='search-container'>
+                    <div className='search-input-wrapper'>
+                        <Search size={20} className='search-icon' />
+                        <input
+                            type='text'
+                            placeholder='Search tasks by title, description, or tags...'
+                            value={searchQuery}
+                            onChange={(e) => handleSearch(e.target.value)}
+                            className='search-input'
+                        />
+                    </div>
+                </div>
 
-          <div
-              className='all-tasks'
-              style={
-                  filteredTodos.length === 0 || (filteredTodos.length === 1 && filteredTodos[0].isDemo)
-                      ? { display: "inline-block" }
-                      : {}
-              }>
+                <button className='add-task-btn' onClick={() => createNewTask()} title='Create a new task'>
+                    <Plus size={20} />
+                    <span>Add Task</span>
+                </button>
+            </div>
 
-              {filteredTodos.length === 0 ? (
-                  <div className='empty-state'>
-                      <h2>No tasks in this category</h2>
-                  </div>
-              ) : (
-                  filteredTodos.map((todo, index) => (
-                      <TaskCard
-                          key={todo._id}
-                          todo={todo}
-                          index={index}
-                          editingId={editingId}
-                          setEditingId={setEditingId}
-                          onToggleStar={handleToggleStar}
-                          onTaskDone={toggleDoneHandler}
-                          onEditTitleDesc={handleEditTitleDesc}
-                          onToggleChecklistItem={toggleChecklistItem}
-                          onTaskEdit={initiateTaskEditing}
-                          onDeleteTask={askUserConfirmation}
-                      />
-                  ))
-              )}
-          </div>
+            <CreateTask
+                onsubmit={() => setFetchTasks(true)}
+                isModalOpen={showModal}
+                onModalClose={() => setShowModal(false)}
+                editTask={updateTask}
+                onUpdateSuccess={updateTaskCard}
+            />
 
-          {filteredTodos.length > 0 && (
-              <Pagination
-                  currentPage={currentPage}
-                  totalItems={totalTodos}
-                  itemsPerPage={limit}
-                  onPageChange={setCurrentPage}
-              />
-          )}
+            {searchQuery && (
+                <span className='result-count'>
+                    {totalTodos} {`${totalTodos === 1 ? "Task" : "Tasks"}`} found
+                </span>
+            )}
 
-          <TaskDeleteModal
-              isOpen={openTaskDeleteModal.id}
-              taskName={openTaskDeleteModal.title}
-              onConfirm={() => {
-                  handleTrash(openTaskDeleteModal.id)
-                  setOpenTaskDeleteModal({ id: null, title: null })
-              }}
-              onCancel={() => setOpenTaskDeleteModal({ id: null, title: null })}
-              isLoading={isDeleting}
-          />
+            {todos.length === 0 ||
+                (todos.length > 0 && todos.every((todo) => todo.isDemo) && (
+                    <HeroSection onCreateTask={createNewTask} />
+                ))}
 
-          <GuestModeModal
-              isOpen={openGuestModeModal}
-              onCancel={() => {
-                  setOpenGuestModeModal(false)
-                  setShowModal(true)
-              }}
-              onSignup={() => {
-                  setOpenGuestModeModal(false)
-                  openAuthModal()
-              }}
-          />
-      </div>
-  )
+            {filteredTodos.length > 0 && (
+                <FilterBar
+                    sortOption={sortBy}
+                    onSortByChange={setSortBy}
+                    sortWay={sort}
+                    onSortChange={setSort}
+                    itemsPerPage={limit}
+                    onItemsPerPageChange={setLimit}
+                    onPageChange={setCurrentPage}
+                />
+            )}
+
+            <div
+                className='all-tasks'
+                style={
+                    filteredTodos.length === 0 || (filteredTodos.length === 1 && filteredTodos[0].isDemo)
+                        ? { display: "inline-block" }
+                        : {}
+                }>
+                {filteredTodos.length === 0 ? (
+                    <div className='empty-state'>
+                        <h2>No tasks in this category</h2>
+                    </div>
+                ) : (
+                    filteredTodos.map((todo, index) => (
+                        <TaskCard
+                            key={todo._id}
+                            todo={todo}
+                            index={index}
+                            editingId={editingId}
+                            setEditingId={setEditingId}
+                            onToggleStar={handleToggleStar}
+                            onTaskDone={toggleDoneHandler}
+                            onEditTitleDesc={handleEditTitleDesc}
+                            onToggleChecklistItem={toggleChecklistItem}
+                            onTaskEdit={initiateTaskEditing}
+                            onDeleteTask={askUserConfirmation}
+                        />
+                    ))
+                )}
+            </div>
+
+            {filteredTodos.length > 0 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalTodos}
+                    itemsPerPage={limit}
+                    onPageChange={setCurrentPage}
+                />
+            )}
+
+            <TaskDeleteModal
+                isOpen={openTaskDeleteModal.id}
+                taskName={openTaskDeleteModal.title}
+                onConfirm={() => {
+                    handleTrash(openTaskDeleteModal.id)
+                    setOpenTaskDeleteModal({ id: null, title: null })
+                }}
+                onCancel={() => setOpenTaskDeleteModal({ id: null, title: null })}
+                isLoading={isDeleting}
+            />
+
+            <GuestModeModal
+                isOpen={openGuestModeModal}
+                onCancel={() => {
+                    setOpenGuestModeModal(false)
+                    setShowModal(true)
+                }}
+                onSignup={() => {
+                    setOpenGuestModeModal(false)
+                    openAuthModal()
+                }}
+            />
+        </div>
+    )
 }
 

@@ -1,9 +1,12 @@
-import React, { useState } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import "./AuthModal.css"
 
 import { api } from "../api/axiosInstance"
 import { toast } from 'sonner'
 import {Lock, User, Eye, EyeOff, X, CheckCircle, AlertCircle} from "lucide-react"
+
+import { useTheme } from "../Context/ThemeContext"
+import useModalClose from "../Hooks/useModalClose"
 
 
 const AuthModal = ({ onModalClose, onSignUpOrIn, onMigrateGuest }) => {
@@ -21,10 +24,24 @@ const AuthModal = ({ onModalClose, onSignUpOrIn, onMigrateGuest }) => {
 
     const [loading, setLoading] = useState(false)
 
+    const { isDarkMode } = useTheme()
+
+    const modalRef = useRef(null)
+    useModalClose(modalRef, onModalClose, false)
+
     const validationPatterns = {
         username: /^[a-zA-Z0-9_-]{3,20}$/,
         password: /^.{6,}$/,
     }
+
+    // useEffect(() => {
+    //     const handleKey = (e) => {
+    //         if (e.key === "Escape") onModalClose()
+    //     }
+
+    //     document.addEventListener("keydown", handleKey)
+    //     return () => document.removeEventListener("keydown", handleKey)
+    // }, [])
 
     const validateField = (name, value) => {
         const newErrors = { ...errors }
@@ -130,10 +147,11 @@ const AuthModal = ({ onModalClose, onSignUpOrIn, onMigrateGuest }) => {
         setSuccessMessage("")
     }
 
+
     return (
-        <div className="auth-backdrop">
+        <div className={`auth-backdrop ${isDarkMode ? "dark-mode" : ""}`}>
             <div className="auth-wrapper">
-                <div className="auth-card">
+                <div className="auth-card" ref={modalRef}>
                     <div className="auth-header">
                         <h1>{isSignIn ? "Welcome" : "Create Account"}</h1>
                         <p>

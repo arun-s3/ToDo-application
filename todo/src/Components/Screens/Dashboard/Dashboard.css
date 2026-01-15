@@ -491,3 +491,151 @@
   }
 }
 
+/* Dark Mode */
+
+:root.dark-mode .dashboard {
+  background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+}
+
+:root.dark-mode .dashboard-title {
+  color: #e0e0e0;
+}
+
+:root.dark-mode .dashboard-title span {
+  color: #5a9fff;
+}
+
+:root.dark-mode .stat-card {
+  background: #1a2332;
+  border-left-color: #5a9fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark-mode .stat-card:hover {
+  box-shadow: 0 12px 24px rgba(90, 159, 255, 0.15);
+}
+
+:root.dark-mode .stat-card.completed {
+  border-left-color: #4caf50;
+}
+
+:root.dark-mode .stat-card.pending {
+  border-left-color: #ffc470;
+}
+
+:root.dark-mode .stat-card.high-priority {
+  border-left-color: #ff6b6b;
+}
+
+:root.dark-mode .stat-card.today {
+  border-left-color: #9c27b0;
+}
+
+:root.dark-mode .stat-icon {
+  background: #2a3a52;
+  color: #5a9fff;
+}
+
+:root.dark-mode .stat-card.completed .stat-icon {
+  background: #1a3a2a;
+  color: #4caf50;
+}
+
+:root.dark-mode .stat-card.pending .stat-icon {
+  background: #3a2a1a;
+  color: #ffc470;
+}
+
+:root.dark-mode .stat-card.high-priority .stat-icon {
+  background: #3a1a1a;
+  color: #ff6b6b;
+}
+
+:root.dark-mode .stat-card.today .stat-icon {
+  background: #2a1a3a;
+  color: #9c27b0;
+}
+
+:root.dark-mode .stat-label {
+  color: #a0a8b8;
+}
+
+:root.dark-mode .stat-value {
+  color: #e0e0e0;
+}
+
+:root.dark-mode .chart-card {
+  background: #1a2332;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark-mode .chart-card:hover {
+  box-shadow: 0 12px 24px rgba(90, 159, 255, 0.15);
+}
+
+:root.dark-mode .chart-title {
+  color: #e0e0e0;
+}
+
+:root.dark-mode .chart-title svg {
+  color: #5a9fff;
+}
+
+:root.dark-mode .chart-bar-wrapper {
+  background: linear-gradient(180deg, transparent 0%, rgba(90, 159, 255, 0.08) 100%);
+}
+
+:root.dark-mode .chart-bar {
+  background: linear-gradient(180deg, #5a9fff 0%, #3a7fdf 100%);
+}
+
+:root.dark-mode .bar-day {
+  color: #a0a8b8;
+}
+
+:root.dark-mode .pie-legend {
+  color: #a0a8b8;
+}
+
+:root.dark-mode .legend-value {
+  color: #666;
+}
+
+:root.dark-mode .compliance-item {
+  color: #a0a8b8;
+}
+
+:root.dark-mode .stacked-bar {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark-mode .recharts-text {
+  fill: #a0a8b8;
+}
+
+:root.dark-mode .recharts-cartesian-axis-line {
+  stroke: #2a3a52;
+}
+
+:root.dark-mode .recharts-cartesian-axis-tick {
+  fill: #a0a8b8;
+}
+
+:root.dark-mode .recharts-legend-wrapper {
+  color: #a0a8b8;
+}
+
+:root.dark-mode .recharts-default-tooltip {
+  background: #1a2332 !important;
+  border: 1px solid #2a3a52 !important;
+  border-radius: 8px;
+}
+
+:root.dark-mode .recharts-tooltip-label {
+  color: #e0e0e0;
+}
+
+:root.dark-mode .recharts-tooltip-item {
+  color: #a0a8b8;
+}
+

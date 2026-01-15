@@ -3,13 +3,13 @@ import "./App.css"
 
 import { Moon, Sun, SquareMenu, LogIn, LogOut } from "lucide-react"
 
-import Home from "./Components/Home"
-import Dashboard from "./Components/Dashboard"
-import Sidebar from "./Components/Sidebar"
+import Home from "./Components/Screens/Home/Home"
+import Dashboard from "./Components/Screens/Dashboard/Dashboard"
+import Sidebar from "./Components/Layout/Sidebar"
 import ModalPortal from "./ModalPortal"
 import AuthModal from "./Modals/AuthModal"
-import { ThemeProvider, useTheme } from "./Context/ThemeContext"
 import { useAuth } from "./Context/AuthContext"
+import { ThemeProvider, useTheme } from "./Context/ThemeContext"
 
 
 function ZenTaskPageContent() {
@@ -19,11 +19,13 @@ function ZenTaskPageContent() {
     const isHomeView = ["all", "pending", "completed", "today", "high-priority"].includes(currentView)
     const isDashboardView = currentView === "dashboard"
 
+    const [fetchTasks, setFetchTasks] = useState(true)
+
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     const [openSignInModal, setOpenSignInModal] = useState(false)
 
-    const { user, setUser, isGuest, guestId, migrateGuest, logout } = useAuth()
+    const { user, setUser, isGuest, migrateGuest, logout } = useAuth()
 
     const { isDarkMode, toggleTheme } = useTheme()
 
@@ -44,8 +46,10 @@ function ZenTaskPageContent() {
     }, [])
 
     useEffect(() => {
-        console.log("mobileMenuOpen------->", mobileMenuOpen)
-    }, [mobileMenuOpen])
+        console.log("User transition happened now!")
+        setFetchTasks(true)
+        setCurrentView('all')
+    }, [isGuest, user]) 
 
 
     return (
@@ -65,10 +69,7 @@ function ZenTaskPageContent() {
                 </div>
                 <div className='navbar-spacer' />
                 <div className='navbar-actions-right' ref={navRef}>
-                    <button
-                        className='theme-toggle'
-                        onClick={toggleTheme}
-                        title='Toggle dark mode'>
+                    <button className='theme-toggle' onClick={toggleTheme} title='Toggle dark mode'>
                         {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
                     </button>
                     {!user ? (
@@ -77,7 +78,7 @@ function ZenTaskPageContent() {
                             <span>Sign in</span>
                         </button>
                     ) : (
-                        <button className='sign-out-btn' onClick={() => logout()}>
+                        <button className={`sign-out-btn  ${isDarkMode ? "dark" : ""}`} onClick={() => logout()}>
                             <LogOut size={18} />
                             <span>Sign out</span>
                         </button>
@@ -86,7 +87,14 @@ function ZenTaskPageContent() {
             </nav>
 
             <main className={`app-main ${isDarkMode ? "dark" : ""}`}>
-                {isHomeView && <Home activeTab={currentView} openAuthModal={() => setOpenSignInModal(true)} />}
+                {isHomeView && (
+                    <Home
+                        activeTab={currentView}
+                        fetchTasks={fetchTasks}
+                        setFetchTasks={setFetchTasks}
+                        openAuthModal={() => setOpenSignInModal(true)}
+                    />
+                )}
                 {isDashboardView && <Dashboard />}
             </main>
 

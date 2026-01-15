@@ -82,7 +82,7 @@ const migrateGuestTodos = async (req, res, next) => {
         console.log("Migrating guest todos...")
 
         const { guestId, hasSeenDemoTask } = req.body
-        const userId = req.user._id
+        const { isGuest, userId } = getUserIdentity(req)
 
         const user = await User.findOne({ _id: userId })
 
@@ -387,6 +387,7 @@ const deleteTodo = async (req, res, next) => {
     try {
         console.log("Inside deleteTodo controller")
 
+        const { isGuest, userId, guestId } = getUserIdentity(req)
         const { id } = req.params
 
         const todo = await Todo.findById(id)
@@ -414,6 +415,44 @@ const deleteTodo = async (req, res, next) => {
 }
 
 
+const removeDuplicateDemoTasks = async (req, res, next) => {
+    try {
+        console.log("Inside removeDuplicateDemoTasks")
+
+        const { isGuest, userId, guestId } = getUserIdentity(req)
+
+        const baseMatch = {isDemo: true}
+
+        if (isGuest) {
+            baseMatch.isGuest = true
+            baseMatch.guestId = guestId
+        } else {
+            baseMatch.isGuest = false
+            baseMatch.userId = userId
+        }
+
+        const demoTasks = await Todo.find(baseMatch).sort({ createdAt: 1 })
+
+        if (demoTasks.length <= 1) {
+            return res.status(200).json({success: true, message: "No duplicate demo tasks found"})
+        }
+
+        const keepId = demoTasks[0]._id
+        const deleteIds = demoTasks.slice(1).map((t) => t._id)
+
+        console.log(`keepId--->${keepId} and deleteIds--->${deleteIds}`)
+
+        const result = await Todo.deleteMany({_id: { $in: deleteIds }})
+
+        res.status(200).json({success: true})
+    }
+    catch (error) {
+        console.error("Error removing duplicate demo tasks:", error)
+        next(error)
+    }
+}
+
+
 
 module.exports = {createTodo, migrateGuestTodos, getAllTodos, updateTodoStatus, updateTodoContent, toggleChecklistItem, 
-    toggleStar, deleteTodo}
+    toggleStar, deleteTodo, removeDuplicateDemoTasks}

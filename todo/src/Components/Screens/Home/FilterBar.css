@@ -176,3 +176,33 @@ body.dark-mode .dropdown-item:hover {
   }
 }
 
+/* Dark Mode */
+
+body.dark-mode .filter-btn {
+  background: #1a1a2e;
+  border-color: #2d2d44;
+  color: #cbd5e0;
+}
+
+body.dark-mode .filter-btn:hover:not(:disabled) {
+  background: #16213e;
+  border-color: #667eea;
+}
+
+body.dark-mode .items-value {
+  color: #a0aec0;
+}
+
+body.dark-mode .dropdown-menu {
+  background: #1a1a2e;
+  border-color: #2d2d44;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .dropdown-item {
+  color: #cbd5e0;
+}
+
+body.dark-mode .dropdown-item:hover {
+  background: #16213e;
+}
