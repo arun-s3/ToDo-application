@@ -737,7 +737,7 @@
 
 @media (max-width: 1024px) {
   .all-tasks {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr);
     padding: 0 2rem;
   }
 
@@ -819,4 +819,248 @@
   .home {
     padding-bottom: 100px;
   }
+}
+
+/* Dark Mode */
+
+.home.dark {
+  background-color: #0f1419;
+  color: #e0e0e0;
+}
+
+.home.dark .title {
+  color: #e0e0e0;
+}
+
+.home.dark .title span {
+  color: #a8c5ff;
+}
+
+.home.dark .subtitle {
+  color: #888;
+}
+
+.home.dark .tab {
+  background: #1a1a2e;
+  border-color: #2d2d44;
+  color: #a0a8b8;
+}
+
+.home.dark .tab:hover {
+  border-color: #a8c5ff;
+  color: #a8c5ff;
+}
+
+.home.dark .tab.active {
+  background: #a8c5ff;
+  color: #0f1419;
+  border-color: #a8c5ff;
+  box-shadow: 0 6px 20px rgba(168, 197, 255, 0.3);
+}
+
+.home.dark .task {
+  background-color: #1a1a2e;
+  border-top-color: #ffa726;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: #e0e0e0;
+}
+
+.home.dark .task:hover {
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.2);
+}
+
+.home.dark .empty-state h2 {
+  color: #666;
+}
+
+.home.dark .todo,
+.home.dark .description {
+  color: #e0e0e0;
+}
+
+.home.dark .todo:disabled,
+.home.dark .description:disabled {
+  color: #e0e0e0;
+}
+
+.home.dark .crossed {
+  text-decoration-color: #ff6b6b;
+  color: #666;
+}
+
+.home.dark .description {
+  color: #a0a8b8;
+}
+
+.home.dark .field::after {
+  background-color: #a8c5ff;
+}
+
+.home.dark .trash {
+  color: #a0a8b8;
+}
+
+.home.dark .trash:hover {
+  color: #ff6b6b;
+}
+
+.home.dark .check-icon {
+  color: #a8c5ff;
+}
+
+.home.dark .check-icon:hover {
+  color: #d4e4ff;
+}
+
+.home.dark .task-metadata {
+  border-top-color: #2d2d44;
+  border-bottom-color: #2d2d44;
+}
+
+.home.dark .metadata-item {
+  background: #2d2d44;
+  color: #a0a8b8;
+}
+
+.home.dark .deadline-badge {
+  color: #a8c5ff;
+  background: #1a3d5c;
+}
+
+.home.dark .priority-badge {
+  border-color: #a8c5ff;
+  color: #e0e0e0;
+}
+
+.home.dark .tags-badge {
+  background: #2d2d44;
+  color: #a0a8b8;
+}
+
+.home.dark .progress-header {
+  color: #a0a8b8;
+}
+
+.home.dark .progress-text {
+  color: #a8c5ff;
+}
+
+.home.dark .progress-bar {
+  background: #2d2d44;
+}
+
+.home.dark .progress-fill {
+  background: linear-gradient(90deg, #a8c5ff, #764ba2);
+}
+
+.home.dark .checklist-section {
+  background: #2d2d44;
+}
+
+.home.dark .checklist-toggle {
+  color: #a8c5ff;
+}
+
+.home.dark .checklist-toggle:hover {
+  background: #1a3d5c;
+}
+
+.home.dark .checklist-items-list {
+  background: #1a1a2e;
+  border-top-color: #2d2d44;
+}
+
+.home.dark .checklist-item-row {
+  color: #e0e0e0;
+}
+
+.home.dark .checklist-checkbox {
+  border-color: #a8c5ff;
+}
+
+.home.dark .checklist-checkbox:hover {
+  background: #1a3d5c;
+}
+
+.home.dark .checklist-checkbox.checked {
+  background: #a8c5ff;
+  border-color: #a8c5ff;
+}
+
+.home.dark .checklist-text {
+  color: #e0e0e0;
+}
+
+.home.dark .checklist-text.completed {
+  color: #666;
+}
+
+.home.dark .tag-chip {
+  background: linear-gradient(135deg, #a8c5ff 0%, #764ba2 100%);
+}
+
+.home.dark .editor {
+  color: #a0a8b8;
+}
+
+.home.dark .editor:hover {
+  color: #a8c5ff;
+}
+
+.home.dark .star-button {
+  color: #4a5a7a;
+}
+
+.home.dark .star-button:hover {
+  color: #ffa726;
+}
+
+.home.dark .star-button.starred {
+  color: #ffa726;
+}
+
+.home.dark .search-input {
+  background: #1a1a2e;
+  border-color: #2d2d44;
+  color: #e0e0e0;
+}
+
+.home.dark .search-input:focus {
+  border-color: #a8c5ff;
+  box-shadow: 0 4px 12px rgba(168, 197, 255, 0.15);
+}
+
+.home.dark .search-input::placeholder {
+  color: #666;
+}
+
+.home.dark .search-icon {
+  color: #666;
+}
+
+.home.dark .search-results-header {
+  border-bottom-color: #2d2d44;
+}
+
+.home.dark .search-results-header h3 {
+  color: #e0e0e0;
+}
+
+.home.dark .result-count {
+  background: #a8c5ff;
+  color: #0f1419;
+}
+
+.home.dark .no-results p {
+  color: #666;
+}
+
+.home.dark .add-task-btn {
+  background: linear-gradient(135deg, #a8c5ff 0%, #764ba2 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.home.dark .add-task-btn:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #5a3f7e 100%);
+  box-shadow: 0 6px 20px rgba(168, 197, 255, 0.3);
 }

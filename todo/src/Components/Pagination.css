@@ -6,7 +6,6 @@
   margin-top: 3rem;
   padding: 8px 12px;
   background: white;
-  border: 1.5px solid #e5e7eb;
   border-radius: 10px;
   transition: all 0.2s ease;
 }
@@ -85,7 +84,6 @@ body.dark-mode .current-page {
 @media (max-width: 1024px) {
   .pagination-controls {
     order: 4;
-    width: 100%;
     margin-left: 0;
     justify-content: flex-start;
   }
@@ -107,3 +105,6 @@ body.dark-mode .current-page {
     min-width: 45px;
   }
 }
+
+
+

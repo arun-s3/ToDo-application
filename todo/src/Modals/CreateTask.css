@@ -415,3 +415,115 @@
     font-size: 18px;
   }
 }
+
+/* Dark Mode */
+
+:root.dark-mode .modal-content {
+  background: #1a2332;
+  color: #e0e0e0;
+}
+
+:root.dark-mode .modal-header {
+  border-bottom-color: #2a3a52;
+}
+
+:root.dark-mode .modal-header h3 {
+  color: #e0e0e0;
+}
+
+:root.dark-mode .modal-close {
+  color: #a0a8b8;
+}
+
+:root.dark-mode .modal-close:hover {
+  color: #e0e0e0;
+}
+
+:root.dark-mode .section-label {
+  color: #e0e0e0;
+}
+
+:root.dark-mode .title-input,
+:root.dark-mode .description-input,
+:root.dark-mode .checklist-input,
+:root.dark-mode .tag-input,
+:root.dark-mode .deadline-input {
+  background: #2a3a52;
+  border-color: #3a4a62;
+  color: #e0e0e0;
+}
+
+:root.dark-mode .title-input:focus,
+:root.dark-mode .description-input:focus,
+:root.dark-mode .checklist-input:focus,
+:root.dark-mode .tag-input:focus,
+:root.dark-mode .deadline-input:focus {
+  border-color: #5a9fff;
+  box-shadow: 0 4px 12px rgba(90, 159, 255, 0.15);
+}
+
+:root.dark-mode .title-input::placeholder,
+:root.dark-mode .description-input::placeholder,
+:root.dark-mode .checklist-input::placeholder,
+:root.dark-mode .tag-input::placeholder {
+  color: #666;
+}
+
+:root.dark-mode .priority-btn {
+  background: #2a3a52;
+  border-color: #3a4a62;
+  color: #a0a8b8;
+}
+
+:root.dark-mode .priority-btn:hover {
+  background: #3a4a62;
+  border-color: #5a9fff;
+}
+
+:root.dark-mode .priority-btn.active {
+  background: #5a9fff;
+  color: #0f1419;
+  border-color: #5a9fff;
+}
+
+:root.dark-mode .checklist-item {
+  background: #2a3a52;
+  color: #a0a8b8;
+}
+
+:root.dark-mode .btn-add-task-large {
+  background-color: #5a9fff;
+}
+
+:root.dark-mode .btn-add-task-large:hover {
+  background-color: #3a7fdf;
+}
+
+:root.dark-mode .btn-add-item {
+  background-color: #5a9fff;
+}
+
+:root.dark-mode .btn-add-item:hover {
+  background-color: #3a7fdf;
+}
+
+:root.dark-mode .btn-modal-cancel {
+  background: #2a3a52;
+  color: #a0a8b8;
+}
+
+:root.dark-mode .btn-modal-cancel:hover {
+  background: #3a4a62;
+}
+
+:root.dark-mode .btn-modal-save {
+  background: #5a9fff;
+}
+
+:root.dark-mode .btn-modal-save:hover {
+  background: #3a7fdf;
+}
+
+:root.dark-mode .modal-footer {
+  border-top-color: #2a3a52;
+}

@@ -1,10 +1,11 @@
 import React from 'react'
 import "./Sidebar.css"
 
-import { ChartNoAxesCombined, ClipboardList, SquareCheck, Clock, Zap, Calendar} from "lucide-react"
+import { ChartNoAxesCombined, ClipboardList, SquareCheck, Clock, Zap, Calendar, X} from "lucide-react"
 
 
-const Sidebar = ({ currentView, onViewChange }) => {
+const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen }) => {
+
 
   const taskFilters = [
     { id: "all", label: "All Tasks", icon: ClipboardList },
@@ -14,45 +15,61 @@ const Sidebar = ({ currentView, onViewChange }) => {
     { id: "high-priority", label: "High Priority", icon: Zap },
   ]
 
+
   return (
-    <div className="sidebar">
-      <div className="sidebar-top">
-        <div className="sidebar-logo">
-          <img src='./ZenTaskLogo.png' alt='ZenTask' />
-          <h2> Zen <span> Task </span></h2>
-        </div>
+      <div className={`sidebar ${mobileMenuOpen ? "open" : "close"}`}>
+          <div className='sidebar-top'>
+              <div className='mobile-header-close'>
+                  <button onClick={() => setMobileMenuOpen(false)}>
+                    <X/>
+                  </button>
+              </div>
+              <div className='sidebar-logo'>
+                  <img src='./ZenTaskLogo.png' alt='ZenTask' />
+                  <h2>
+                      {" "}
+                      Zen <span> Task </span>
+                  </h2>
+              </div>
 
-        <div className="sidebar-section">
-          <div
-            className={`sidebar-item ${currentView === "dashboard" ? "active" : ""}`}
-            onClick={() => onViewChange("dashboard")}
-          >
-            <ChartNoAxesCombined size={20} className={`${currentView === "dashboard" ? "active" : ""}`}/>
-            <span>Dashboard</span>
-          </div>
-        </div>
+              <div className='sidebar-section'>
+                  <div
+                      className={`sidebar-item ${currentView === "dashboard" ? "active" : ""}`}
+                      onClick={() =>{
+                         onViewChange("dashboard")
+                         if (mobileMenuOpen) {
+                             setMobileMenuOpen(false)
+                         }
+                      }}>
+                      <ChartNoAxesCombined size={20} className={`${currentView === "dashboard" ? "active" : ""}`} />
+                      <span>Dashboard</span>
+                  </div>
+              </div>
 
-        <div className="sidebar-section">
-          <h3 className="sidebar-section-title">Tasks</h3>
-          <div className="sidebar-items-group">
-            {taskFilters.map((filter) => {
-              const Icon = filter.icon
-              return (
-                <div
-                  key={filter.id}
-                  className={`sidebar-item ${currentView === filter.id ? "active" : ""}`}
-                  onClick={() => onViewChange(filter.id)}
-                >
-                  <Icon size={18} className={`${currentView === filter.id ? "active" : ""}`}/>
-                  <span>{filter.label}</span>
-                </div>
-              )
-            })}
+              <div className='sidebar-section'>
+                  <h3 className='sidebar-section-title'>Tasks</h3>
+                  <div className='sidebar-items-group'>
+                      {taskFilters.map((filter) => {
+                          const Icon = filter.icon
+                          return (
+                              <div
+                                  key={filter.id}
+                                  className={`sidebar-item ${currentView === filter.id ? "active" : ""}`}
+                                  onClick={() =>{
+                                     onViewChange(filter.id)
+                                     if(mobileMenuOpen){
+                                        setMobileMenuOpen(false)
+                                     }
+                                  }}>
+                                  <Icon size={18} className={`${currentView === filter.id ? "active" : ""}`} />
+                                  <span>{filter.label}</span>
+                              </div>
+                          )
+                      })}
+                  </div>
+              </div>
           </div>
-        </div>
       </div>
-
-    </div>
   )
 }
 

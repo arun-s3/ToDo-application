@@ -9,6 +9,8 @@ import { api } from "../api/axiosInstance"
 import { toast } from 'sonner'
 import { BarChart3, TrendingUp, CheckCircle2, AlertCircle, Star, Calendar } from "lucide-react"
 
+import { useTheme } from "../Context/ThemeContext"
+
 
 export default function Dashboard() {
 
@@ -28,6 +30,8 @@ export default function Dashboard() {
     const [trendData, setTrendData] = useState([])
 
     const [deadlineInsights, setDeadlineInsights] = useState({})
+
+    const { isDarkMode } = useTheme()
 
     useEffect(() => {
         const fetchAllStats = async () => {
@@ -124,15 +128,15 @@ export default function Dashboard() {
     }, [stats])
 
     const chartColors = {
-        line: "#287fe5",
-        grid: "#e0e0e0",
-        text: "#666",
-        tooltip: "#fff",
+        line: isDarkMode ? "#5a9fff" : "#287fe5",
+        grid: isDarkMode ? "#2a3a52" : "#e0e0e0",
+        text: isDarkMode ? "#a0a8b8" : "#666",
+        tooltip: isDarkMode ? "#1a2332" : "#fff",
     }
 
     
     return (
-        <div className={`dashboard`}>
+        <div className={`dashboard ${isDarkMode ? "dark" : ""}`}>
             <h2 className='dashboard-title'>
                 <hr></hr>
                 <div>
@@ -183,7 +187,7 @@ export default function Dashboard() {
                                         backgroundColor: chartColors.tooltip,
                                         border: `1px solid ${chartColors.grid}`,
                                         borderRadius: "8px",
-                                        color: "#333",
+                                        color: isDarkMode ? "#e0e0e0" : "#333",
                                         fontSize: "13px",
                                     }}
                                 />
@@ -236,6 +240,7 @@ export default function Dashboard() {
                                         borderRadius: "8px",
                                         color: "#333",
                                         fontSize: "13px",
+                                        color: isDarkMode ? "#e0e0e0" : "#333",
                                     }}
                                 />
                             </PieChart>
@@ -267,7 +272,7 @@ export default function Dashboard() {
                                         backgroundColor: chartColors.tooltip,
                                         border: `1px solid ${chartColors.grid}`,
                                         borderRadius: "8px",
-                                        color: "#333",
+                                        color: isDarkMode ? "#e0e0e0" : "#333",
                                         fontSize: "13px",
                                     }}
                                 />

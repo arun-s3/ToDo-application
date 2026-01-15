@@ -14,6 +14,7 @@ import HeroSection from "./HeroSection"
 import Pagination from "./Pagination"
 
 import { useAuth } from "../Context/AuthContext"
+import { useTheme } from "../Context/ThemeContext"
 import { shouldShowGuestSignupModal } from '../Utils/GuestPrompt'
 import { dummyTask } from "../data/dummyTask"
 
@@ -45,6 +46,8 @@ export default function Home({ activeTab = "all", openAuthModal }) {
     const [openGuestModeModal, setOpenGuestModeModal] = useState(false)
 
     const { isGuest, user } = useAuth()
+
+    const { isDarkMode } = useTheme()
 
     useEffect(() => {
         if (fetchTasks) {
@@ -433,7 +436,7 @@ export default function Home({ activeTab = "all", openAuthModal }) {
 
 
   return (
-      <div className={`home`}>
+      <div className={`home ${isDarkMode ? "dark" : ""}`}>
           <div className='home-header'>
               <div className='tab-wrapper'>
                   <i className='icon'>{getTabIcon()}</i>

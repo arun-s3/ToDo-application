@@ -3,11 +3,15 @@ import "./HeroSection.css"
 
 import {CheckCircle2, Star, Flag, Calendar, Tag, Plus, ArrowRight, Zap, TrendingUp, ClipboardList, Clock, AlertCircle} from "lucide-react"
 
+import { useTheme } from "../Context/ThemeContext"
+
 
 export default function HeroSection({ onCreateTask }) {
 
     const [isVisible, setIsVisible] = useState(false)
     const [animatingCards, setAnimatingCards] = useState([])
+
+    const { isDarkMode } = useTheme()
 
     useEffect(() => {
         setIsVisible(true)
@@ -66,7 +70,7 @@ export default function HeroSection({ onCreateTask }) {
     ]
 
     return (
-        <div className='empty-state-container'>
+        <div className={`empty-state-container ${isDarkMode ? "dark" : ""}`}>
             <div className='empty-state-wrapper'>
                 <div className={`hero-section ${isVisible ? "visible" : "hidden"}`}>
                     <div className='hero-badge'>

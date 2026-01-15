@@ -12,7 +12,7 @@
 
 .dashboard-title {
   font-family: "Roboto", sans-serif;
-  font-size: 2.8rem;
+  font-size: 2.3rem;
   margin-bottom: 2.5rem;
   color: #1a1a1a;
   text-align: center;
@@ -25,7 +25,7 @@
 
 .dashboard-title > hr {
     height: 2px;
-    width: 65%;
+    width: 72%;
     order: 1;
     background: #a2caf7;
     color: #287fe5;
