@@ -19,9 +19,10 @@ import { shouldShowGuestSignupModal } from '../../../Utils/GuestPrompt'
 import { dummyTask } from "../../../data/dummyTask"
 
 
-export default function Home({ activeTab = "all", openAuthModal, fetchTasks, setFetchTasks }) {
+export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
 
     const [todos, setTodo] = useState([])
+    const [fetchTasks, setFetchTasks] = useState(true)
 
     const [editingId, setEditingId] = useState({title: false, desc: false, taskId: null})
 
@@ -33,7 +34,7 @@ export default function Home({ activeTab = "all", openAuthModal, fetchTasks, set
 
     const [showModal, setShowModal] = useState(false)
 
-    const [openTaskDeleteModal, setOpenTaskDeleteModal] = useState({id: null, title: null})
+    const [openTaskDeleteModal, setOpenTaskDeleteModal] = useState({id: null, title: null, isDemo: false})
     const [isDeleting, setIsDeleting] = useState(false)
 
     const [updateTask, setUpdateTask] = useState(null)
@@ -41,102 +42,46 @@ export default function Home({ activeTab = "all", openAuthModal, fetchTasks, set
     const [currentPage, setCurrentPage] = useState(1)
     const [limit, setLimit] = useState(5)
     const [totalTodos, setTotalTodos] = useState(0)
+    const [overallTodos, setOverallTodos] = useState(0)
 
     const [openGuestModeModal, setOpenGuestModeModal] = useState(false)
 
-    const { isGuest, user } = useAuth()
+    const { isGuest, guestId, user, authReady } = useAuth() 
 
     const { isDarkMode } = useTheme()
 
-    useEffect(() => {
-        if (fetchTasks) {
-            getTasks()
-            setFetchTasks(false)
+    const addingDemoRef = useRef(false)
+
+    const getTaskQueryOptions = () => {
+        const activeTabMap = {
+            today: "dueToday",
+            "high-priority": "highPriority",
         }
-    }, [fetchTasks]) 
+        const activeTabValue =
+            activeTab === "today" || activeTab === "high-priority" ? activeTabMap[activeTab] : activeTab
 
-    useEffect(() => {
-        setFetchTasks(true)
-    }, [isGuest, user]) 
-
-    const addDummyTask = ()=> {
-        console.log(`Adding dummy task for ${isGuest ? "guest" : "user"}`)
-        api.post(`tasks/add`, { task: dummyTask })
-            .then((response) => {
-                if (response.data.data.isDemo && isGuest) {
-                    const hasGuestSeen = localStorage.getItem("hasSeenDemoTask") === "true"
-                    console.log(`Was hasGuestSeen true for guest?---->${hasGuestSeen ? 'yes' : 'no'}`)
-                    if (!hasGuestSeen) {
-                        localStorage.setItem("hasSeenDemoTask", "true")
-                    }
-                }
-                console.log(response)
-                setFetchTasks(true)
-            })
-            .catch((error) => {
-                console.log("Error---->", error.response.data.message)
-            })
-    }
-
-    const removeDuplicateDemoTasks = async()=> {
-        try {
-            const response = await api.delete(`demo/delete`)
-
-            if (response && response?.data?.success) {
-                console.log("Remove duplicate demo tasks")
-            }
-        } catch (error) {
-            console.error("Error while removing duplicate demo tasks:", error)
+        return {
+            type: activeTabValue,
+            page: currentPage,
+            limit,
+            sortBy,
+            sort,
+            search: searchQuery,
         }
     }
-
-    useEffect(() => {
-        if (!isGuest) return
-
-        const hasSeen = localStorage.getItem("hasSeenDemoTask") === "true"
-
-        const alreadyInjected = todos.some((todo) => todo.isDemo)
-        console.log("Demo task alreadyInjected for guest---->", alreadyInjected)
-
-        console.log(`hasSeen----> ${hasSeen}, todos.length----> ${todos.length}`)
-
-        if (!hasSeen && !alreadyInjected && todos.length === 0) {
-            addDummyTask()
-        }
-    }, [isGuest, todos])
-
-    useEffect(() => {
-        if (isGuest) return
-        if (!user) return
-
-        const alreadyInjected = todos.some((todo) => todo.isDemo)
-        console.log("Demo task alreadyInjected for user---->", alreadyInjected)
-
-        console.log(`user.hasSeenDemoTask----> ${user.hasSeenDemoTask}, todos.length----> ${todos.length}`)
-
-        if (!user.hasSeenDemoTask && !alreadyInjected && todos.length === 0) {
-            addDummyTask()
-        }
-    }, [user, todos])
-
-    useEffect(() => {
-        const demoTasksCount = todos.filter((todo) => todo.isDemo).length
-        console.log("demoTasksCount---->", demoTasksCount)
-
-        if (demoTasksCount > 1) {
-            console.log("Removing duplicates---->")
-            removeDuplicateDemoTasks()
-        }
-    }, [isGuest, user])
 
     const getTasks = async (taskQueryOptions) => {
         try {
+            if (isGuest && !guestId) return
+            if (!authReady) return  
             console.log("Getting tasks with the options--->", taskQueryOptions)
             const response = await api.post("/tasks", { taskQueryOptions })
 
             if (response && response?.data?.success) {
                 setTodo(response.data.todos)
                 setTotalTodos(response.data.total)
+                console.log("response.data.overallTotal---->", response.data.overallTotal)
+                setOverallTodos(response.data.overallTotal)
             }
         } catch (error) {
             console.error("Error while getting tasks:", error)
@@ -150,25 +95,83 @@ export default function Home({ activeTab = "all", openAuthModal, fetchTasks, set
     }
 
     useEffect(() => {
-        if (!activeTab) return
-
-        const activeTabMap = {
-            "today": "dueToday",
-            "high-priority": "highPriority",
+        if (fetchTasks) {
+            const taskQueryOptions = getTaskQueryOptions()
+            getTasks(taskQueryOptions)
+            setFetchTasks(false)
         }
-        const activeTabValue = activeTab === "today" || activeTab === "high-priority" ? activeTabMap[activeTab] : activeTab
+    }, [fetchTasks]) 
 
-        const taskQueryOptions = {
-            type: activeTabValue,
-            page: currentPage,
-            limit,
-            sortBy,
-            sort,
-            search: searchQuery,
-        }
+    useEffect(() => {
+        if (!authReady) return
 
+        const taskQueryOptions = getTaskQueryOptions()
         getTasks(taskQueryOptions)
-    }, [activeTab, currentPage, limit, sortBy, sort, searchQuery])
+    }, [authReady, isGuest, user, activeTab, currentPage, limit, sortBy, sort, searchQuery])
+
+    const addDummyTask = async () => {
+        if (!authReady) return  
+        if (!isGuest || !guestId) return  
+        if (addingDemoRef.current) return
+        addingDemoRef.current = true
+
+        try {
+            const response = await api.post(`tasks/add`, { task: dummyTask })
+            if (response?.data.success) {
+                setFetchTasks(true)
+            }
+        } catch (error) {
+            console.log("Error adding demo:", error?.response?.data?.message || error.message)
+        } finally {
+            addingDemoRef.current = false
+        }
+    }
+
+
+    // const removeDuplicateDemoTasks = async()=> {
+    //     try {
+    //         const response = await api.delete(`demo/delete`)
+
+    //         if (response && response?.data?.success) {
+    //             console.log("Remove duplicate demo tasks")
+    //         }
+    //     } catch (error) {
+    //         console.error("Error while removing duplicate demo tasks:", error)
+    //     }
+    // }
+
+    useEffect(() => {
+        if (!isGuest || !guestId) return
+        if (!authReady) return  
+        if (demoLockRef.current) return 
+
+        const hasSeen = localStorage.getItem("hasSeenDemoTask") === "true"
+
+        const alreadyInjected = todos.some((todo) => todo.isDemo)
+        console.log("Demo task alreadyInjected for guest---->", alreadyInjected)
+
+        console.log(`hasSeen----> ${hasSeen}, todos.length----> ${todos.length}. Hence ${!hasSeen && !alreadyInjected && todos.length === 0 ? 'ADDING' : "NOT ADDING"} demo task for guest`)
+
+        if (!hasSeen && !alreadyInjected && todos.length === 0) {
+            demoLockRef.current = true
+            addDummyTask()
+        }
+    }, [isGuest, guestId, authReady, todos.length])
+
+    useEffect(() => {
+        if (isGuest) return
+        if (!user) return
+        if (!authReady) return  
+
+        const alreadyInjected = todos.some((todo) => todo.isDemo)
+        console.log("Demo task alreadyInjected for user---->", alreadyInjected)
+
+        console.log(`user.hasSeenDemoTask----> ${user.hasSeenDemoTask}, todos.length----> ${todos.length}. Hence ${user.hasSeenDemoTask && !alreadyInjected && todos.length === 0 ? 'ADDING' : "NOT ADDING"} demo task for user`)
+
+        if (!user.hasSeenDemoTask && !alreadyInjected && todos.length === 0) {
+            addDummyTask()
+        }
+    }, [user, authReady, todos])
 
     const createNewTask = ()=> {
         if (isGuest && shouldShowGuestSignupModal()) {
@@ -178,7 +181,6 @@ export default function Home({ activeTab = "all", openAuthModal, fetchTasks, set
         }
         setShowModal(true)
     }
-
 
     const handleSearch = (query) => {
         setSearchQuery(query)
@@ -219,24 +221,28 @@ export default function Home({ activeTab = "all", openAuthModal, fetchTasks, set
              })
     }
 
-    const askUserConfirmation = (id, title)=> {
-        setOpenTaskDeleteModal({ id, title })
+    const askUserConfirmation = (id, title, isDemo) => {
+        setOpenTaskDeleteModal({ id, title, isDemo })
     }
 
-    const handleTrash = (id)=>{
+    const handleTrash = (id, isDemo)=>{
         setIsDeleting(true)
         api.delete(`tasks/delete/${id}`)
              .then(result=> {
                 console.log(result)
                 setIsDeleting(false)
+                if (isGuest && guestId && isDemo) {
+                    localStorage.setItem("hasSeenDemoTask", "true")
+                    demoLockRef.current = true
+                }
+                const newTodos = todos.filter((todo) => todo._id !== id)
+                setTodo(newTodos)
              })
              .catch(error=> {
                     toast.error(error.response.data.message)
                     console.log("Error---->", error.response.data.message)
                     setIsDeleting(false)
              })
-        const newTodos = todos.filter(todo=> todo._id !== id)
-        setTodo(newTodos)
     }
 
     const initiateTaskEditing = (task) => {
@@ -423,12 +429,14 @@ export default function Home({ activeTab = "all", openAuthModal, fetchTasks, set
     }
 
     const getFilteredTasks = () => {
+        console.log("todos inside getFilteredTasks----->", todos)
         let hasSeenDemoTask = false
 
         if (user) {
             hasSeenDemoTask = !!user.hasSeenDemoTask
         } else if (isGuest) {
-            hasSeenDemoTask = !!localStorage.getItem("hasSeenDemoTask")
+            hasSeenDemoTask = localStorage.getItem("hasSeenDemoTask") === "true"
+
         }
 
         let demoShown = false
@@ -478,7 +486,12 @@ export default function Home({ activeTab = "all", openAuthModal, fetchTasks, set
             </div>
 
             <CreateTask
-                onsubmit={() => setFetchTasks(true)}
+                onsubmit={(task) => {
+                    if (isGuest && guestId && !task.isDemo) {
+                        localStorage.setItem("hasSeenDemoTask", "true")
+                    }
+                    setFetchTasks(true)
+                }}
                 isModalOpen={showModal}
                 onModalClose={() => setShowModal(false)}
                 editTask={updateTask}
@@ -491,10 +504,10 @@ export default function Home({ activeTab = "all", openAuthModal, fetchTasks, set
                 </span>
             )}
 
-            {todos.length === 0 ||
-                (todos.length > 0 && todos.every((todo) => todo.isDemo) && (
+            {
+                ( overallTodos === 0 || todos.every(todo=> todo.isDemo) ) && 
                     <HeroSection onCreateTask={createNewTask} />
-                ))}
+            }
 
             {filteredTodos.length > 0 && (
                 <FilterBar
@@ -550,11 +563,12 @@ export default function Home({ activeTab = "all", openAuthModal, fetchTasks, set
             <TaskDeleteModal
                 isOpen={openTaskDeleteModal.id}
                 taskName={openTaskDeleteModal.title}
+                isTaskDemo={openTaskDeleteModal.isDemo}
                 onConfirm={() => {
-                    handleTrash(openTaskDeleteModal.id)
-                    setOpenTaskDeleteModal({ id: null, title: null })
+                    handleTrash(openTaskDeleteModal.id, openTaskDeleteModal.isDemo)
+                    setOpenTaskDeleteModal({ id: null, title: null, isDemo: false })
                 }}
-                onCancel={() => setOpenTaskDeleteModal({ id: null, title: null })}
+                onCancel={() => setOpenTaskDeleteModal({ id: null, title: null, isDemo: false })}
                 isLoading={isDeleting}
             />
 

@@ -99,7 +99,7 @@ export default function TaskCard({todo, index, editingId, setEditingId, onToggle
                     <Trash2
                         className="trash"
                         size={18}
-                        onClick={() => onDeleteTask(todo._id, todo.title)}
+                        onClick={() => onDeleteTask(todo._id, todo.title, todo.isDemo)}
                     />
                 </div>
             </div>

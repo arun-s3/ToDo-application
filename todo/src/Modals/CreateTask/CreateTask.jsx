@@ -55,7 +55,7 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
             .then((response) => {
                 console.log(response)
                 resetForm()
-                onsubmit()
+                onsubmit(task)
             })
             .catch((error) => {
                 toast.error(error.response.data.message)

@@ -5,12 +5,15 @@ import { AlertCircle, Trash2, X } from "lucide-react"
 
 import ModalPortal from "../ModalPortal"
 import useModalClose from "../Hooks/useModalClose"
+import { useAuth } from "../Context/AuthContext"
 
 
-export default function TaskDeleteModal({ isOpen, taskName, onConfirm, onCancel, isLoading = false }) {
+export default function TaskDeleteModal({ isOpen, taskName, isTaskDemo, onConfirm, onCancel, isLoading = false }) {
 
     const modalRef = useRef(null)
     useModalClose(modalRef, onCancel)
+
+    const { isGuest, guestId } = useAuth() 
     
     if (!isOpen) return null
 
@@ -34,8 +37,14 @@ export default function TaskDeleteModal({ isOpen, taskName, onConfirm, onCancel,
                         </button>
                     </div>
 
-                    <div className='delete-body'>
-                        <p className='delete-text'>Are you sure you want to delete this task?</p>
+                    <div className='delete-body'> 
+                        <p className='delete-text'>
+                            {
+                                !isTaskDemo 
+                                    ? "Are you sure you want to delete this task?"
+                                    : "This is a sample task to help you get started."
+                            }
+                        </p>
 
                         {taskName && (
                             <div className='delete-task-box'>
@@ -45,7 +54,11 @@ export default function TaskDeleteModal({ isOpen, taskName, onConfirm, onCancel,
                         )}
 
                         <div className='delete-warning'>
-                            This action cannot be undone. The task will be permanently deleted.
+                            {
+                                !isTaskDemo 
+                                    ? "This action cannot be undone. The task will be permanently deleted."
+                                    : "Since you’re not signed in, if you revisit later, the demo task may appear again."
+                            }
                         </div>
                     </div>
 

@@ -14,61 +14,68 @@ const createTodo = async (req, res, next) => {
         console.log("req.body.task --->", JSON.stringify(req.body.task))
 
         const {
-          title,
-          desc,
-          checklist = [],
-          priority = "medium",
-          deadline = null,
-          tags = [],
-          starred = false,
-          isDemo = false
+            title,
+            desc,
+            checklist = [],
+            priority = "medium",
+            deadline = null,
+            tags = [],
+            starred = false,
+            isDemo = false,
         } = req.body.task
 
         if (!title || !title.trim()) {
-          return next(errorHandler(400, "Title is required"))
+            return next(errorHandler(400, "Title is required"))
         }
 
-        console.log(`Creating ${isDemo ? 'demo' : 'non-demo'} task for ${isGuest ? 'guest' : 'user'}`)
+        console.log(`Creating ${isDemo ? "demo" : "non-demo"} task for ${isGuest ? "guest" : "user"}`)
 
         const todoData = {
-          isGuest,
-          title: title.trim(),
-          desc,
-          checklist,
-          priority,
-          deadline,
-          tags,
-          starred,
-          isDemo
+            isGuest,
+            title: title.trim(),
+            desc,
+            checklist,
+            priority,
+            deadline,
+            tags,
+            starred,
+            isDemo,
         }
 
-        if (isGuest){
-          todoData.guestId = guestId
-        }else{
-          todoData.userId = userId
+        if (isGuest) {
+            todoData.guestId = guestId
+        } else {
+            todoData.userId = userId
         }
-
-        const todo = await Todo.create(todoData)
 
         if (!isDemo) {
+            const todo = await Todo.create(todoData)
+
             if (isGuest) {
-              await Todo.deleteMany({isGuest: true, guestId, isDemo: true})
-            }else {
-              await User.updateOne({ _id: userId }, { hasSeenDemoTask: true})
-          
-              await Todo.deleteMany({isGuest: false, userId, isDemo: true})
+                await Todo.deleteMany({isGuest: true, guestId, isDemo: true})
+            } else {
+                await User.updateOne({ _id: userId }, { hasSeenDemoTask: true })
+
+                await Todo.deleteMany({isGuest: false, userId, isDemo: true})
             }
-        }else{
-            const existingDemo = await Todo.findOne({
-                isDemo: true,
-                ...(isGuest ? { guestId } : { userId }),
-            }) 
-            if (existingDemo) {
-                return res.status(200).json({ success: true, data: existingDemo, message: "Demo already exists"})
-            }
+
+            return res.status(201).json({success: true, data: todo})
         }
 
-        return res.status(201).json({success: true, data: todo})
+        try {
+            const todo = await Todo.create(todoData)
+
+            return res.status(201).json({success: true, data: todo})
+        } catch (err) {
+            if (err.code === 11000) {
+                const existingDemo = await Todo.findOne({
+                    isDemo: true,
+                    ...(isGuest ? { guestId } : { userId }),
+                })
+                return res.status(200).json({success: true, data: existingDemo, message: "Demo already exists"})
+            }
+            throw err
+        }
     }
     catch (error) {
         console.error("Error creating todo:", error.message)
@@ -81,46 +88,47 @@ const migrateGuestTodos = async (req, res, next) => {
     try {
         console.log("Migrating guest todos...")
 
-        const { guestId, hasSeenDemoTask } = req.body
-        const { isGuest, userId } = getUserIdentity(req)
-
-        const user = await User.findOne({ _id: userId })
+        const { guestId } = req.body
+        const { userId } = getUserIdentity(req)
 
         if (!guestId) {
             return next(errorHandler(400, "Guest ID missing"))
         }
 
-        if (hasSeenDemoTask === true || user.hasSeenDemoTask) {
+        const user = await User.findById(userId)
+
+        if (!user.hasSeenDemoTask) {
             await User.updateOne({ _id: userId }, { $set: { hasSeenDemoTask: true } })
         }
 
-        const guestTodos = await Todo.find({ isGuest: true, guestId })
+        const guestTodos = await Todo.find({isGuest: true, guestId, isDemo: false})
 
         if (!guestTodos.length) {
-            return res
-                .status(200)
-                .json({ success: true, message: "No guest todos to migrate" })
-        }
-
-        if (hasSeenDemoTask === true || user.hasSeenDemoTask) {
-            await Todo.deleteOne({ isGuest: true, guestId, isDemo: true })
+            return res.status(200).json({success: true, message: "No guest todos to migrate"})
         }
 
         await Todo.updateMany(
-            { isGuest: true, guestId },
+            {
+                isGuest: true,
+                guestId,
+                isDemo: false,
+            },
             {
                 $set: {
                     isGuest: false,
-                    userId: userId,
+                    userId,
                 },
                 $unset: {
                     guestId: "",
                 },
             }
-        );
+        )
 
-        return res.status(200).json({success: true, message: "Guest todos migrated successfully"});
-    } catch (error) {
+        await Todo.deleteMany({isGuest: true, guestId, isDemo: true})
+
+        return res.status(200).json({success: true, message: "Guest todos migrated successfully"})
+    }
+    catch (error) {
         console.error("Migration error:", error.message)
         next(error)
     }
@@ -133,8 +141,6 @@ const getAllTodos = async (req, res, next) => {
 
         const { isGuest, userId, guestId } = getUserIdentity(req)
 
-        console.log("req.body.taskQueryOptions --->", JSON.stringify(req.body.taskQueryOptions))
-
         const {
             type = "all",
             sortBy = "created",
@@ -144,15 +150,11 @@ const getAllTodos = async (req, res, next) => {
             limit = 5,
         } = req.body.taskQueryOptions || {}
 
-        const query = {}
+        const baseQuery = isGuest ? { isGuest: true, guestId } : { isGuest: false, userId }
 
-        if (isGuest) {
-            query.isGuest = true
-            query.guestId = guestId
-        } else {
-            query.isGuest = false
-            query.userId = userId
-        }
+        const overallTotal = await Todo.countDocuments({ ...baseQuery})
+
+        const query = { ...baseQuery }
 
         const todayStart = new Date()
         todayStart.setHours(0, 0, 0, 0)
@@ -192,28 +194,53 @@ const getAllTodos = async (req, res, next) => {
 
         const sortField = sortMap[sortBy] || "createdAt"
 
-        const sortObj = {
-            [sortField]: sort,
-            _id: -1,
-        }
+        const sortObj = { [sortField]: sort, _id: -1 }
 
         const skip = (page - 1) * limit
 
-        const total = await Todo.countDocuments(query)
+        const filteredQuery = { ...query, isDemo: false }
 
-        const todos = await Todo.find(query).sort(sortObj).skip(skip).limit(limit)
+        const filteredTotal = await Todo.countDocuments(filteredQuery)
+
+        let todos = await Todo.find(filteredQuery).sort(sortObj).skip(skip).limit(limit)
+
+        if (page === 1 && todos.length === 0) {
+            if (isGuest) {
+                const demo = await Todo.findOne({
+                    ...baseQuery,
+                    isDemo: true,
+                })
+                if (demo) {
+                    todos = [demo]
+                }
+            } else {
+                const user = await User.findById(userId)
+
+                if (!user?.hasSeenDemoTask) {
+                    const demo = await Todo.findOne({
+                        ...baseQuery,
+                        isDemo: true,
+                    })
+                    if (demo) {
+                        todos = [demo]
+                    }
+                }
+            }
+        }
 
         res.status(200).json({
             success: true,
             page,
             limit,
-            total,
-            totalPages: Math.ceil(total / limit),
-            hasNext: page * limit < total,
+            total: filteredTotal, 
+            overallTotal, 
+            totalPages: Math.ceil(filteredTotal / limit),
+            hasNext: page * limit < filteredTotal,
             hasPrev: page > 1,
             todos,
         })
-    } catch (error) {
+    }
+    catch (error) {
         console.error("Error fetching todos:", error.message)
         next(error)
     }

@@ -6,6 +6,7 @@ const isLogin = async (req, res, next) => {
     try {
         if (req.cookies.jwt){
             const token = req.cookies.jwt;
+            req.user = null
             const decoded = verifyToken(token)
             if (!decoded) return res.status(401).json({ message: "Unauthorized" })
 
@@ -20,6 +21,7 @@ const isLogin = async (req, res, next) => {
             next()
         }else{
             console.log("No identity as of now!")
+            return res.status(401).json({ message: "No identity" });
         }
     }
     catch (error) {

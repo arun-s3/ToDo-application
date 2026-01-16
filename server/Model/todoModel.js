@@ -83,6 +83,29 @@ const todoSchema = mongoose.Schema({
     },
 })
 
+todoSchema.index(
+  { userId: 1, isDemo: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      isDemo: true,
+      isGuest: false,
+    },
+  }
+)
+
+todoSchema.index(
+  { guestId: 1, isDemo: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      isDemo: true,
+      isGuest: true,
+    },
+  }
+)
+
+
 todoSchema.pre("save", function (next) {
     this.updatedAt = Date.now();
 

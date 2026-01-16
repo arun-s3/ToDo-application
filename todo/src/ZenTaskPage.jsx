@@ -19,8 +19,6 @@ function ZenTaskPageContent() {
     const isHomeView = ["all", "pending", "completed", "today", "high-priority"].includes(currentView)
     const isDashboardView = currentView === "dashboard"
 
-    const [fetchTasks, setFetchTasks] = useState(true)
-
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     const [openSignInModal, setOpenSignInModal] = useState(false)
@@ -30,6 +28,8 @@ function ZenTaskPageContent() {
     const { isDarkMode, toggleTheme } = useTheme()
 
     const navRef = useRef(null)
+
+    const demoLockRef = useRef(false)
 
     const scrollHandler = () => {
         if (!navRef.current) return
@@ -47,7 +47,6 @@ function ZenTaskPageContent() {
 
     useEffect(() => {
         console.log("User transition happened now!")
-        setFetchTasks(true)
         setCurrentView('all')
     }, [isGuest, user]) 
 
@@ -90,8 +89,7 @@ function ZenTaskPageContent() {
                 {isHomeView && (
                     <Home
                         activeTab={currentView}
-                        fetchTasks={fetchTasks}
-                        setFetchTasks={setFetchTasks}
+                        demoLockRef={demoLockRef}
                         openAuthModal={() => setOpenSignInModal(true)}
                     />
                 )}

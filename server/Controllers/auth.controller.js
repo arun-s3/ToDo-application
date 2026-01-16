@@ -93,8 +93,8 @@ const getCurrentUser = async (req, res, next) => {
 const logoutUser = (req, res, next) => {
     try {
         res.clearCookie("jwt", {
-          httpOnly: true,
-          sameSite: "strict"
+            httpOnly: true,
+            sameSite: "strict",
         })
 
         res.status(200).json({success: true, message: "Logged out successfully"})

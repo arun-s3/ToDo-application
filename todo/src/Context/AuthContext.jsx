@@ -11,8 +11,9 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [isGuest, setIsGuest] = useState(true)
   const [guestId, setGuestId] = useState(null)
-
-  const [authLoading, setAuthLoading] = useState(true)
+ 
+  const [authReady, setAuthReady] = useState(true)
+  const [authLoading, setAuthLoading] = useState(false)
 
   const loadUserAsGuest = ()=> {
     let currentGuestId = localStorage.getItem("guestId")
@@ -24,15 +25,18 @@ export const AuthProvider = ({ children }) => {
     setIsGuest(true)
     setGuestId(currentGuestId)
     setUser(null)
+    setAuthReady(true)
   }
 
   const loadUser = async () => {
     try {
       const response = await api.get(`/user`)
       if(response.status === 200){
+        localStorage.removeItem("guestId")   
         setUser(response.data.user)
         setIsGuest(false)
         setGuestId(null)
+        setAuthReady(true)
       }else{
         loadUserAsGuest()
       }
@@ -57,6 +61,7 @@ export const AuthProvider = ({ children }) => {
   }, [user, isGuest, guestId])
 
   const migrateGuest = async()=> {
+    if (!authReady) return  
     let hasSeenDemoTask = false
     if (localStorage.getItem("hasSeenDemoTask") === "true") {
         hasSeenDemoTask = true
@@ -91,6 +96,7 @@ export const AuthProvider = ({ children }) => {
         guestId,
         logout,
         migrateGuest,
+        authReady,
         authLoading
       }}
     >
