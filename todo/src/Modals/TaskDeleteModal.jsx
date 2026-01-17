@@ -5,15 +5,12 @@ import { AlertCircle, Trash2, X } from "lucide-react"
 
 import ModalPortal from "../ModalPortal"
 import useModalClose from "../Hooks/useModalClose"
-import { useAuth } from "../Context/AuthContext"
 
 
 export default function TaskDeleteModal({ isOpen, taskName, isTaskDemo, onConfirm, onCancel, isLoading = false }) {
 
     const modalRef = useRef(null)
     useModalClose(modalRef, onCancel)
-
-    const { isGuest, guestId } = useAuth() 
     
     if (!isOpen) return null
 

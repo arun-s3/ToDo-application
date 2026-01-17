@@ -27,21 +27,12 @@ const AuthModal = ({ onModalClose, onSignUpOrIn, onMigrateGuest }) => {
     const { isDarkMode } = useTheme()
 
     const modalRef = useRef(null)
-    useModalClose(modalRef, onModalClose, false)
+    useModalClose(modalRef, onModalClose, !loading, false)
 
     const validationPatterns = {
         username: /^[a-zA-Z0-9_-]{3,20}$/,
         password: /^.{6,}$/,
     }
-
-    // useEffect(() => {
-    //     const handleKey = (e) => {
-    //         if (e.key === "Escape") onModalClose()
-    //     }
-
-    //     document.addEventListener("keydown", handleKey)
-    //     return () => document.removeEventListener("keydown", handleKey)
-    // }, [])
 
     const validateField = (name, value) => {
         const newErrors = { ...errors }

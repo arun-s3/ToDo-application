@@ -89,7 +89,7 @@ function ZenTaskPageContent() {
                 {isHomeView && (
                     <Home
                         activeTab={currentView}
-                        demoLockRef={demoLockRef}
+                        isDemoTaskLockedRef={demoLockRef}
                         openAuthModal={() => setOpenSignInModal(true)}
                     />
                 )}

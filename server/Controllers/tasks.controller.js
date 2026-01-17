@@ -101,9 +101,13 @@ const migrateGuestTodos = async (req, res, next) => {
             await User.updateOne({ _id: userId }, { $set: { hasSeenDemoTask: true } })
         }
 
+        console.log("Deleting unwanted demo tasks....")
+        await Todo.deleteMany({ isGuest: true, guestId, isDemo: true })
+
         const guestTodos = await Todo.find({isGuest: true, guestId, isDemo: false})
 
         if (!guestTodos.length) {
+            console.log("No guest todos to migrate")
             return res.status(200).json({success: true, message: "No guest todos to migrate"})
         }
 
@@ -123,8 +127,6 @@ const migrateGuestTodos = async (req, res, next) => {
                 },
             }
         )
-
-        await Todo.deleteMany({isGuest: true, guestId, isDemo: true})
 
         return res.status(200).json({success: true, message: "Guest todos migrated successfully"})
     }

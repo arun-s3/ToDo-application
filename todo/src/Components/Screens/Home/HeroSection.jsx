@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import "./HeroSection.css"
 
-import {CheckCircle2, Star, Flag, Calendar, Tag, Plus, ArrowRight, Zap, TrendingUp, ClipboardList, Clock, AlertCircle} from "lucide-react"
+import {CheckCircle2, Star, Flag, Calendar, Tag, Plus, ArrowRight, Zap, TrendingUp, ClipboardList, Clock, Moon, AlertCircle} from "lucide-react"
 
 import { useTheme } from "../../../Context/ThemeContext"
 
@@ -67,6 +67,11 @@ export default function HeroSection({ onCreateTask }) {
             title: "Real-Time Updates",
             description: "Edit and manage instantly",
         },
+        {
+            icon: Moon,
+            title: "Dark Mode",
+            description: "Reduce eye strain and stay focused with a beautifully crafted dark theme",
+        },
     ]
 
     return (
@@ -80,7 +85,10 @@ export default function HeroSection({ onCreateTask }) {
                     <h1 className='hero-title'>Your Productivity Starts Here</h1>
 
                     <p className='hero-description'>
-                        Get organized, stay focused, and achieve more with ZenTask. Create your first task to begin.
+                        {isDarkMode
+                            ? "Stay focused longer with ZenTask’s distraction-free dark mode — easy on the eyes, powerful for productivity."
+                            : "Get organized, stay focused, and achieve more with ZenTask. Switch to dark mode anytime for comfortable focus."
+                        }
                     </p>
 
                     <button onClick={onCreateTask} className='hero-button'>
@@ -130,7 +138,7 @@ export default function HeroSection({ onCreateTask }) {
                         {features.map((feature, idx) => {
                             const IconComponent = feature.icon
                             return (
-                                <div key={idx} className='feature-card'>
+                                <div key={idx} className='feature-card' style={idx === features.length-1 ? { gridColumn: "1 /-1"} : {}}>
                                     <div className='feature-content'>
                                         <div className='feature-icon-container'>
                                             <IconComponent className='feature-icon' />
@@ -213,7 +221,7 @@ export default function HeroSection({ onCreateTask }) {
 
                 <div className='final-cta'>
                     <div className='final-cta-wrapper'>
-                        <h3 className='final-cta-title'>Ready to boost productivity?</h3>
+                        <h3 className='final-cta-title'>Ready to boost productivity — day or night?</h3>
                         <button onClick={onCreateTask} className='hero-button'>
                             <Plus size={16} />
                             Start Your First Task

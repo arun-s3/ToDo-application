@@ -25,20 +25,13 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
     const [checklistInput, setChecklistInput] = useState("")
     const [tagInput, setTagInput] = useState("")
 
+    const [loading, setLoading] = useState(false)
+
     const titleRef = useRef(null)
     const descriptionRef = useRef(null)
 
     const modalRef = useRef(null)
-    useModalClose(modalRef, onModalClose, false)
-
-    // useEffect(() => {
-    //     const handleKey = (e) => {
-    //         if (e.key === "Escape") onModalClose()
-    //     }
-
-    //     document.addEventListener("keydown", handleKey)
-    //     return () => document.removeEventListener("keydown", handleKey)
-    // }, [])
+    useModalClose(modalRef, onModalClose, !loading, false)
 
     useEffect(() => {
         if(editTask){
@@ -51,29 +44,35 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
     }, [task])
 
     const addNewTask = ()=> {
+        setLoading(true)
         api.post(`tasks/add`, { task })
             .then((response) => {
                 console.log(response)
+                setLoading(false)
                 resetForm()
                 onsubmit(task)
             })
             .catch((error) => {
                 toast.error(error.response.data.message)
                 console.log("Error---->", error.response.data.message)
+                setLoading(false)
             })
     }
 
     const UpdateTask = () => {
+        setLoading(true)
         console.log("Submiting updated task---->", task)
         api.put(`tasks/update/${task._id}`, { task })
             .then((result) => {
                 console.log(result)
                 onUpdateSuccess(task)
+                setLoading(false)
                 resetForm()
             })
             .catch((error) => {
                 toast.error(error.response.data.message)
                 console.log("Error---->", error.response.data.message)
+                setLoading(false)
             })
     }
 
@@ -146,10 +145,10 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
         <div className="task-creater">
             {isModalOpen && (
                 <ModalPortal>
-                    <div className="modal-overlay" onClick={onModalClose} ref={modalRef}>
+                    <div className="modal-overlay" ref={modalRef}>
                         <div
                             className="modal-content"
-                            onClick={(e) => e.stopPropagation()}
+                            // onClick={(e) => e.stopPropagation()}
                         >
                             <div className="modal-header">
                                 <h3> {editTask ? "Update Your Task" : "Create New Task"} </h3>
@@ -357,7 +356,11 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
                                     className="btn-modal-save"
                                     onClick={handleSubmit}
                                 >
-                                    {editTask ? "Update Task" : "Create Task"}
+                                    {
+                                        editTask 
+                                            ? `${loading ? "Updating" : "Update"} Task ${loading ? "..." : ""}` 
+                                            : `${loading ? "Creating" : "Create"}  Task ${loading ? "..." : ""}`
+                                    }
                                 </button>
                             </div>
                         </div>

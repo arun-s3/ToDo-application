@@ -3,11 +3,13 @@ import "./Home.css"
 
 import { api } from "../../../api/axiosInstance"
 import { toast } from 'sonner'
-import { Calendar, Search, Plus, ClipboardList, SquareCheck, Clock, Zap } from "lucide-react"
+import { Plus } from "lucide-react"
 
 import CreateTask from "../../../Modals/CreateTask/CreateTask"
 import TaskCard from "../../Tasks/TaskCard"
 import FilterBar from "./FilterBar"
+import SearchTasks from "./SearchTasks"
+import HomeHeader from "./HomeHeader"
 import TaskDeleteModal from "../../../Modals/TaskDeleteModal"
 import GuestModeModal from "../../../Modals/GuestModeModal"
 import HeroSection from "./HeroSection"
@@ -19,7 +21,7 @@ import { shouldShowGuestSignupModal } from '../../../Utils/GuestPrompt'
 import { dummyTask } from "../../../data/dummyTask"
 
 
-export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
+export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthModal}) {
 
     const [todos, setTodo] = useState([])
     const [fetchTasks, setFetchTasks] = useState(true)
@@ -30,9 +32,8 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
     const [sort, setSort] = useState(-1)
 
     const [searchQuery, setSearchQuery] = useState("")
-    const [searchResults, setSearchResults] = useState([])
 
-    const [showModal, setShowModal] = useState(false)
+    const [showTaskModal, setShowTaskModal] = useState(false)
 
     const [openTaskDeleteModal, setOpenTaskDeleteModal] = useState({id: null, title: null, isDemo: false})
     const [isDeleting, setIsDeleting] = useState(false)
@@ -127,23 +128,10 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
         }
     }
 
-
-    // const removeDuplicateDemoTasks = async()=> {
-    //     try {
-    //         const response = await api.delete(`demo/delete`)
-
-    //         if (response && response?.data?.success) {
-    //             console.log("Remove duplicate demo tasks")
-    //         }
-    //     } catch (error) {
-    //         console.error("Error while removing duplicate demo tasks:", error)
-    //     }
-    // }
-
     useEffect(() => {
         if (!isGuest || !guestId) return
         if (!authReady) return  
-        if (demoLockRef.current) return 
+        if (isDemoTaskLockedRef.current) return 
 
         const hasSeen = localStorage.getItem("hasSeenDemoTask") === "true"
 
@@ -153,7 +141,7 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
         console.log(`hasSeen----> ${hasSeen}, todos.length----> ${todos.length}. Hence ${!hasSeen && !alreadyInjected && todos.length === 0 ? 'ADDING' : "NOT ADDING"} demo task for guest`)
 
         if (!hasSeen && !alreadyInjected && todos.length === 0) {
-            demoLockRef.current = true
+            isDemoTaskLockedRef.current = true
             addDummyTask()
         }
     }, [isGuest, guestId, authReady, todos.length])
@@ -179,24 +167,7 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
             localStorage.setItem("guestSignupPromptLastShown", Date.now())
             return
         }
-        setShowModal(true)
-    }
-
-    const handleSearch = (query) => {
-        setSearchQuery(query)
-        if (query.trim() === "") {
-            setSearchResults([])
-            return
-        }
-
-        const filtered = todos.filter(
-        (todo) =>
-            todo.title.toLowerCase().includes(query.toLowerCase()) ||
-            todo.desc?.toLowerCase().includes(query.toLowerCase()) ||
-            todo.tags?.some((tag) => tag.toLowerCase().includes(query.toLowerCase())),
-        )
-
-        setSearchResults(sortTasks(filtered))
+        setShowTaskModal(true)
     }
 
     const toggleDoneHandler = (e, currentTodo) => {
@@ -233,7 +204,7 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
                 setIsDeleting(false)
                 if (isGuest && guestId && isDemo) {
                     localStorage.setItem("hasSeenDemoTask", "true")
-                    demoLockRef.current = true
+                    isDemoTaskLockedRef.current = true
                 }
                 const newTodos = todos.filter((todo) => todo._id !== id)
                 setTodo(newTodos)
@@ -246,7 +217,7 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
     }
 
     const initiateTaskEditing = (task) => {
-        setShowModal(true)
+        setShowTaskModal(true)
         setUpdateTask(task)
     }
 
@@ -286,7 +257,7 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
         setTodo(newTodos)
     }
 
-    const handleToggleChecklistItems = async (taskId, itemIndex, itemId) => {
+    const handleToggleChecklistItems = async (taskId, itemId) => {
         try {
                 const response = await api.patch(`tasks/${taskId}/checklist/${itemId}/toggle`)
             
@@ -357,77 +328,6 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
         setTodo(updatedTodos) 
     }
 
-    const sortTasks = (tasksToSort) => {
-        const sorted = [...tasksToSort]
-
-        switch (sortBy) {
-            case "date-asc":
-                return sorted.sort((a, b) => new Date(a.date) - new Date(b.date))
-            case "date-old":
-                return sorted.sort((a, b) => new Date(a.date) - new Date(b.date))
-            case "date-desc":
-                return sorted.sort((a, b) => new Date(b.date) - new Date(a.date))
-            case "priority-low":
-                const priorityOrder = { low: 1, medium: 2, high: 3 }
-                return sorted.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
-            case "priority-high":
-                const priorityOrderDesc = { high: 1, medium: 2, low: 3 }
-                return sorted.sort((a, b) => priorityOrderDesc[a.priority] - priorityOrderDesc[b.priority])
-            case "starred":
-                return sorted.sort((a, b) => (b.starred ? 1 : 0) - (a.starred ? 1 : 0))
-            case "created":
-                return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            case "deadline":
-                return sorted.sort((a, b) => {
-                    if (!a.deadline) return 1
-                    if (!b.deadline) return -1
-                    return new Date(a.deadline) - new Date(b.deadline)
-                })
-            case "deadline-latest":
-                return sorted.sort((a, b) => {
-                    if (!a.deadline) return 1
-                    if (!b.deadline) return -1
-                    return new Date(b.deadline) - new Date(a.deadline)
-                })
-            default:
-                return sorted
-        }
-    }
-
-    const getTabLabel = () => {
-        const labels = {
-            all: "All Tasks",
-            pending: "Pending Tasks",
-            completed: "Completed Tasks",
-            today: "Due Today's Task",
-            "high-priority": "High Priority Tasks",
-        }
-        return labels[activeTab] || "All Tasks"
-    }
-
-    const getTabSubtitle = () => {
-        const labels = {
-            all: "View all your tasks in one place",
-            pending: "Tasks that are still waiting for your action",
-            completed: "Tasks you have finished and marked as done",
-            today: "Tasks that are scheduled to be completed today",
-            "high-priority": "Critical tasks that require your immediate attention",
-        }
-        return labels[activeTab] 
-    }
-
-    const getTabIcon = () => {
-        const labels = { 
-            all: ClipboardList,
-            pending: Clock,
-            completed: SquareCheck,
-            today: Calendar,
-            "high-priority": Zap,
-        }
-        const Icon = labels[activeTab] 
-        return <Icon />
-    }
-
     const getFilteredTasks = () => {
         console.log("todos inside getFilteredTasks----->", todos)
         let hasSeenDemoTask = false
@@ -457,32 +357,18 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
 
     return (
         <div className={`home ${isDarkMode ? "dark" : ""}`}>
-            <div className='home-header'>
-                <div className='tab-wrapper'>
-                    <i className='icon'>{getTabIcon()}</i>
-                    <h2 className='title'>{getTabLabel()}</h2>
-                </div>
-                <p className='subtitle'>{getTabSubtitle()}</p>
-            </div>
+
+            <HomeHeader currentTab={activeTab}/>
 
             <div className='search-and-add-wrapper'>
-                <div className='search-container'>
-                    <div className='search-input-wrapper'>
-                        <Search size={20} className='search-icon' />
-                        <input
-                            type='text'
-                            placeholder='Search tasks by title, description, or tags...'
-                            value={searchQuery}
-                            onChange={(e) => handleSearch(e.target.value)}
-                            className='search-input'
-                        />
-                    </div>
-                </div>
+
+                <SearchTasks onsearchQuery={setSearchQuery}/>
 
                 <button className='add-task-btn' onClick={() => createNewTask()} title='Create a new task'>
                     <Plus size={20} />
                     <span>Add Task</span>
                 </button>
+
             </div>
 
             <CreateTask
@@ -492,8 +378,8 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
                     }
                     setFetchTasks(true)
                 }}
-                isModalOpen={showModal}
-                onModalClose={() => setShowModal(false)}
+                isModalOpen={showTaskModal}
+                onModalClose={() => setShowTaskModal(false)}
                 editTask={updateTask}
                 onUpdateSuccess={updateTaskCard}
             />
@@ -576,7 +462,6 @@ export default function Home({ activeTab = "all", demoLockRef, openAuthModal}) {
                 isOpen={openGuestModeModal}
                 onCancel={() => {
                     setOpenGuestModeModal(false)
-                    setShowModal(true)
                 }}
                 onSignup={() => {
                     setOpenGuestModeModal(false)

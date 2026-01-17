@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import { useEffect } from "react"
 
 
 export default function useModalClose(modalRef, onClose, enabled = true, traceClickOutside = true) {
@@ -6,27 +6,31 @@ export default function useModalClose(modalRef, onClose, enabled = true, traceCl
     useEffect(() => {
         if (!enabled) return
 
-        const handleClickOutside = (e) => {
-            if (modalRef.current && !modalRef.current.contains(e.target)) {
+        const handlePointerDown = (e) => {
+            if (!modalRef.current) return
+            if (!modalRef.current.contains(e.target)) {
                 onClose()
             }
         }
 
         const handleKeyDown = (e) => {
             if (e.key === "Escape") {
+                e.preventDefault()
                 onClose()
             }
         }
 
         if (traceClickOutside) {
-            document.addEventListener("mousedown", handleClickOutside)
+            window.addEventListener("pointerdown", handlePointerDown)
         }
-        document.addEventListener("keydown", handleKeyDown)
+        window.addEventListener("keydown", handleKeyDown)
 
         return () => {
-            document.removeEventListener("mousedown", handleClickOutside)
-            document.removeEventListener("keydown", handleKeyDown)
+            if (traceClickOutside) {
+                window.removeEventListener("pointerdown", handlePointerDown)
+            }
+            window.removeEventListener("keydown", handleKeyDown)
         }
-    }, [modalRef, onClose, enabled])
-
+        
+    }, [modalRef, onClose, enabled, traceClickOutside])
 }
