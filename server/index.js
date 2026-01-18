@@ -19,14 +19,18 @@ app.use(express.urlencoded({extended: true, limit:'10mb'}))
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
+app.set("trust proxy", 1)
+
 const cors = require('cors')
 app.use(
     cors({
         origin: [process.env.CLIENT_URL, "http://localhost:3000"],
-        method: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+        method: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization"],
     }),
 )
+app.options("*", cors()) 
 
 const globalErrorHandler = require('./Middlewares/globalError.js')
 
