@@ -26,8 +26,10 @@ app.use(
     cors({
         origin: [process.env.CLIENT_URL, "http://localhost:3000"],
         method: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allowedHeaders: [
+          "Content-Type", "Authorization", "x-guest-id"   
+        ],
         credentials: true,
-        allowedHeaders: ["Content-Type", "Authorization"],
     }),
 )
 app.options("*", cors()) 
