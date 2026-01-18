@@ -108,7 +108,7 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
 
         const taskQueryOptions = getTaskQueryOptions()
         getTasks(taskQueryOptions)
-    }, [authReady, isGuest, user, activeTab, currentPage, limit, sortBy, sort, searchQuery])
+    }, [authReady, guestId, user, activeTab, currentPage, limit, sortBy, sort, searchQuery])
 
     const addDummyTask = async () => {
         if (!authReady) return  
@@ -279,7 +279,7 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
 
     const toggleChecklistItem = async(taskId, itemIndex, itemId) => {
         console.log(`taskId---> ${taskId}, itemIndex---> ${itemIndex} and itemId---> ${itemId}`)
-        const response = await handleToggleChecklistItems(taskId, itemIndex, itemId)
+        const response = await handleToggleChecklistItems(taskId, itemId)
         if(!response) return
 
         const updatedTodos = todos.map((todo) => {
@@ -391,7 +391,7 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
             )}
 
             {
-                ( overallTodos === 0 || todos.every(todo=> todo.isDemo) ) && 
+                ( overallTodos === 0 || (todos.length > 0 && todos.every(todo=> todo.isDemo)) ) && 
                     <HeroSection onCreateTask={createNewTask} />
             }
 
@@ -462,6 +462,7 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
                 isOpen={openGuestModeModal}
                 onCancel={() => {
                     setOpenGuestModeModal(false)
+                    setShowTaskModal(true)
                 }}
                 onSignup={() => {
                     setOpenGuestModeModal(false)

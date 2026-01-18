@@ -17,7 +17,9 @@ export const AuthProvider = ({ children }) => {
 
   const loadUserAsGuest = ()=> {
     let currentGuestId = localStorage.getItem("guestId")
+    console.log("GuestId extracted----->", currentGuestId)
     if (!currentGuestId) {
+      console.log("No guestId available, hence generating new one...")
       currentGuestId = crypto.randomUUID()
       localStorage.setItem("guestId", currentGuestId);
       localStorage.setItem("hasSeenDemoTask", "false")
@@ -30,6 +32,7 @@ export const AuthProvider = ({ children }) => {
 
   const loadUser = async () => {
     try {
+      console.log("Inside loadUser()...")
       const response = await api.get(`/user`)
       if(response.status === 200){
         localStorage.removeItem("guestId")   
@@ -38,6 +41,7 @@ export const AuthProvider = ({ children }) => {
         setGuestId(null)
         setAuthReady(true)
       }else{
+        console.log("Going to loadUserAsGuest()...")
         loadUserAsGuest()
       }
     }
