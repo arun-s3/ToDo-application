@@ -20,11 +20,13 @@ const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
 const cors = require('cors')
-app.use(cors({
-    origin:['http://localhost:3000'],
-    method:['GET','POST','PUT','PATCH','DELETE'],
-    credentials:true
-}))
+app.use(
+    cors({
+        origin: [process.env.CLIENT_URL, "http://localhost:3000"],
+        method: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+        credentials: true,
+    }),
+)
 
 const globalErrorHandler = require('./Middlewares/globalError.js')
 

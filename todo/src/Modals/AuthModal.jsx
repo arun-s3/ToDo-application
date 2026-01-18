@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useRef } from "react"
 import "./AuthModal.css"
 
 import { api } from "../api/axiosInstance"
 import { toast } from 'sonner'
-import {Lock, User, Eye, EyeOff, X, CheckCircle, AlertCircle} from "lucide-react"
+import {Lock, User, Eye, EyeOff, CheckCircle, AlertCircle} from "lucide-react"
 
 import { useTheme } from "../Context/ThemeContext"
 import useModalClose from "../Hooks/useModalClose"
