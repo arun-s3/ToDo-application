@@ -30,6 +30,8 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
 
     const [sortBy, setSortBy] = useState("created")
     const [sort, setSort] = useState(-1)
+    // const [currentTasks, setCurrentTasks] = useState([])
+    // const [isSorting, setIsSorting] = useState(false)
 
     const [searchQuery, setSearchQuery] = useState("")
 
@@ -172,24 +174,37 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
 
     const toggleDoneHandler = (e, currentTodo) => {
         e.stopPropagation()
+        const currentTodos = [...todos]
         const newDone = !currentTodo.done
+        const newTodos = todos.map((todo) => {
+            if (todo._id === currentTodo._id){
+                todo.done = newDone
+                todo.syncing = true
+            }
+            return todo
+        })
+        setTodo(newTodos)
         api.patch(`tasks/done/${currentTodo._id}`, { done: newDone })
             .then(result=> {
                 if(result){
                     console.log(result)
-                    const newTodos = todos.map(todo=> {
-                        if(todo._id === currentTodo._id){
-                            todo.done = newDone
-                        }
-                        return todo
-                    })
-                    setTodo(newTodos)
                 }
             })
             .catch(error=> {
+                    setTodo(currentTodos)
                     toast.error(error.response.data.message)
                     console.log("Error---->", error.response.data.message)
-             })
+            })
+            .finally(()=> {
+                setTodo((prev) =>
+                    prev.map((todo) => {
+                        if (todo._id === currentTodo._id) {
+                            todo.syncing = false
+                        }
+                        return todo
+                    }),
+                )
+            })
     }
 
     const askUserConfirmation = (id, title, isDemo) => {
@@ -198,21 +213,31 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
 
     const handleTrash = (id, isDemo)=>{
         setIsDeleting(true)
+
+        const currentTodos = [...todos]
+        if (isGuest && guestId && isDemo) {
+            localStorage.setItem("hasSeenDemoTask", "true")
+            isDemoTaskLockedRef.current = true
+        }
+        const newTodos = todos.filter((todo) => todo._id !== id)
+        setTodo(newTodos)
+        
         api.delete(`tasks/delete/${id}`)
              .then(result=> {
                 console.log(result)
                 setIsDeleting(false)
-                if (isGuest && guestId && isDemo) {
-                    localStorage.setItem("hasSeenDemoTask", "true")
-                    isDemoTaskLockedRef.current = true
-                }
-                const newTodos = todos.filter((todo) => todo._id !== id)
-                setTodo(newTodos)
              })
              .catch(error=> {
                     toast.error(error.response.data.message)
                     console.log("Error---->", error.response.data.message)
-                    setIsDeleting(false)
+                    setTodo(currentTodos)
+             })
+             .finally(()=> {
+                if (isGuest && guestId && isDemo) {
+                    localStorage.setItem("hasSeenDemoTask", "false")
+                    isDemoTaskLockedRef.current = false
+                }
+                setIsDeleting(false)
              })
     }
 
@@ -257,75 +282,97 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
         setTodo(newTodos)
     }
 
-    const handleToggleChecklistItems = async (taskId, itemId) => {
+    const handleToggleChecklistItems = async (currentTodos, taskId, itemId, itemIndex) => {
         try {
-                const response = await api.patch(`tasks/${taskId}/checklist/${itemId}/toggle`)
-            
-                if (response && response?.data?.success) {
-                    return true
-                }
-            } catch (error) {
-                console.error("Error while toggling checklist item:", error)
-    
-                if (error.response?.data?.message) {
-                    toast.error(error.response.data.message)
-                } else {
-                    toast.error("Something went wrong! Please check your network and retry again later.")
-                }
-    
-                return false
+            const response = await api.patch(`tasks/${taskId}/checklist/${itemId}/toggle`)
+
+            if (response && response?.data?.success) {
+                console.log("Toggled checklist successfully....")
             }
+        } catch (error) {
+            console.error("Error while toggling checklist item:", error)
+
+            setTodo(currentTodos)
+
+            if (error.response?.data?.message) {
+                toast.error(error.response.data.message)
+            } else {
+                toast.error("Something went wrong! Please check your network and retry again later.")
+            }
+
+        } finally {
+            setTodo((todos) =>
+                todos.map((todo) => {
+                    if (todo._id === taskId) {
+                        const updatedChecklist = [...todo.checklist]
+                        updatedChecklist[itemIndex].syncing = false
+
+                        return { ...todo, checklist: updatedChecklist }
+                    }
+                    return todo
+                }),
+            )
+        }
     }
 
     const toggleChecklistItem = async(taskId, itemIndex, itemId) => {
         console.log(`taskId---> ${taskId}, itemIndex---> ${itemIndex} and itemId---> ${itemId}`)
-        const response = await handleToggleChecklistItems(taskId, itemId)
-        if(!response) return
-
+        const currentTodos = [...todos] 
         const updatedTodos = todos.map((todo) => {
             if (todo._id === taskId) {
-            const updatedChecklist = [...todo.checklist]
-            updatedChecklist[itemIndex].completed = !updatedChecklist[itemIndex].completed
+                const updatedChecklist = [...todo.checklist]
+                updatedChecklist[itemIndex].completed = !updatedChecklist[itemIndex].completed
+                updatedChecklist[itemIndex].syncing = true
 
-            return { ...todo, checklist: updatedChecklist }
+                return { ...todo, checklist: updatedChecklist }
             }
             return todo
         })
         setTodo(updatedTodos)
+        await handleToggleChecklistItems(currentTodos, taskId, itemId, itemIndex)
     }
 
-    const handleToggleStarTask = async (taskId) => {
+    const handleToggleStarTask = async (currentTodos, taskId) => {
         try {
-                const response = await api.patch(`tasks/${taskId}/star/toggle`)
-            
-                if (response && response?.data?.success) {
-                    return true
-                }
-            } catch (error) {
-                console.error("Error while toggling star:", error)
-    
-                if (error.response?.data?.message) {
-                    toast.error(error.response.data.message)
-                } else {
-                    toast.error("Something went wrong! Please check your network and retry again later.")
-                }
-    
-                return false
+            const response = await api.patch(`tasks/${taskId}/star/toggle`)
+
+            if (response && response?.data?.success) {
+                console.log("Starred successfully....")
             }
+        } catch (error) {
+            console.error("Error while toggling star:", error)
+
+            setTodo(currentTodos)
+
+            if (error.response?.data?.message) {
+                toast.error(error.response.data.message)
+            } else {
+                toast.error("Something went wrong! Please check your network and retry again later.")
+            }
+
+        } finally {
+            setTodo((todos) =>
+                todos.map((todo) => {
+                    if (todo._id === taskId) {
+                        return { ...todo, syncing: false }
+                    }
+                    return todo
+                }),
+            )
+        }
     }
 
     const handleToggleStar = async(taskId) => {
-        const response = await handleToggleStarTask(taskId) 
-        if(!response) return
-
+        const currentTodos = [...todos] 
         const updatedTodos = todos.map((todo) => {
             if (todo._id === taskId) {
                 const newStarred = !todo.starred
-                return { ...todo, starred: newStarred }
+                return { ...todo, starred: newStarred, syncing: true }
             }
             return todo
         })
         setTodo(updatedTodos) 
+        await handleToggleStarTask(currentTodos, taskId) 
     }
 
     const getFilteredTasks = () => {
@@ -357,18 +404,15 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
 
     return (
         <div className={`home ${isDarkMode ? "dark" : ""}`}>
-
-            <HomeHeader currentTab={activeTab}/>
+            <HomeHeader currentTab={activeTab} />
 
             <div className='search-and-add-wrapper'>
-
-                <SearchTasks onsearchQuery={setSearchQuery}/>
+                <SearchTasks onsearchQuery={setSearchQuery} />
 
                 <button className='add-task-btn' onClick={() => createNewTask()} title='Create a new task'>
                     <Plus size={20} />
                     <span>Add Task</span>
                 </button>
-
             </div>
 
             <CreateTask
@@ -390,10 +434,9 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
                 </span>
             )}
 
-            {
-                ( overallTodos === 0 || (todos.length > 0 && todos.every(todo=> todo.isDemo)) ) && 
-                    <HeroSection onCreateTask={createNewTask} />
-            }
+            {(overallTodos === 0 || (todos.length > 0 && todos.every((todo) => todo.isDemo))) && (
+                <HeroSection onCreateTask={createNewTask} />
+            )}
 
             {filteredTodos.length > 0 && (
                 <FilterBar
@@ -401,6 +444,9 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
                     onSortByChange={setSortBy}
                     sortWay={sort}
                     onSortChange={setSort}
+                    // setCurrentTasks={setCurrentTasks}
+                    // todos={todos}
+                    // isSorting={isSorting}
                     itemsPerPage={limit}
                     onItemsPerPageChange={setLimit}
                     onPageChange={setCurrentPage}
