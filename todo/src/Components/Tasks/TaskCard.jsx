@@ -70,7 +70,10 @@ export default function TaskCard({todo, index, editingId, setEditingId, onToggle
                     {todo.done ? (
                         <CheckCircle2
                             className="check-icon"
-                            onClick={(e) => onTaskDone(e, todo)}
+                            onClick={(e) => {
+                                if(todo?.syncing) return
+                                onTaskDone(e, todo)
+                            }}
                             size={20}
                         />
                     ) : (
@@ -196,8 +199,10 @@ export default function TaskCard({todo, index, editingId, setEditingId, onToggle
                                         className={`checklist-checkbox ${
                                             item.completed ? "checked" : ""
                                         }`}
-                                        onClick={() =>
+                                        onClick={() => {
+                                            if (todo?.syncing) return
                                             onToggleChecklistItem(todo._id, idx, item._id)
+                                            }
                                         }
                                     >
                                         {item.completed && <span>✓</span>}

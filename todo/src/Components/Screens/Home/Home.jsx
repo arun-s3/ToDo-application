@@ -30,8 +30,7 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
 
     const [sortBy, setSortBy] = useState("created")
     const [sort, setSort] = useState(-1)
-    // const [currentTasks, setCurrentTasks] = useState([])
-    // const [isSorting, setIsSorting] = useState(false)
+    const [isSorting, setIsSorting] = useState(false)
 
     const [searchQuery, setSearchQuery] = useState("")
 
@@ -83,11 +82,16 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
             if (response && response?.data?.success) {
                 setTodo(response.data.todos)
                 setTotalTodos(response.data.total)
+
+                if(isSorting) setIsSorting(false)
+
                 console.log("response.data.overallTotal---->", response.data.overallTotal)
                 setOverallTodos(response.data.overallTotal)
             }
         } catch (error) {
             console.error("Error while getting tasks:", error)
+
+            if (isSorting) setIsSorting(false)
 
             if (error.response?.data?.message) {
                 toast.error(error.response.data.message)
@@ -444,9 +448,10 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
                     onSortByChange={setSortBy}
                     sortWay={sort}
                     onSortChange={setSort}
-                    // setCurrentTasks={setCurrentTasks}
-                    // todos={todos}
-                    // isSorting={isSorting}
+                    sorting={isSorting}
+                    onSorting={setIsSorting}
+                    todos={todos}
+                    onLocalUpdateTodos={setTodo}
                     itemsPerPage={limit}
                     onItemsPerPageChange={setLimit}
                     onPageChange={setCurrentPage}

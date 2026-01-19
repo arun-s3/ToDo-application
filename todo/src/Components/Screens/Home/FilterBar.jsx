@@ -3,15 +3,19 @@ import "./FilterBar.css"
 
 import {ArrowUpDown} from "lucide-react"
 
+import { useTheme } from "../../../Context/ThemeContext"
+
 
 const FilterBar = ({ sortOption, onSortByChange, sortWay, onSortChange, itemsPerPage, onItemsPerPageChange, 
-    setCurrentTasks, isSorting, todos, onPageChange }) => {
+    todos, onLocalUpdateTodos, onSorting, sorting, onPageChange }) => {
 
     const [showSortMenu, setShowSortMenu] = useState(false)
     const [showItemsMenu, setShowItemsMenu] = useState(false)
 
     const filterRef = useRef(null)
     const limitRef = useRef(null)
+
+    const { isDarkMode } = useTheme()
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -46,36 +50,43 @@ const FilterBar = ({ sortOption, onSortByChange, sortWay, onSortChange, itemsPer
         {
             value: "createdAt",
             label: "Created Date (Newest)",
+            altLabel: "date-desc",
             sort: -1,
         },
         {
             value: "createdAt",
             label: "Created Date (Oldest)",
+            altLabel: "date-asc",
             sort: 1,
         },
         {
             value: "priority",
             label: "Priority (High to Low)",
+            altLabel: "priority-high",
             sort: -1,
         },
         {
             value: "priority",
             label: "Priority (Low to High)",
+            altLabel: "priority-low",
             sort: 1,
         },
         {
             value: "starred",
             label: "Starred First",
+            altLabel: "starred",
             sort: -1,
         },
         {
             value: "deadline",
             label: "Deadline (Earliest)",
+            altLabel: "deadline",
             sort: 1,
         },
         {
             value: "deadline",
             label: "Deadline (Latest)",
+            altLabel: "deadline-latest",
             sort: -1,
         },
     ]
@@ -90,48 +101,59 @@ const FilterBar = ({ sortOption, onSortByChange, sortWay, onSortChange, itemsPer
         { value: 30, label: "30 tasks" },
     ]
 
-    // const sortTasks = (tasksToSort) => {
-    //     const sorted = [...tasksToSort]
+    const sortTasksLocally = (sortBy) => {
+        const sorted = [...todos]
 
-    //     switch (sortBy) {
-    //         case "date-asc":
-    //             return sorted.sort((a, b) => new Date(a.date) - new Date(b.date))
-    //         case "date-old":
-    //             return sorted.sort((a, b) => new Date(a.date) - new Date(b.date))
-    //         case "date-desc":
-    //             return sorted.sort((a, b) => new Date(b.date) - new Date(a.date))
-    //         case "priority-low":
-    //             const priorityOrder = { low: 1, medium: 2, high: 3 }
-    //             return sorted.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
-    //         case "priority-high":
-    //             const priorityOrderDesc = { high: 1, medium: 2, low: 3 }
-    //             return sorted.sort((a, b) => priorityOrderDesc[a.priority] - priorityOrderDesc[b.priority])
-    //         case "starred":
-    //             return sorted.sort((a, b) => (b.starred ? 1 : 0) - (a.starred ? 1 : 0))
-    //         case "created":
-    //             return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    //         case "deadline":
-    //             return sorted.sort((a, b) => {
-    //                 if (!a.deadline) return 1
-    //                 if (!b.deadline) return -1
-    //                 return new Date(a.deadline) - new Date(b.deadline)
-    //             })
-    //         case "deadline-latest":
-    //             return sorted.sort((a, b) => {
-    //                 if (!a.deadline) return 1
-    //                 if (!b.deadline) return -1
-    //                 return new Date(b.deadline) - new Date(a.deadline)
-    //             })
-    //         default:
-    //             return sorted
-    //     }
-    // }
+        switch (sortBy) {
+            case "date-asc":
+                return sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+
+            case "date-desc":
+                return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+            case "priority-low":
+                return sorted.sort((a, b) => a.priorityRank - b.priorityRank)
+
+            case "priority-high":
+                return sorted.sort((a, b) => b.priorityRank - a.priorityRank)
+
+            case "starred":
+                return sorted.sort((a, b) => Number(b.starred) - Number(a.starred))
+
+            case "deadline":
+                return sorted.sort((a, b) => {
+                    if (!a.deadline && !b.deadline) return 0
+                    if (!a.deadline) return 1
+                    if (!b.deadline) return -1
+                    return new Date(a.deadline) - new Date(b.deadline)
+                })
+
+            case "deadline-latest":
+                return sorted.sort((a, b) => {
+                    if (!a.deadline && !b.deadline) return 0
+                    if (!a.deadline) return 1
+                    if (!b.deadline) return -1
+                    return new Date(b.deadline) - new Date(a.deadline)
+                })
+
+            default:
+                return sorted
+        }
+    }
 
 
     return (
-        <div className='filter-bar'>
-            <div className='filter-item sort-dropdown' ref={filterRef}>
-                <button className='filter-btn' onClick={() => setShowSortMenu(!showSortMenu)}>
+        <div className={`filter-bar ${isDarkMode ? "dark-mode" : ""} `} >
+
+            {sorting && (
+                <div className="loader" style={{ width: 20, height: 20 }} />
+            )}
+
+            <div className={`filter-item sort-dropdown`} ref={filterRef}>
+                <button className={`filter-btn  ${sorting ? 'cursor-disabled' : ''}`} onClick={() => {
+                    if(sorting) return
+                    setShowSortMenu(!showSortMenu)
+                }}>
                     <ArrowUpDown size={18} />
                     <span>Sort</span>
                     <span className='arrow'>▼</span>
@@ -145,7 +167,8 @@ const FilterBar = ({ sortOption, onSortByChange, sortWay, onSortChange, itemsPer
                                     sortOption === option.value && sortWay === option.sort ? "active" : ""
                                 }`}
                                 onClick={() => {
-                                    // sortTasks()
+                                    onSorting(true)
+                                    onLocalUpdateTodos(sortTasksLocally(option.altLabel))
                                     onSortByChange(option.value)
                                     onSortChange(option.sort)
                                     setShowSortMenu(false)
@@ -158,7 +181,12 @@ const FilterBar = ({ sortOption, onSortByChange, sortWay, onSortChange, itemsPer
             </div>
 
             <div className='filter-item items-dropdown' ref={limitRef}>
-                <button className='filter-btn limit-btn' onClick={() => setShowItemsMenu(!showItemsMenu)}>
+                <button 
+                    className={`filter-btn limit-btn  ${sorting ? 'cursor-disabled' : ''}`} 
+                    onClick={() => {
+                        if(sorting) return
+                        setShowItemsMenu(!showItemsMenu)
+                    }}>
                     <span>Show:</span>
                     <span className='items-value'>{itemsPerPage}</span>
                     <span className='arrow'>▼</span>
@@ -170,6 +198,8 @@ const FilterBar = ({ sortOption, onSortByChange, sortWay, onSortChange, itemsPer
                                 key={option.value}
                                 className={`dropdown-item ${itemsPerPage === option.value ? "active" : ""}`}
                                 onClick={() => {
+                                    onSorting(true)
+                                    onLocalUpdateTodos( todos.slice(0, option.value + 1) )
                                     onItemsPerPageChange(option.value)
                                     setShowItemsMenu(false)
                                     onPageChange(1)
