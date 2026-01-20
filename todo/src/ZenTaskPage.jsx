@@ -89,6 +89,7 @@ function ZenTaskPageContent() {
                 {isHomeView && (
                     <Home
                         activeTab={currentView}
+                        restoreTab={()=> setCurrentView("all")}
                         isDemoTaskLockedRef={demoLockRef}
                         openAuthModal={() => setOpenSignInModal(true)}
                     />

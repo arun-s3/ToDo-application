@@ -9,7 +9,7 @@ import ModalPortal from "../../ModalPortal"
 import useModalClose from "../../Hooks/useModalClose"
 
 
-function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalClose }) {
+function CreateTask({ onAddTask, onUpdateTask, editTask, isModalOpen, onModalClose }) {
 
     const [task, setTask] = useState({
         title: "",
@@ -43,49 +43,18 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
         console.log("task---->", task)
     }, [task])
 
-    const addNewTask = ()=> {
-        setLoading(true)
-        api.post(`tasks/add`, { task })
-            .then((response) => {
-                console.log(response)
-                setLoading(false)
-                resetForm()
-                onsubmit(task)
-            })
-            .catch((error) => {
-                toast.error(error.response.data.message)
-                console.log("Error---->", error.response.data.message)
-                setLoading(false)
-            })
-    }
-
-    const UpdateTask = () => {
-        setLoading(true)
-        console.log("Submiting updated task---->", task)
-        api.put(`tasks/update/${task._id}`, { task })
-            .then((result) => {
-                console.log(result)
-                onUpdateSuccess(task)
-                setLoading(false)
-                resetForm()
-            })
-            .catch((error) => {
-                toast.error(error.response.data.message)
-                console.log("Error---->", error.response.data.message)
-                setLoading(false)
-            })
-    }
-
     const handleSubmit = () => {
         if (!task.title.trim()) {
             alert("Please enter a task title")
             return
         }
         if(editTask){
-            UpdateTask()
+            onUpdateTask(task)
         }else{
-            addNewTask()
+            onAddTask(task)
         }
+        resetForm()
+        setTimeout(() => onModalClose(), 500)
     }
 
     const resetForm = () => {
@@ -102,6 +71,14 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
         onModalClose()
         setChecklistInput("")
         setTagInput("")
+    }
+
+    const findDeadlineMinDate = ()=> {
+        const today = new Date()
+        today.setMinutes(today.getMinutes() - today.getTimezoneOffset())
+
+        const minDate = today.toISOString().split("T")[0]
+        return minDate
     }
 
     const addChecklistItem = () => {
@@ -140,6 +117,9 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
             tags: task.tags.filter((_, i) => i !== index),
         })
     }
+
+    const deadlineMinDate = findDeadlineMinDate()
+
 
     return (
         <div className="task-creater">
@@ -237,6 +217,7 @@ function CreateTask({ onsubmit, editTask, onUpdateSuccess, isModalOpen, onModalC
                                     <input
                                         type="date"
                                         className="deadline-input"
+                                        min={deadlineMinDate}
                                         value={
                                             task.deadline
                                                 ? task.deadline.split("T")[0]

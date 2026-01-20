@@ -43,110 +43,104 @@ export default function TaskCard({todo, index, editingId, setEditingId, onToggle
 
 
     return (
-
         <div
-            className="task"
+            className='task'
             key={todo._id}
             style={{
                 animationDelay: `${index * 0.1}s`,
                 borderTopColor: taskColor,
-            }}
-        >
-            <div className="task-header">
+                opacity: todo.done ? 0.7 : 1,
+                cursor: todo?.syncing ? "not-allowed" : "auto",
+            }}>
+            <div className='task-header'>
                 <button
                     className={`star-button ${todo.starred ? "starred" : ""}`}
-                    onClick={() => onToggleStar(todo._id)}
-                    title="Star this task"
-                >
-                    <Star
-                        size={20}
-                        fill={todo.starred ? "currentColor" : "none"}
-                    />
+                    style={{
+                        cursor: todo?.starSyncing ? "not-allowed" : "auto",
+                    }}
+                    onClick={() => {
+                        if (todo?.syncing) return
+                        if (todo?.starSyncing) return
+                        onToggleStar(todo._id)
+                    }}
+                    title='Star this task'>
+                    <Star size={20} fill={todo.starred ? "currentColor" : "none"} />
                 </button>
             </div>
 
-            <div className="task-top">
-                <div className="checkbox">
+            <div className='task-top'>
+                <div className='checkbox'>
                     {todo.done ? (
                         <CheckCircle2
-                            className="check-icon"
+                            className='check-icon'
                             onClick={(e) => {
-                                if(todo?.syncing) return
+                                if (todo?.syncing) return
                                 onTaskDone(e, todo)
                             }}
                             size={20}
                         />
                     ) : (
                         <Circle
-                            className="check-icon"
-                            onClick={(e) => onTaskDone(e, todo)}
+                            className='check-icon'
+                            onClick={(e) => {
+                                if (todo?.syncing) return
+                                onTaskDone(e, todo)
+                            }}
                             size={20}
                         />
                     )}
-                    <div
-                        className={`field ${
-                            editingId.taskId === todo._id && editingId.title ? "editing" : ""
-                        }`}
-                    >
+                    <div className={`field ${editingId.taskId === todo._id && editingId.title ? "editing" : ""}`}>
                         <EditableField
                             value={todo.title}
-                            disabled={editingId.taskId !== todo._id && !editingId.title}
+                            disabled={editingId.taskId !== todo._id && !editingId.title && todo?.syncing}
                             className={`todo-input ${todo.done && "crossed"}`}
-                            onStartEdit={() => setEditingId(fields=> ({...fields, taskId: todo._id, title: true}))}
-                            onStopEdit={() => setEditingId(fields=> ({...fields, taskId: null, title: false}))}
+                            onStartEdit={() => setEditingId((fields) => ({ ...fields, taskId: todo._id, title: true }))}
+                            onStopEdit={() => setEditingId((fields) => ({ ...fields, taskId: null, title: false }))}
                             onBlur={(e) => onEditTitleDesc(e, todo, "title")}
                         />
                     </div>
                 </div>
-                <div className="task-actions">
+                <div className='task-actions'>
                     <Trash2
-                        className="trash"
+                        className='trash'
                         size={18}
-                        onClick={() => onDeleteTask(todo._id, todo.title, todo.isDemo)}
+                        onClick={() => {
+                            if (todo?.syncing) return
+                            onDeleteTask(todo._id, todo.title, todo.isDemo)
+                        }}
                     />
                 </div>
             </div>
 
             {todo.desc && (
-                <div
-                    className={`field ${
-                        editingId.taskId === todo._id && editingId.desc ? "editing" : ""
-                    }`}
-                >
+                <div className={`field ${editingId.taskId === todo._id && editingId.desc ? "editing" : ""}`}>
                     <EditableField
                         value={todo.desc}
-                        disabled={editingId.taskId !== todo._id && !editingId.desc}
-                        className="description"
-                        placeholder={
-                            editingId === todo._id && !todo.desc
-                                ? "Write Description (Optional)"
-                                : ""
-                        }
-                        onStartEdit={() => setEditingId(fields=> ({...fields, taskId: todo._id, desc: true}))}
-                        onStopEdit={() => setEditingId(fields=> ({...fields, taskId: null, desc: false}))}
-                        onBlur={(e) =>onEditTitleDesc(e, todo, "desc")}
+                        disabled={editingId.taskId !== todo._id && !editingId.desc && todo?.syncing}
+                        className='description'
+                        placeholder={editingId === todo._id && !todo.desc ? "Write Description (Optional)" : ""}
+                        onStartEdit={() => setEditingId((fields) => ({ ...fields, taskId: todo._id, desc: true }))}
+                        onStopEdit={() => setEditingId((fields) => ({ ...fields, taskId: null, desc: false }))}
+                        onBlur={(e) => onEditTitleDesc(e, todo, "desc")}
                     />
                 </div>
             )}
 
-            <div className="task-metadata">
+            <div className='task-metadata'>
                 {todo.deadline && (
-                    <div className="metadata-item deadline-badge">
+                    <div className='metadata-item deadline-badge'>
                         <Calendar size={14} />
                         <span>{showDate(new Date(todo.deadline))}</span>
                     </div>
                 )}
                 {todo.priority && (
-                    <div
-                        className="metadata-item priority-badge"
-                        style={{ borderColor: taskColor }}
-                    >
+                    <div className='metadata-item priority-badge' style={{ borderColor: taskColor }}>
                         <Flag size={14} fill={taskColor} color={taskColor} />
                         <span>{todo.priority}</span>
                     </div>
                 )}
                 {todo.tags && todo.tags.length > 0 && (
-                    <div className="metadata-item tags-badge">
+                    <div className='metadata-item tags-badge'>
                         <Tag size={14} />
                         <span>{todo.tags.length}</span>
                     </div>
@@ -154,64 +148,44 @@ export default function TaskCard({todo, index, editingId, setEditingId, onToggle
             </div>
 
             {todo.checklist && todo.checklist.length > 0 && (
-                <div className="progress-section">
-                    <div className="progress-header">
-                        <span className="progress-label">Progress</span>
-                        <span className="progress-text">{progress}%</span>
+                <div className='progress-section'>
+                    <div className='progress-header'>
+                        <span className='progress-label'>Progress</span>
+                        <span className='progress-text'>{progress}%</span>
                     </div>
-                    <div className="progress-bar">
-                        <div
-                            className="progress-fill"
-                            style={{ width: `${progress}%` }}
-                        />
+                    <div className='progress-bar'>
+                        <div className='progress-fill' style={{ width: `${progress}%` }} />
                     </div>
                 </div>
             )}
 
             {todo.checklist && todo.checklist.length > 0 && (
-                <div className="checklist-section">
+                <div className='checklist-section'>
                     <button
-                        className="checklist-toggle"
-                        onClick={() =>
-                            setExpandedChecklistId(
-                                expandedChecklistId === todo._id
-                                    ? null
-                                    : todo._id
-                            )
-                        }
-                    >
-                        <span className="checklist-count">
-                            {todo.checklist.filter((i) => i.completed).length}/
-                            {todo.checklist.length} completed
+                        className='checklist-toggle'
+                        onClick={() => setExpandedChecklistId(expandedChecklistId === todo._id ? null : todo._id)}>
+                        <span className='checklist-count'>
+                            {todo.checklist.filter((i) => i.completed).length}/{todo.checklist.length} completed
                         </span>
-                        {expandedChecklistId === todo._id ? (
-                            <ChevronUp size={18} />
-                        ) : (
-                            <ChevronDown size={18} />
-                        )}
+                        {expandedChecklistId === todo._id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </button>
 
                     {expandedChecklistId === todo._id && (
-                        <div className="checklist-items-list">
+                        <div className='checklist-items-list'>
                             {todo.checklist.map((item, idx) => (
-                                <div key={idx} className="checklist-item-row">
+                                <div key={idx} className='checklist-item-row'>
                                     <button
-                                        className={`checklist-checkbox ${
-                                            item.completed ? "checked" : ""
-                                        }`}
+                                        className={`checklist-checkbox ${item.completed ? "checked" : ""}`}
+                                        style={{
+                                            cursor: todo?.starSyncing ? "not-allowed" : "auto",
+                                        }}
                                         onClick={() => {
                                             if (todo?.syncing) return
                                             onToggleChecklistItem(todo._id, idx, item._id)
-                                            }
-                                        }
-                                    >
+                                        }}>
                                         {item.completed && <span>✓</span>}
                                     </button>
-                                    <span
-                                        className={`checklist-text ${
-                                            item.completed ? "completed" : ""
-                                        }`}
-                                    >
+                                    <span className={`checklist-text ${item.completed ? "completed" : ""}`}>
                                         {item.text}
                                     </span>
                                 </div>
@@ -222,20 +196,23 @@ export default function TaskCard({todo, index, editingId, setEditingId, onToggle
             )}
 
             {todo.tags && todo.tags.length > 0 && (
-                <div className="tags-display">
+                <div className='tags-display'>
                     {todo.tags.map((tag, idx) => (
-                        <span key={idx} className="tag-chip">
+                        <span key={idx} className='tag-chip'>
                             {tag}
                         </span>
                     ))}
                 </div>
             )}
 
-            <div className="task-bottom">
+            <div className='task-bottom'>
                 <BsPencilSquare
-                    className="full-editor"
+                    className='full-editor'
                     size={15}
-                    onClick={() => onTaskEdit(todo)}
+                    onClick={() => {
+                        if (todo?.syncing) return
+                        onTaskEdit(todo)
+                    }}
                 />
             </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, useMemo } from "react"
 import "./Home.css"
 
 import { api } from "../../../api/axiosInstance"
@@ -17,22 +17,27 @@ import Pagination from "./Pagination"
 
 import { useAuth } from "../../../Context/AuthContext"
 import { useTheme } from "../../../Context/ThemeContext"
-import { shouldShowGuestSignupModal } from '../../../Utils/GuestPrompt'
+import { shouldShowGuestSignupModal } from '../../../Utils/guestPrompt'
 import { dummyTask } from "../../../data/dummyTask"
 
+import { processTasks } from "../../../Utils/taskOperations"
+import { mapSortAndSortByToSortLabel } from "../../../Utils/sortMap"
 
-export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthModal}) {
+
+export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRef, openAuthModal}) {
 
     const [todos, setTodo] = useState([])
     const [fetchTasks, setFetchTasks] = useState(true)
 
     const [editingId, setEditingId] = useState({title: false, desc: false, taskId: null})
 
-    const [sortBy, setSortBy] = useState("created")
+    const [sortBy, setSortBy] = useState("createdAt") 
     const [sort, setSort] = useState(-1)
     const [isSorting, setIsSorting] = useState(false)
 
     const [searchQuery, setSearchQuery] = useState("")
+
+    const [restoreFilters, setRestoreFilters] = useState(false)
 
     const [showTaskModal, setShowTaskModal] = useState(false)
 
@@ -109,12 +114,24 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
         }
     }, [fetchTasks]) 
 
+    const processLocalTodos = (currentTodos)=> {
+        console.log("currentTodos--->", currentTodos)
+        if (currentTodos.length === 0) return
+        const sortLabel = mapSortAndSortByToSortLabel(sortBy, sort)
+        console.log("sortLabel--->", sortLabel)
+        const processedLocalTodos = processTasks({ todos: currentTodos, activeTab, searchQuery, sortLabel, limit })
+        console.log("processedLocalTodos--->", processedLocalTodos)
+        setTodo(processedLocalTodos)
+    }
+
     useEffect(() => {
         if (!authReady) return
 
+        processLocalTodos(todos)
+
         const taskQueryOptions = getTaskQueryOptions()
         getTasks(taskQueryOptions)
-    }, [authReady, guestId, user, activeTab, currentPage, limit, sortBy, sort, searchQuery])
+    }, [authReady, activeTab, guestId, user, currentPage, limit, sortBy, sort, searchQuery])
 
     const addDummyTask = async () => {
         if (!authReady) return  
@@ -167,6 +184,12 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
         }
     }, [user, authReady, todos])
 
+    useEffect(() => {
+        if (restoreFilters) {
+            setTimeout(()=> setRestoreFilters(false), 1000)
+        }
+    }, [restoreFilters]) 
+
     const createNewTask = ()=> {
         if (isGuest && shouldShowGuestSignupModal()) {
             setOpenGuestModeModal(true) 
@@ -174,20 +197,96 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
             return
         }
         setShowTaskModal(true)
+        setRestoreFilters(true)
+        if(sortBy !== "createdAt") setSortBy("createdAt") 
+        if(sort !== -1) setSort(-1) 
+        if(searchQuery) setSearchQuery('') 
+        if(activeTab !== "all") restoreTab()
+        if(currentPage > 1) setCurrentPage(1)
+    }
+
+    const addNewTask = (task) => {
+
+        const tempId = "temp-" + Date.now()
+        setTodo((todos) => [{ ...task, _id: tempId, isTemp: true, syncing: true }, ...todos])
+        
+        api.post(`tasks/add`, { task })
+            .then((response) => {
+                console.log(response)
+                const newTodo = response.data.data
+                setTodo((prev) =>
+                    prev.map((todo) => {
+                        if (todo._id === tempId) {
+                            return newTodo
+                        }
+                        return todo
+                    }),
+                )
+                if (isGuest && guestId && !task.isDemo) {
+                    localStorage.setItem("hasSeenDemoTask", "true")
+                }
+            })
+            .catch((error) => {
+                const message =
+                    error?.response?.data?.message || error?.message || "Something went wrong. Please cehck your network and try again."
+
+                toast.error(message)
+                setTodo((prev) => prev.filter((todo) => todo._id !== tempId))
+            })
+    }
+
+    const UpdateTask = (task) => {
+        
+        console.log("Submiting updated task---->", task)
+        const currentTodos = [...todos]
+        const newTodos = todos.map((todo) => {
+            if (todo._id === task._id) {
+                todo = task
+                todo.syncing = true
+            }
+            return todo
+        }) 
+        processLocalTodos(newTodos)
+        api.put(`tasks/update/${task._id}`, { task })
+            .then((result) => {
+                console.log("Successfully updated task!")
+            })
+            .catch((error) => {
+                const message =
+                    error?.response?.data?.message || error?.message || "Something went wrong. Please cehck your network and try again."
+
+                toast.error(message)
+                setTodo(currentTodos)
+            })
+            .finally(()=> {
+                setTodo((prev) =>
+                    prev.map((todo) => {
+                        if (todo._id === task._id) {
+                            todo.syncing = false
+                        }
+                        return todo
+                    }),
+                )
+                setFetchTasks(true)
+            })
     }
 
     const toggleDoneHandler = (e, currentTodo) => {
         e.stopPropagation()
         const currentTodos = [...todos]
         const newDone = !currentTodo.done
-        const newTodos = todos.map((todo) => {
-            if (todo._id === currentTodo._id){
-                todo.done = newDone
-                todo.syncing = true
-            }
-            return todo
-        })
-        setTodo(newTodos)
+        if ((newDone && activeTab === "pending") || (!newDone && activeTab === "completed")) {
+            setTodo((todos) => todos.filter((todo) => todo._id !== currentTodo._id))
+        } else{
+            const newTodos = todos.map((todo) => {
+                if (todo._id === currentTodo._id) {
+                    todo.done = newDone
+                    todo.syncing = true
+                }
+                return todo
+            })
+            setTodo(newTodos)
+        }
         api.patch(`tasks/done/${currentTodo._id}`, { done: newDone })
             .then(result=> {
                 if(result){
@@ -196,8 +295,12 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
             })
             .catch(error=> {
                     setTodo(currentTodos)
-                    toast.error(error.response.data.message)
-                    console.log("Error---->", error.response.data.message)
+                    const message =
+                        error?.response?.data?.message ||
+                        error?.message ||
+                        "Something went wrong. Please cehck your network and try again."
+
+                    toast.error(message)
             })
             .finally(()=> {
                 setTodo((prev) =>
@@ -232,15 +335,19 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
                 setIsDeleting(false)
              })
              .catch(error=> {
-                    toast.error(error.response.data.message)
-                    console.log("Error---->", error.response.data.message)
+                    const message =
+                        error?.response?.data?.message ||
+                        error?.message ||
+                        "Something went wrong. Please cehck your network and try again."
+
+                    toast.error(message)
                     setTodo(currentTodos)
+                    if (isGuest && guestId && isDemo) {
+                        localStorage.setItem("hasSeenDemoTask", "false")
+                        isDemoTaskLockedRef.current = false
+                    }
              })
              .finally(()=> {
-                if (isGuest && guestId && isDemo) {
-                    localStorage.setItem("hasSeenDemoTask", "false")
-                    isDemoTaskLockedRef.current = false
-                }
                 setIsDeleting(false)
              })
     }
@@ -253,37 +360,30 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
     const handleEditTitleDesc = (e, currentTodo, type) => {
         const value = e.target.value
         console.log("type--->", type)
-        const taskPatch = { [type]: value }
+        const currentTodos = [...todos] 
+        const taskPatch = { [type]: value } 
         e.target.style.borderBottom = ""
-        api.put(`tasks/update/${currentTodo._id}`, { task: taskPatch })
-            .then((result) => {
-                if (result) {
-                    console.log(result)
-                    const newTodos = todos.map((todo) => {
-                        if (todo._id === currentTodo._id) {
-                            todo[type] = value
-                        }
-                        return todo
-                    })
-                    setTodo(newTodos)
-                }
-            })
-            .catch((error) => {
-                toast.error(error.response.data.message)
-                console.log("Error---->", error.response.data.message)
-            })
-        setEditingId((fields) => ({ ...fields, taskId: null, [type]: false }))
-    }
-
-    const updateTaskCard = (task)=> {
-        console.log("Inside updateTaskCard()..")
         const newTodos = todos.map((todo) => {
-            if (todo._id === task._id) {
-                todo = task
+            if (todo._id === currentTodo._id) {
+                todo[type] = value
             }
             return todo
         })
-        setTodo(newTodos)
+        if(searchQuery.trim()){
+            processLocalTodos(newTodos)
+        }else setTodo(newTodos)
+        api.put(`tasks/update/${currentTodo._id}`, { task: taskPatch })
+            .then((result) => {
+                console.log("Editing successfull")
+            })
+            .catch((error) => {
+                const message =
+                    error?.response?.data?.message || error?.message || "Something went wrong. Please cehck your network and try again."
+
+                toast.error(message)
+                console.log("Error ---->", message)
+            })
+        setEditingId((fields) => ({ ...fields, taskId: null, [type]: false }))
     }
 
     const handleToggleChecklistItems = async (currentTodos, taskId, itemId, itemIndex) => {
@@ -358,7 +458,7 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
             setTodo((todos) =>
                 todos.map((todo) => {
                     if (todo._id === taskId) {
-                        return { ...todo, syncing: false }
+                        return { ...todo, starSyncing: false }
                     }
                     return todo
                 }),
@@ -371,23 +471,21 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
         const updatedTodos = todos.map((todo) => {
             if (todo._id === taskId) {
                 const newStarred = !todo.starred
-                return { ...todo, starred: newStarred, syncing: true }
+                return { ...todo, starred: newStarred, starSyncing: true }
             }
             return todo
         })
-        setTodo(updatedTodos) 
+        processLocalTodos(updatedTodos)
         await handleToggleStarTask(currentTodos, taskId) 
     }
 
-    const getFilteredTasks = () => {
-        console.log("todos inside getFilteredTasks----->", todos)
+    const filteredTodos = useMemo(() => {
         let hasSeenDemoTask = false
 
         if (user) {
             hasSeenDemoTask = !!user.hasSeenDemoTask
         } else if (isGuest) {
             hasSeenDemoTask = localStorage.getItem("hasSeenDemoTask") === "true"
-
         }
 
         let demoShown = false
@@ -401,9 +499,7 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
             }
             return false
         })
-    }
-
-    const filteredTodos = getFilteredTasks()
+    }, [todos, user, isGuest])
 
 
     return (
@@ -411,7 +507,7 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
             <HomeHeader currentTab={activeTab} />
 
             <div className='search-and-add-wrapper'>
-                <SearchTasks onsearchQuery={setSearchQuery} />
+                <SearchTasks onsearchQuery={setSearchQuery} restoreSearch={restoreFilters} />
 
                 <button className='add-task-btn' onClick={() => createNewTask()} title='Create a new task'>
                     <Plus size={20} />
@@ -420,16 +516,12 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
             </div>
 
             <CreateTask
-                onsubmit={(task) => {
-                    if (isGuest && guestId && !task.isDemo) {
-                        localStorage.setItem("hasSeenDemoTask", "true")
-                    }
-                    setFetchTasks(true)
-                }}
                 isModalOpen={showTaskModal}
                 onModalClose={() => setShowTaskModal(false)}
                 editTask={updateTask}
-                onUpdateSuccess={updateTaskCard}
+                onLocalUpdateTodos={setTodo}
+                onAddTask={addNewTask}
+                onUpdateTask={UpdateTask}
             />
 
             {searchQuery && (
@@ -452,6 +544,7 @@ export default function Home({ activeTab = "all", isDemoTaskLockedRef, openAuthM
                     onSorting={setIsSorting}
                     todos={todos}
                     onLocalUpdateTodos={setTodo}
+                    restoreFilter={restoreFilters}
                     itemsPerPage={limit}
                     onItemsPerPageChange={setLimit}
                     onPageChange={setCurrentPage}

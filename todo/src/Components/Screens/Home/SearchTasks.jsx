@@ -1,13 +1,19 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import "./Home.css"
 import { debounce } from "lodash"
 
 import { Search } from "lucide-react"
 
 
-export default function SearchTasks({ onsearchQuery }) {
+export default function SearchTasks({ onsearchQuery, restoreSearch = false }) {
 
     const [taskQuery, setTaskQuery] = useState('')
+
+    useEffect(() => {
+        if(restoreSearch){
+            setTaskQuery('')
+        }
+    }, [restoreSearch])
 
     const debouncedSearch = useRef(
         debounce((searchData) => onsearchQuery(searchData), 400)
