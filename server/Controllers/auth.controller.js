@@ -94,7 +94,8 @@ const logoutUser = (req, res, next) => {
     try {
         res.clearCookie("jwt", {
             httpOnly: true,
-            sameSite: "strict",
+            sameSite: "none",
+            secure: true,
         })
 
         res.status(200).json({success: true, message: "Logged out successfully"})

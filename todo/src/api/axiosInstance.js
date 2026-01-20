@@ -5,21 +5,6 @@ export const api = axios.create({
     withCredentials: true
 })
 
-// api.interceptors.request.use((config) => {
-//     const guestId = localStorage.getItem("guestId")
-
-//     console.log("guestId from axiosInstance---->", guestId)
-    
-//     if (!document.cookie.includes("jwt=") && guestId) {
-//         config.headers["x-guest-id"] = guestId
-//     } else {
-//         if (config.headers && config.headers["x-guest-id"]) {
-//             delete config.headers["x-guest-id"]
-//         }
-//     }
-//     return config
-// })
-
 api.interceptors.request.use((config) => {
     const guestId = localStorage.getItem("guestId")
 
