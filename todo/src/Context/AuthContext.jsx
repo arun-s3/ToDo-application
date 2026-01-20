@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
 
   const loadUser = async () => {
     try {
+      setAuthLoading(true)
       console.log("Inside loadUser()...")
       const response = await api.get(`/user`)
       if(response.status === 200){
@@ -80,9 +81,11 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try{
+      setAuthLoading(true)
       const response = await api.get(`/signout`)
       if(response.status === 200){
         loadUserAsGuest()
+        setAuthLoading(false)
       }
     }
     catch(error){

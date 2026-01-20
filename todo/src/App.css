@@ -550,6 +550,41 @@ a {
   transform: scale(0.97);
 }
 
+.sign-in-btn-loading {
+    width: 6.5rem;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    padding: 10px 16px;
+    background: #9fabe5;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.sign-in-btn-loading .loader {
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top: 3px solid #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.dark-mode .sign-in-btn-loading .loader {
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    border-top: 3px solid #dedfe1;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .sign-out-btn {
   display: flex;
   align-items: center;
