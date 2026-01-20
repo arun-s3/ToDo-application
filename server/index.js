@@ -44,6 +44,10 @@ app.use('/', authRoutes)
 app.use('/tasks', taskRoutes)
 app.use("/dashboard", dashboardRoutes)
 
+app.get("/health", (req, res) => {
+    res.status(200).send("OK")
+})
+
 app.use(globalErrorHandler)
 
 const port = process.env.PORT || 3001

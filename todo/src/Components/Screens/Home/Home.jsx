@@ -17,11 +17,11 @@ import Pagination from "./Pagination"
 
 import { useAuth } from "../../../Context/AuthContext"
 import { useTheme } from "../../../Context/ThemeContext"
-import { shouldShowGuestSignupModal } from '../../../Utils/guestPrompt'
+import { shouldShowGuestSignupModal } from '../../../utils/guestPrompt'
 import { dummyTask } from "../../../data/dummyTask"
 
-import { processTasks } from "../../../Utils/taskOperations"
-import { mapSortAndSortByToSortLabel } from "../../../Utils/sortMap"
+import { processTasks } from "../../../utils/taskOperations"
+import { mapSortAndSortByToSortLabel } from "../../../utils/sortMap"
 
 
 export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRef, openAuthModal}) {
@@ -106,14 +106,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
         }
     }
 
-    useEffect(() => {
-        if (fetchTasks) {
-            const taskQueryOptions = getTaskQueryOptions()
-            getTasks(taskQueryOptions)
-            setFetchTasks(false)
-        }
-    }, [fetchTasks]) 
-
     const processLocalTodos = (currentTodos)=> {
         console.log("currentTodos--->", currentTodos)
         if (currentTodos.length === 0) return
@@ -132,6 +124,16 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
         const taskQueryOptions = getTaskQueryOptions()
         getTasks(taskQueryOptions)
     }, [authReady, activeTab, guestId, user, currentPage, limit, sortBy, sort, searchQuery])
+
+    useEffect(() => {
+        if (fetchTasks) {
+            processLocalTodos(todos)
+
+            const taskQueryOptions = getTaskQueryOptions()
+            getTasks(taskQueryOptions)
+            setFetchTasks(false)
+        }
+    }, [fetchTasks]) 
 
     const addDummyTask = async () => {
         if (!authReady) return  
