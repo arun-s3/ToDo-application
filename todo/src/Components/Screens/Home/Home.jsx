@@ -542,9 +542,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                         <h2>No tasks in this category</h2>
                     </div>
                 ) : (
-                    filteredTodos.length > 0 &&
-                    !showTaskCardLoader &&
-                    !authLoading &&
+                    filteredTodos.length > 0 && !authLoading &&
                     filteredTodos.map((todo, index) => (
                         <TaskCard
                             key={todo._id}
