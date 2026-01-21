@@ -4,11 +4,14 @@ import "./Sidebar.css"
 import { ChartNoAxesCombined, ClipboardList, SquareCheck, Clock, Zap, Calendar, X} from "lucide-react"
 
 import { useTheme } from "../../Context/ThemeContext"
+import { useAuth } from "../../Context/AuthContext"
 
 
 const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen }) => {
 
   const { isDarkMode } = useTheme()
+
+  const { authLoading } = useAuth()
 
   const taskFilters = [
     { id: "all", label: "All Tasks", icon: ClipboardList },
@@ -22,8 +25,8 @@ const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen 
   return (
       <div className={`sidebar ${mobileMenuOpen ? "open" : "close"} ${isDarkMode ? "dark-mode" : ""}`}>
           <div className='sidebar-top'>
-              <div className='mobile-header-close'>
-                  <button onClick={() => setMobileMenuOpen(false)} style={mobileMenuOpen ? {display: 'hidden'} : {}}>
+              <div className='mobile-header-close' style={!mobileMenuOpen ? { display: "none" } : {}}>
+                  <button onClick={() => setMobileMenuOpen(false)}>
                       <X />
                   </button>
               </div>
@@ -38,7 +41,9 @@ const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen 
               <div className='sidebar-section'>
                   <div
                       className={`sidebar-item ${currentView === "dashboard" ? "active" : ""}`}
+                      style={authLoading ? { cursor: "not-allowed" } : {}}
                       onClick={() => {
+                          if (authLoading) return
                           onViewChange("dashboard")
                           if (mobileMenuOpen) {
                               setMobileMenuOpen(false)
@@ -58,7 +63,9 @@ const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen 
                               <div
                                   key={filter.id}
                                   className={`sidebar-item ${currentView === filter.id ? "active" : ""}`}
+                                  style={authLoading ? { cursor: "not-allowed" } : {}}
                                   onClick={() => {
+                                      if (authLoading) return
                                       onViewChange(filter.id)
                                       if (mobileMenuOpen) {
                                           setMobileMenuOpen(false)

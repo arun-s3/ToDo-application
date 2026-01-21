@@ -134,6 +134,10 @@
   transform: scale(0.97);
 }
 
+.add-task-btn:disabled {
+  cursor: not-allowed;
+}
+
 .search-results-container {
   width: 100%;
   margin: 2rem auto;
@@ -283,27 +287,101 @@
   transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
+@keyframes taskReveal {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 .task:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 32px rgba(40, 127, 229, 0.2);
 }
 
 .loader-wrapper {
-    margin-top: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes taskReveal {
-  from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.home-logo-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 60vh;
+}
+
+.home-logo.loading {
+  border-bottom: none;
+  animation: logoPulse 1.6s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+.home-logo img {
+  width: 27rem;
+  object-fit: cover;
+}
+
+.home-logo h2 {
+  position: absolute;
+  bottom: 3rem;
+  left: 8rem;
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  font-size: 37px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #296DE0;
+}
+
+.home-logo h2::first-letter {
+  font-size: 40px;
+}
+
+.home-logo h2>span {
+  color: #2c3b58;
+  margin-left: -6px;
+}
+
+.home-logo.loading img {
+  animation: fadeImg 1.6s ease-in-out infinite;
+}
+
+@keyframes fadeImg {
+
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+
+    50% {
+      opacity: 1;
+    }
+}
+
+@keyframes logoPulse {
+    0% {
+      opacity: 0.4;
+      transform: scale(0.97);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    100% {
+      opacity: 0.4;
+      transform: scale(0.97);
+    }
 }
 
 .task-header {
@@ -1054,4 +1132,16 @@
 
 .home.dark .no-results p {
   color: #64748b;
+}
+
+.home.dark .home-logo-loader {
+    border-bottom-color: #1f2937;
+}
+
+.home.dark .home-logo-loader h2 {
+    color: #60a5fa;
+}
+
+.home.dark .home-logo-loader h2 span {
+    color: #cbd5e0;
 }

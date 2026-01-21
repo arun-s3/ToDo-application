@@ -7,8 +7,6 @@ const { errorHandler } = require("../Middlewares/errorHandler")
 
 const signupUser = async (req, res, next)=> {
     try {
-        console.log("Inside signupUser")
-        console.log("req.body.userDetails --->", JSON.stringify(req.body.userDetails))
         const { username, password } = req.body.userDetails 
 
         if (!username || !password)
@@ -38,8 +36,6 @@ const signupUser = async (req, res, next)=> {
 
 const loginUser = async (req, res, next) => {
     try {
-        console.log("Inside loginUser")
-        console.log("req.body.userDetails --->", JSON.stringify(req.body.userDetails))
         const { username, password } = req.body.userDetails 
 
         const user = await User.findOne({ username }).select("+password")
@@ -69,7 +65,6 @@ const loginUser = async (req, res, next) => {
 
 const getCurrentUser = async (req, res, next) => {
     try {
-        console.log("Inside getCurrentUser")
         if (!req.user){
           return next(errorHandler(401, "Not authenticated"))
         }

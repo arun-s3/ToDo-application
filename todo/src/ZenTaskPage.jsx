@@ -46,7 +46,6 @@ function ZenTaskPageContent() {
     }, [])
 
     useEffect(() => {
-        console.log("User transition happened now!")
         setCurrentView('all')
     }, [isGuest, user]) 
 
@@ -72,7 +71,7 @@ function ZenTaskPageContent() {
                         {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
                     </button>
                     {authLoading ? (
-                        <div className='sign-in-btn-loading'>
+                        <div className='sign-in-btn-loading' style={{ cursor: "not-allowed" }}>
                             {!user ? <LogIn size={18} /> : <LogOut size={18} />}
                             <span className='loader' style={{ width: 20, height: 20 }} />
                         </div>

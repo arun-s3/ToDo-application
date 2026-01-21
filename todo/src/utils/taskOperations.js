@@ -89,9 +89,6 @@ export const limitTasks = (todos, limit) => {
 
 export const processTasks = ({ todos, activeTab, searchQuery, sortLabel, limit }) => {
 
-    console.log(`Inside processTasks-- activeTab--> ${activeTab}, searchQuery--> ${searchQuery}, sortLabel--> ${sortLabel}, limit--> ${limit}`)
-    console.log("todos--->", todos)
-
     return limitTasks(sortTasks(searchTasks(filterByTab(todos, activeTab), searchQuery), sortLabel), limit)
 
 }

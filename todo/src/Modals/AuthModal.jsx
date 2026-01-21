@@ -71,7 +71,6 @@ const AuthModal = ({ onModalClose, onSignUpOrIn, onMigrateGuest }) => {
     }
 
     const submitDetails = async (userDetails) => {
-        console.log("Inside submitDetails()...")
         setLoading(true)
         try {
             const response = await api.post(`/${isSignIn ? "signin" : "signup"}`, { userDetails });
@@ -80,7 +79,6 @@ const AuthModal = ({ onModalClose, onSignUpOrIn, onMigrateGuest }) => {
                 
                 onMigrateGuest()
 
-                console.log("response.data.user", response.data.user)
                 onSignUpOrIn(response.data.user)
                 setLoading(false)
 

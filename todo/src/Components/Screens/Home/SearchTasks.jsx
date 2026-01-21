@@ -4,10 +4,14 @@ import { debounce } from "lodash"
 
 import { Search } from "lucide-react"
 
+import { useAuth } from "../../../Context/AuthContext"
+
 
 export default function SearchTasks({ onsearchQuery, restoreSearch = false }) {
 
     const [taskQuery, setTaskQuery] = useState('')
+
+    const { authLoading } = useAuth() 
 
     useEffect(() => {
         if(restoreSearch){
@@ -20,9 +24,9 @@ export default function SearchTasks({ onsearchQuery, restoreSearch = false }) {
     ).current
 
     const handleSearch = (e) => {
+        if(authLoading) return
         const searchData = e.target.value
         setTaskQuery(searchData)
-        console.log("searchData--->", searchData)
         debouncedSearch(searchData)
     }
 

@@ -83,7 +83,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
         try {
             if (isGuest && !guestId) return
             if (!authReady) return  
-            console.log("Getting tasks with the options--->", taskQueryOptions)
             const response = await api.post("/tasks", { taskQueryOptions })
 
             if (response && response?.data?.success) {
@@ -91,8 +90,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                 setTotalTodos(response.data.total)
 
                 if(isSorting) setIsSorting(false)
-
-                console.log("response.data.overallTotal---->", response.data.overallTotal)
                 setOverallTodos(response.data.overallTotal)
             }
         } catch (error) {
@@ -111,12 +108,9 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
     }
 
     const processLocalTodos = (currentTodos)=> {
-        console.log("currentTodos--->", currentTodos)
         if (currentTodos.length === 0) return
         const sortLabel = mapSortAndSortByToSortLabel(sortBy, sort)
-        console.log("sortLabel--->", sortLabel)
         const processedLocalTodos = processTasks({ todos: currentTodos, activeTab, searchQuery, sortLabel, limit })
-        console.log("processedLocalTodos--->", processedLocalTodos)
         setTodo(processedLocalTodos)
     }
 
@@ -157,7 +151,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                 setFetchTasks(true)
             }
         } catch (error) {
-            console.log("Error adding demo:", error?.response?.data?.message || error.message)
+            console.error("Error adding demo:", error)
         } finally {
             addingDemoRef.current = false
         }
@@ -171,9 +165,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
         const hasSeen = localStorage.getItem("hasSeenDemoTask") === "true"
 
         const alreadyInjected = todos.some((todo) => todo.isDemo)
-        console.log("Demo task alreadyInjected for guest---->", alreadyInjected)
-
-        console.log(`hasSeen----> ${hasSeen}, todos.length----> ${todos.length}. Hence ${!hasSeen && !alreadyInjected && todos.length === 0 ? 'ADDING' : "NOT ADDING"} demo task for guest`)
 
         if (!hasSeen && !alreadyInjected && todos.length === 0) {
             isDemoTaskLockedRef.current = true
@@ -187,9 +178,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
         if (!authReady) return  
 
         const alreadyInjected = todos.some((todo) => todo.isDemo)
-        console.log("Demo task alreadyInjected for user---->", alreadyInjected)
-
-        console.log(`user.hasSeenDemoTask----> ${user.hasSeenDemoTask}, todos.length----> ${todos.length}. Hence ${user.hasSeenDemoTask && !alreadyInjected && todos.length === 0 ? 'ADDING' : "NOT ADDING"} demo task for user`)
 
         if (!user.hasSeenDemoTask && !alreadyInjected && todos.length === 0) {
             addDummyTask()
@@ -224,7 +212,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
         
         api.post(`tasks/add`, { task })
             .then((response) => {
-                console.log(response)
                 const newTodo = response.data.data
                 setTodo((prev) =>
                     prev.map((todo) => {
@@ -248,8 +235,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
     }
 
     const UpdateTask = (task) => {
-        
-        console.log("Submiting updated task---->", task)
         const currentTodos = [...todos]
         const newTodos = todos.map((todo) => {
             if (todo._id === task._id) {
@@ -260,9 +245,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
         }) 
         processLocalTodos(newTodos)
         api.put(`tasks/update/${task._id}`, { task })
-            .then((result) => {
-                console.log("Successfully updated task!")
-            })
+            .then((result) => {})
             .catch((error) => {
                 const message =
                     error?.response?.data?.message || error?.message || "Something went wrong. Please cehck your network and try again."
@@ -300,11 +283,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
             setTodo(newTodos)
         }
         api.patch(`tasks/done/${currentTodo._id}`, { done: newDone })
-            .then(result=> {
-                if(result){
-                    console.log(result)
-                }
-            })
+            .then(result=> {})
             .catch(error=> {
                     setTodo(currentTodos)
                     const message =
@@ -343,7 +322,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
         
         api.delete(`tasks/delete/${id}`)
              .then(result=> {
-                console.log(result)
                 setIsDeleting(false)
              })
              .catch(error=> {
@@ -371,7 +349,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
 
     const handleEditTitleDesc = (e, currentTodo, type) => {
         const value = e.target.value
-        console.log("type--->", type)
         const currentTodos = [...todos] 
         const taskPatch = { [type]: value } 
         e.target.style.borderBottom = ""
@@ -385,26 +362,20 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
             processLocalTodos(newTodos)
         }else setTodo(newTodos)
         api.put(`tasks/update/${currentTodo._id}`, { task: taskPatch })
-            .then((result) => {
-                console.log("Editing successfull")
-            })
+            .then((result) => {})
             .catch((error) => {
                 const message =
                     error?.response?.data?.message || error?.message || "Something went wrong. Please cehck your network and try again."
 
                 toast.error(message)
-                console.log("Error ---->", message)
+                console.error("Error while editing title/desc---->", error)
             })
         setEditingId((fields) => ({ ...fields, taskId: null, [type]: false }))
     }
 
     const handleToggleChecklistItems = async (currentTodos, taskId, itemId, itemIndex) => {
         try {
-            const response = await api.patch(`tasks/${taskId}/checklist/${itemId}/toggle`)
-
-            if (response && response?.data?.success) {
-                console.log("Toggled checklist successfully....")
-            }
+            await api.patch(`tasks/${taskId}/checklist/${itemId}/toggle`)
         } catch (error) {
             console.error("Error while toggling checklist item:", error)
 
@@ -432,7 +403,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
     }
 
     const toggleChecklistItem = async(taskId, itemIndex, itemId) => {
-        console.log(`taskId---> ${taskId}, itemIndex---> ${itemIndex} and itemId---> ${itemId}`)
         const currentTodos = [...todos] 
         const updatedTodos = todos.map((todo) => {
             if (todo._id === taskId) {
@@ -450,11 +420,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
 
     const handleToggleStarTask = async (currentTodos, taskId) => {
         try {
-            const response = await api.patch(`tasks/${taskId}/star/toggle`)
-
-            if (response && response?.data?.success) {
-                console.log("Starred successfully....")
-            }
+            await api.patch(`tasks/${taskId}/star/toggle`)
         } catch (error) {
             console.error("Error while toggling star:", error)
 
@@ -521,9 +487,14 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
             <div className='search-and-add-wrapper'>
                 <SearchTasks onsearchQuery={setSearchQuery} restoreSearch={restoreFilters} />
 
-                <button className='add-task-btn' onClick={() => createNewTask()} title='Create a new task'>
-                    <Plus size={20} />
-                    <span>Add Task</span>
+                <button
+                    className='add-task-btn'
+                    onClick={() => createNewTask()}
+                    title='Create a new task'
+                    disabled={authLoading || showTaskCardLoader}
+                >
+                        <Plus size={20} />
+                        <span>Add Task</span>
                 </button>
             </div>
 
@@ -542,11 +513,11 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                 </span>
             )}
 
-            {(overallTodos === 0 || (todos.length > 0 && todos.every((todo) => todo.isDemo))) && (
+            {(overallTodos === 0 || (todos.length > 0 && todos.every((todo) => todo.isDemo))) && !authLoading && (
                 <HeroSection onCreateTask={createNewTask} />
             )}
 
-            {filteredTodos.length > 0 && (
+            {filteredTodos.length > 0 && !authLoading && (
                 <FilterBar
                     sortOption={sortBy}
                     onSortByChange={setSortBy}
@@ -570,11 +541,11 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                         ? { display: "inline-block" }
                         : {}
                 }>
-                {filteredTodos.length === 0 && !showTaskCardLoader ? (
+                {filteredTodos.length === 0 && !showTaskCardLoader && !authLoading ? (
                     <div className='empty-state'>
                         <h2>No tasks in this category</h2>
                     </div>
-                ) : (
+                ) : !authLoading ? (
                     filteredTodos.map((todo, index) => (
                         <TaskCard
                             key={todo._id}
@@ -590,22 +561,31 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                             onDeleteTask={askUserConfirmation}
                         />
                     ))
-                )}
-                {
-                    ( filteredTodos.length > 0 && showTaskCardLoader ) &&
-                        <div className="loader-wrapper" style={{
-                            position: "absolute", top: "-3rem", left: "2rem"
-                        }}>
-                            <div className='loader' style={{ width: 30, height: 30 }} />
+                ) : (
+                    <div className='home-logo-loader'>
+                        <div className='home-logo loading'>
+                            <img src='./ZenTaskLogo.png' alt='ZenTask' />
+                            <h2>
+                                Zen <span>Task</span>
+                            </h2>
                         </div>
-                }
-                {
-                    ( filteredTodos.length === 0 && showTaskCardLoader ) &&
-                         <TaskCardLoader count={4} />
-                }
+                    </div>
+                )}
+                {filteredTodos.length > 0 && showTaskCardLoader && !authLoading && (
+                    <div
+                        className='loader-wrapper'
+                        style={{
+                            position: "absolute",
+                            top: "-3rem",
+                            left: "2rem",
+                        }}>
+                        <div className='loader' style={{ width: 30, height: 30 }} />
+                    </div>
+                )}
+                {filteredTodos.length === 0 && showTaskCardLoader && <TaskCardLoader count={4} />}
             </div>
 
-            {filteredTodos.length > 0 && (
+            {filteredTodos.length > 0 && !authLoading && (
                 <Pagination
                     currentPage={currentPage}
                     totalItems={totalTodos}

@@ -7,11 +7,7 @@ const {errorHandler} = require("../Middlewares/errorHandler")
 
 const createTodo = async (req, res, next) => {
     try {
-        console.log("Inside createTodo")
-
         const { isGuest, userId, guestId } = getUserIdentity(req)
-
-        console.log("req.body.task --->", JSON.stringify(req.body.task))
 
         const {
             title,
@@ -27,8 +23,6 @@ const createTodo = async (req, res, next) => {
         if (!title || !title.trim()) {
             return next(errorHandler(400, "Title is required"))
         }
-
-        console.log(`Creating ${isDemo ? "demo" : "non-demo"} task for ${isGuest ? "guest" : "user"}`)
 
         const todoData = {
             isGuest,
@@ -86,8 +80,6 @@ const createTodo = async (req, res, next) => {
 
 const migrateGuestTodos = async (req, res, next) => {
     try {
-        console.log("Migrating guest todos...")
-
         const { guestId } = req.body
         const { userId } = getUserIdentity(req)
 
@@ -101,13 +93,11 @@ const migrateGuestTodos = async (req, res, next) => {
             await User.updateOne({ _id: userId }, { $set: { hasSeenDemoTask: true } })
         }
 
-        console.log("Deleting unwanted demo tasks....")
         await Todo.deleteMany({ isGuest: true, guestId, isDemo: true })
 
         const guestTodos = await Todo.find({isGuest: true, guestId, isDemo: false})
 
         if (!guestTodos.length) {
-            console.log("No guest todos to migrate")
             return res.status(200).json({success: true, message: "No guest todos to migrate"})
         }
 
@@ -139,8 +129,6 @@ const migrateGuestTodos = async (req, res, next) => {
 
 const getAllTodos = async (req, res, next) => {
     try {
-        console.log("Getting all tasks..")
-
         const { isGuest, userId, guestId } = getUserIdentity(req)
 
         const {
@@ -251,12 +239,8 @@ const getAllTodos = async (req, res, next) => {
 
 const updateTodoStatus = async (req, res, next) => {
     try {
-        console.log("Inside updateTodoStatus controller")
-
         const { id } = req.params
         const { done } = req.body
-
-        console.log("done--->", done)
 
         if (typeof done !== "boolean") {
             return next(errorHandler(400, "Invalid done value"))
@@ -279,13 +263,9 @@ const updateTodoStatus = async (req, res, next) => {
 
 const updateTodoContent = async (req, res, next) => {
     try {
-        console.log("Inside updateTodoContent")
-
         const { isGuest, userId, guestId } = getUserIdentity(req)
         const { id } = req.params
         const updates = req.body.task
-
-        console.log("updates--->", JSON.stringify(updates))
 
         if (!updates || Object.keys(updates).length === 0) {
             return next(errorHandler(400, "Nothing to update"))
@@ -340,8 +320,6 @@ const updateTodoContent = async (req, res, next) => {
 
 const toggleChecklistItem = async (req, res, next) => {
     try {
-        console.log("Inside toggleChecklistItem")
-
         const { isGuest, userId, guestId } = getUserIdentity(req)
         const { todoId, itemId } = req.params
 
@@ -414,8 +392,6 @@ const toggleStar = async (req, res, next) => {
 
 const deleteTodo = async (req, res, next) => {
     try {
-        console.log("Inside deleteTodo controller")
-
         const { isGuest, userId, guestId } = getUserIdentity(req)
         const { id } = req.params
 
@@ -446,8 +422,6 @@ const deleteTodo = async (req, res, next) => {
 
 const removeDuplicateDemoTasks = async (req, res, next) => {
     try {
-        console.log("Inside removeDuplicateDemoTasks")
-
         const { isGuest, userId, guestId } = getUserIdentity(req)
 
         const baseMatch = {isDemo: true}
@@ -468,8 +442,6 @@ const removeDuplicateDemoTasks = async (req, res, next) => {
 
         const keepId = demoTasks[0]._id
         const deleteIds = demoTasks.slice(1).map((t) => t._id)
-
-        console.log(`keepId--->${keepId} and deleteIds--->${deleteIds}`)
 
         const result = await Todo.deleteMany({_id: { $in: deleteIds }})
 

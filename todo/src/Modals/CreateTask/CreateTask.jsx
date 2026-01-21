@@ -39,10 +39,6 @@ function CreateTask({ onAddTask, onUpdateTask, editTask, isModalOpen, onModalClo
         }
     }, [editTask])
 
-    useEffect(() => {
-        console.log("task---->", task)
-    }, [task])
-
     const handleSubmit = () => {
         if (!task.title.trim()) {
             alert("Please enter a task title")

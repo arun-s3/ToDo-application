@@ -474,6 +474,7 @@ a {
 
 .mobile-header button {
     cursor: pointer;
+    background: transparent;
     border: none;
     margin-left: 1rem;
 }

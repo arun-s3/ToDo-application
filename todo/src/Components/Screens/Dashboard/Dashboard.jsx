@@ -49,7 +49,6 @@ export default function Dashboard() {
 
             if (statsResponse.status === "fulfilled") {
                 const response = statsResponse.value
-                console.log("Stats response.data----->", response.data) 
 
                 const findStats = {
                     total: response.data.totalTasks,
@@ -64,7 +63,6 @@ export default function Dashboard() {
                     stat.value = findStats[stat.id]
                     return stat
                 })
-                console.log("newStats---->", newStats)
                 setStats(newStats)
 
                 const taskOverviews = [
@@ -86,12 +84,10 @@ export default function Dashboard() {
             } else {
                 hasError = true
                 errorMessage = statsResponse.reason?.message || errorMessage
-                console.log("Error in Stats Metrics:", statsResponse.reason.message) 
             }
 
             if (trendResponse.status === "fulfilled") {
                 const response = trendResponse.value
-                console.log("trendResponse response----->", response.data.trend)
                 setTrendData(response.data.trend)
             } else {
                 hasError = true
@@ -99,7 +95,6 @@ export default function Dashboard() {
 
             if (deadlineInsightsResponse.status === "fulfilled") {
                 const response = deadlineInsightsResponse.value
-                console.log("deadlineInsightsResponse response----->", response.data.insights)                  
                 
                 const {overdue, thisWeek, later} = response.data.insights   
 
@@ -122,10 +117,6 @@ export default function Dashboard() {
 
         fetchAllStats()
     }, [])
-
-    useEffect(()=> {
-        console.log("Stats---->", stats)
-    }, [stats])
 
     const chartColors = {
         line: isDarkMode ? "#5a9fff" : "#287fe5",

@@ -17,9 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   const loadUserAsGuest = ()=> {
     let currentGuestId = localStorage.getItem("guestId")
-    console.log("GuestId extracted----->", currentGuestId)
     if (!currentGuestId) {
-      console.log("No guestId available, hence generating new one...")
       currentGuestId = crypto.randomUUID()
       localStorage.setItem("guestId", currentGuestId);
       localStorage.setItem("hasSeenDemoTask", "false")
@@ -33,7 +31,6 @@ export const AuthProvider = ({ children }) => {
   const loadUser = async () => {
     try {
       setAuthLoading(true)
-      console.log("Inside loadUser()...")
       const response = await api.get(`/user`)
       if(response.status === 200){
         localStorage.removeItem("guestId")   
@@ -42,7 +39,6 @@ export const AuthProvider = ({ children }) => {
         setGuestId(null)
         setAuthReady(true)
       }else{
-        console.log("Going to loadUserAsGuest()...")
         loadUserAsGuest()
       }
     }
@@ -58,12 +54,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     loadUser()
   }, [])
-
-  useEffect(() => {
-    console.log("User in AuthContext--->", user)
-    console.log("isGuest in AuthContext--->", isGuest)
-    console.log("guestId in AuthContext--->", guestId)
-  }, [user, isGuest, guestId])
 
   const migrateGuest = async()=> {
     if (!authReady) return  
@@ -89,7 +79,7 @@ export const AuthProvider = ({ children }) => {
       }
     }
     catch(error){
-      console.log("Error while logging out")
+      console.error("Error while logging out", error)
       toast.error("Error while logging out. Please check your network")
       setAuthLoading(false)
     }

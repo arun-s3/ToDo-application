@@ -9,11 +9,7 @@ const { errorHandler } = require("../Middlewares/errorHandler")
 
 const getTasksStats = async (req, res, next) => {
     try {
-        console.log("Inside getTasksStats function")
-
         const { isGuest, userId, guestId } = getUserIdentity(req)
-
-        console.log(`isGuest----> ${isGuest}, userId----> ${userId} and guestId----> ${guestId}`)
 
         const baseMatch = {
             $or: [{ isDemo: false }, { isDemo: { $exists: false } }],
@@ -80,8 +76,6 @@ const getTasksStats = async (req, res, next) => {
 
 const getProductivityTrend = async (req, res, next) => {
     try {
-        console.log("Inside getProductivityTrend function")
-
         const { isGuest, userId, guestId } = getUserIdentity(req)
 
         const baseMatch = {
@@ -159,8 +153,6 @@ const getProductivityTrend = async (req, res, next) => {
 
 const getDeadlineInsights = async (req, res, next) => {
     try {
-        console.log("Inside getDeadlineInsights function")
-
         const { isGuest, userId, guestId } = getUserIdentity(req)
 
         // const baseMatch = {
