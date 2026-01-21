@@ -10,6 +10,7 @@ import TaskCard from "../../Tasks/TaskCard"
 import FilterBar from "./FilterBar"
 import SearchTasks from "./SearchTasks"
 import HomeHeader from "./HomeHeader"
+import TaskCardLoader from "../../Tasks/TaskCardLoader"
 import TaskDeleteModal from "../../../Modals/TaskDeleteModal"
 import GuestModeModal from "../../../Modals/GuestModeModal"
 import HeroSection from "./HeroSection"
@@ -28,6 +29,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
 
     const [todos, setTodo] = useState([])
     const [fetchTasks, setFetchTasks] = useState(true)
+    const [showTaskCardLoader, setShowTaskCardLoader] = useState(false)
 
     const [editingId, setEditingId] = useState({title: false, desc: false, taskId: null})
 
@@ -47,13 +49,13 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
     const [updateTask, setUpdateTask] = useState(null)
 
     const [currentPage, setCurrentPage] = useState(1)
-    const [limit, setLimit] = useState(5)
+    const [limit, setLimit] = useState(4)
     const [totalTodos, setTotalTodos] = useState(0)
     const [overallTodos, setOverallTodos] = useState(0)
 
     const [openGuestModeModal, setOpenGuestModeModal] = useState(false)
 
-    const { isGuest, guestId, user, authReady } = useAuth() 
+    const { isGuest, guestId, user, authReady, authLoading } = useAuth() 
 
     const { isDarkMode } = useTheme()
 
@@ -103,6 +105,8 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
             } else {
                 toast.error("Something went wrong! Please check your network and retry again later.")
             }
+        } finally {
+            setShowTaskCardLoader(false)
         }
     }
 
@@ -118,6 +122,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
 
     useEffect(() => {
         if (!authReady) return
+        setShowTaskCardLoader(true)
 
         processLocalTodos(todos)
 
@@ -134,6 +139,11 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
             setFetchTasks(false)
         }
     }, [fetchTasks]) 
+
+    useEffect(() => {
+        if (authLoading) setShowTaskCardLoader(true)
+        else setShowTaskCardLoader(false)
+    }, [authLoading]) 
 
     const addDummyTask = async () => {
         if (!authReady) return  
@@ -560,7 +570,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                         ? { display: "inline-block" }
                         : {}
                 }>
-                {filteredTodos.length === 0 ? (
+                {filteredTodos.length === 0 && !showTaskCardLoader ? (
                     <div className='empty-state'>
                         <h2>No tasks in this category</h2>
                     </div>
@@ -581,6 +591,18 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                         />
                     ))
                 )}
+                {
+                    ( filteredTodos.length > 0 && showTaskCardLoader ) &&
+                        <div className="loader-wrapper" style={{
+                            position: "absolute", top: "-3rem", left: "2rem"
+                        }}>
+                            <div className='loader' style={{ width: 30, height: 30 }} />
+                        </div>
+                }
+                {
+                    ( filteredTodos.length === 0 && showTaskCardLoader ) &&
+                         <TaskCardLoader count={4} />
+                }
             </div>
 
             {filteredTodos.length > 0 && (

@@ -210,6 +210,15 @@
   color: #287fe5;
 }
 
+.chart-card .message{
+  font-size: 14px;
+  color: #a1a4aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 75%;
+}
+
 .line-chart {
   padding: 20px 0;
 }

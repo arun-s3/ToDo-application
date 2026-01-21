@@ -215,7 +215,10 @@ export default function Dashboard() {
 
                 <div className='chart-card'>
                     <h3 className='chart-title'>Task Overview</h3>
-                    {!statLoading ? (
+                    {!statLoading  
+                        ? stats && stats.find(stat=> stat.id === 'total' && stat.value === 0) 
+                        ?    <div className="message"> You haven't created any task! </div>
+                        :(
                         <ResponsiveContainer width='100%' height={300}>
                             <PieChart>
                                 <Pie

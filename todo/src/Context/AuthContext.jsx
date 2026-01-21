@@ -91,6 +91,7 @@ export const AuthProvider = ({ children }) => {
     catch(error){
       console.log("Error while logging out")
       toast.error("Error while logging out. Please check your network")
+      setAuthLoading(false)
     }
   }
 

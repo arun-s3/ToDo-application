@@ -226,6 +226,7 @@
 }
 
 .all-tasks {
+  position: relative;
   display: grid;
   gap: 2.5rem;
   width: 100%;
@@ -285,6 +286,13 @@
 .task:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 32px rgba(40, 127, 229, 0.2);
+}
+
+.loader-wrapper {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 @keyframes taskReveal {

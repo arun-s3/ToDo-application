@@ -1,0 +1,86 @@
+.task-loader {
+    pointer-events: none;
+    border-top-color: #ddd !important;
+}
+
+.skeleton {
+    background: linear-gradient(100deg,
+            #e5e7eb 40%,
+            #f3f4f6 50%,
+            #e5e7eb 60%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 6px;
+}
+
+.skeleton-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.skeleton-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.skeleton-title {
+    height: 18px;
+    width: 70%;
+}
+
+.skeleton-desc {
+    height: 12px;
+    width: 100%;
+}
+
+.skeleton-desc.short {
+    width: 80%;
+}
+
+.skeleton-badge {
+    width: 70px;
+    height: 20px;
+    border-radius: 12px;
+}
+
+.skeleton-progress-text {
+    width: 40%;
+    height: 12px;
+    margin-bottom: 6px;
+}
+
+.skeleton-progress-fill {
+    height: 100%;
+    width: 60%;
+    border-radius: 10px;
+}
+
+.skeleton-checklist-row {
+    height: 14px;
+    width: 90%;
+    margin: 6px 0;
+}
+
+.dark .task-loader {
+    background-color: #1e1f23;
+    border-top-color: #2e2f36 !important;
+}
+
+.dark .skeleton {
+    background: linear-gradient(100deg,
+            #2a2b30 40%,
+            #3a3b40 50%,
+            #2a2b30 60%);
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}

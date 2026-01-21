@@ -71,22 +71,20 @@ function ZenTaskPageContent() {
                     <button className='theme-toggle' onClick={toggleTheme} title='Toggle dark mode'>
                         {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
                     </button>
-                    {   authLoading 
-                            ?   
-                                <div className='sign-in-btn-loading'>
-                                        {!user ? <LogIn size={18} /> : <LogOut size={18} />}
-                                        <span className='loader' style={{ width: 20, height: 20 }} />
-                                </div>
-                            :
-                                !user ? (
-                                    <button className='sign-in-btn' onClick={() => setOpenSignInModal(true)}>
-                                        <LogIn size={18} />
-                                        <span>Sign in</span>
-                                    </button>
-                                ) : (
-                                <button className={`sign-out-btn  ${isDarkMode ? "dark" : ""}`} onClick={() => logout()}>
-                                    <LogOut size={18} />
-                                    <span>Sign out</span>
+                    {authLoading ? (
+                        <div className='sign-in-btn-loading'>
+                            {!user ? <LogIn size={18} /> : <LogOut size={18} />}
+                            <span className='loader' style={{ width: 20, height: 20 }} />
+                        </div>
+                    ) : !user ? (
+                        <button className='sign-in-btn' onClick={() => setOpenSignInModal(true)}>
+                            <LogIn size={18} />
+                            <span>Sign in</span>
+                        </button>
+                    ) : (
+                        <button className={`sign-out-btn  ${isDarkMode ? "dark" : ""}`} onClick={() => logout()}>
+                            <LogOut size={18} />
+                            <span>Sign out</span>
                         </button>
                     )}
                 </div>
@@ -96,7 +94,7 @@ function ZenTaskPageContent() {
                 {isHomeView && (
                     <Home
                         activeTab={currentView}
-                        restoreTab={()=> setCurrentView("all")}
+                        restoreTab={() => setCurrentView("all")}
                         isDemoTaskLockedRef={demoLockRef}
                         openAuthModal={() => setOpenSignInModal(true)}
                     />
