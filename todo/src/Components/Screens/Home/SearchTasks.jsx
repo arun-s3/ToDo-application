@@ -11,7 +11,7 @@ export default function SearchTasks({ onsearchQuery, restoreSearch = false }) {
 
     const [taskQuery, setTaskQuery] = useState('')
 
-    const { authLoading } = useAuth() 
+    const { authLoading, isAuthStabilizing } = useAuth() 
 
     useEffect(() => {
         if(restoreSearch){
@@ -24,7 +24,7 @@ export default function SearchTasks({ onsearchQuery, restoreSearch = false }) {
     ).current
 
     const handleSearch = (e) => {
-        if(authLoading) return
+        if (authLoading || isAuthStabilizing) return
         const searchData = e.target.value
         setTaskQuery(searchData)
         debouncedSearch(searchData)

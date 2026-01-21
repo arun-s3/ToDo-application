@@ -64,6 +64,10 @@ export const AuthProvider = ({ children }) => {
       console.log("authReady---->", authReady)
   }, [authReady])
 
+  useEffect(() => {
+      console.log("isAuthStabilizing---->", isAuthStabilizing)
+  }, [isAuthStabilizing])
+
   const migrateGuest = async()=> {
     if (!authReady) return  
     let hasSeenDemoTask = false

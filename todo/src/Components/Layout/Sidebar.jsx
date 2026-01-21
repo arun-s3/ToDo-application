@@ -11,7 +11,7 @@ const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen 
 
   const { isDarkMode } = useTheme()
 
-  const { authLoading } = useAuth()
+  const { authLoading, isAuthStabilizing } = useAuth()
 
   const taskFilters = [
     { id: "all", label: "All Tasks", icon: ClipboardList },
@@ -41,9 +41,9 @@ const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen 
               <div className='sidebar-section'>
                   <div
                       className={`sidebar-item ${currentView === "dashboard" ? "active" : ""}`}
-                      style={authLoading ? { cursor: "not-allowed" } : {}}
+                      style={authLoading || isAuthStabilizing ? { cursor: "not-allowed" } : {}}
                       onClick={() => {
-                          if (authLoading) return
+                          if (authLoading || isAuthStabilizing) return
                           onViewChange("dashboard")
                           if (mobileMenuOpen) {
                               setMobileMenuOpen(false)
@@ -63,9 +63,9 @@ const Sidebar = ({ currentView, onViewChange, mobileMenuOpen, setMobileMenuOpen 
                               <div
                                   key={filter.id}
                                   className={`sidebar-item ${currentView === filter.id ? "active" : ""}`}
-                                  style={authLoading ? { cursor: "not-allowed" } : {}}
+                                  style={authLoading || isAuthStabilizing ? { cursor: "not-allowed" } : {}}
                                   onClick={() => {
-                                      if (authLoading) return
+                                      if (authLoading || isAuthStabilizing) return
                                       onViewChange(filter.id)
                                       if (mobileMenuOpen) {
                                           setMobileMenuOpen(false)

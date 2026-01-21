@@ -4,6 +4,7 @@ import "./FilterBar.css"
 import {ArrowUpDown} from "lucide-react"
 
 import { useTheme } from "../../../Context/ThemeContext"
+import { useAuth } from "../../../Context/AuthContext"
 
 
 const FilterBar = ({ sortOption, onSortByChange, sortWay, onSortChange, itemsPerPage, onItemsPerPageChange, 
@@ -16,6 +17,7 @@ const FilterBar = ({ sortOption, onSortByChange, sortWay, onSortChange, itemsPer
     const limitRef = useRef(null)
 
     const { isDarkMode } = useTheme()
+    const { authLoading, isAuthStabilizing } = useAuth() 
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -101,9 +103,9 @@ const FilterBar = ({ sortOption, onSortByChange, sortWay, onSortChange, itemsPer
 
             <div className={`filter-item sort-dropdown`} ref={filterRef}>
                 <button
-                    className={`filter-btn  ${sorting ? "cursor-disabled" : ""}`}
+                    className={`filter-btn  ${sorting || authLoading || isAuthStabilizing ? "cursor-disabled" : ""}`}
                     onClick={() => {
-                        if (sorting) return
+                        if (sorting || authLoading || isAuthStabilizing) return
                         setShowSortMenu(!showSortMenu)
                     }}>
                     <ArrowUpDown size={18} />

@@ -190,11 +190,12 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
     }, [restoreFilters]) 
 
     const createNewTask = ()=> {
-        if (isGuest && shouldShowGuestSignupModal()) {
-            setOpenGuestModeModal(true) 
-            localStorage.setItem("guestSignupPromptLastShown", Date.now())
-            return
-        }
+        if (authLoading || isAuthStabilizing || showTaskCardLoader) return
+            if (isGuest && shouldShowGuestSignupModal()) {
+                setOpenGuestModeModal(true)
+                localStorage.setItem("guestSignupPromptLastShown", Date.now())
+                return
+            }
         setShowTaskModal(true)
         setRestoreFilters(true)
         if(sortBy !== "createdAt") setSortBy("createdAt") 
@@ -457,7 +458,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
     } 
 
     const shouldShowHero =
-        !authLoading && authReady && (overallTodos === 0 || (todos.length > 0 && todos.every((todo) => todo.isDemo)))
+        !authLoading && !isAuthStabilizing && authReady && (overallTodos === 0 || (todos.length > 0 && todos.every((todo) => todo.isDemo)))
 
     const filteredTodos = useMemo(() => {
         let hasSeenDemoTask = false
@@ -493,10 +494,10 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                     className='add-task-btn'
                     onClick={() => createNewTask()}
                     title='Create a new task'
-                    disabled={authLoading || showTaskCardLoader}
+                    disabled={authLoading || isAuthStabilizing || showTaskCardLoader}
                 >
-                        <Plus size={20} />
-                        <span>Add Task</span>
+                    <Plus size={20} />
+                    <span>Add Task</span>
                 </button>
             </div>
 
@@ -523,7 +524,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                     onSortByChange={setSortBy}
                     sortWay={sort}
                     onSortChange={setSort}
-                    sorting={isSorting}
+                    sorting={isSorting} 
                     onSorting={setIsSorting}
                     todos={todos}
                     onLocalUpdateTodos={setTodo}
@@ -541,12 +542,14 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                         ? { display: "inline-block" }
                         : {}
                 }>
-                {filteredTodos.length === 0 && !authLoading ? (
+                {filteredTodos.length === 0 && !showTaskCardLoader && !authLoading && !isAuthStabilizing ? (
                     <div className='empty-state'>
                         <h2>No tasks in this category</h2>
                     </div>
                 ) : (
-                    filteredTodos.length > 0 && !authLoading &&
+                    filteredTodos.length > 0 &&
+                    !authLoading &&
+                    !isAuthStabilizing &&
                     filteredTodos.map((todo, index) => (
                         <TaskCard
                             key={todo._id}
@@ -573,7 +576,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                         </div>
                     </div>
                 )}
-                {filteredTodos.length > 0 && showTaskCardLoader && !authLoading && (
+                {filteredTodos.length > 0 && showTaskCardLoader && !authLoading && !isAuthStabilizing && (
                     <div
                         className='loader-wrapper'
                         style={{
@@ -587,7 +590,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                 {filteredTodos.length === 0 && showTaskCardLoader && <TaskCardLoader count={4} />}
             </div>
 
-            {filteredTodos.length > 0 && !authLoading && !showTaskCardLoader && (
+            {filteredTodos.length > 0 && !authLoading && !isAuthStabilizing && !showTaskCardLoader && (
                 <Pagination
                     currentPage={currentPage}
                     totalItems={totalTodos}
