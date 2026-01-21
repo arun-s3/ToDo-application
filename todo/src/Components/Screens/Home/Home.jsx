@@ -61,6 +61,8 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
 
     const addingDemoRef = useRef(false)
 
+    const MIN_LOADER_TIME = 150
+
     const getTaskQueryOptions = () => {
         const activeTabMap = {
             today: "dueToday",
@@ -80,6 +82,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
     }
 
     const getTasks = async (taskQueryOptions) => {
+        const start = Date.now()
         try {
             if (isGuest && !guestId) return
             if (!authReady) return  
@@ -103,14 +106,21 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                 toast.error("Something went wrong! Please check your network and retry again later.")
             }
         } finally {
-            setShowTaskCardLoader(false)
+            const elapsed = Date.now() - start
+            const transition = Math.max(MIN_LOADER_TIME - elapsed, 0)
+
+            setTimeout(() => {
+                setShowTaskCardLoader(false)
+            }, transition)
         }
     }
 
     const processLocalTodos = (currentTodos)=> {
         if (currentTodos.length === 0) return
+
         const sortLabel = mapSortAndSortByToSortLabel(sortBy, sort)
         const processedLocalTodos = processTasks({ todos: currentTodos, activeTab, searchQuery, sortLabel, limit })
+        
         setTodo(processedLocalTodos)
     }
 
@@ -133,11 +143,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
             setFetchTasks(false)
         }
     }, [fetchTasks]) 
-
-    useEffect(() => {
-        if (authLoading) setShowTaskCardLoader(true)
-        else setShowTaskCardLoader(false)
-    }, [authLoading]) 
 
     const addDummyTask = async () => {
         if (!authReady) return  
@@ -491,10 +496,9 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                     className='add-task-btn'
                     onClick={() => createNewTask()}
                     title='Create a new task'
-                    disabled={authLoading || showTaskCardLoader}
-                >
-                        <Plus size={20} />
-                        <span>Add Task</span>
+                    disabled={authLoading || showTaskCardLoader}>
+                    <Plus size={20} />
+                    <span>Add Task</span>
                 </button>
             </div>
 
@@ -535,7 +539,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
             )}
 
             <div
-                className='all-tasks'
+                className={`all-tasks ${!showTaskCardLoader ? "visible" : ""}`}
                 style={
                     filteredTodos.length === 0 || (filteredTodos.length === 1 && filteredTodos[0].isDemo)
                         ? { display: "inline-block" }
@@ -545,7 +549,8 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                     <div className='empty-state'>
                         <h2>No tasks in this category</h2>
                     </div>
-                ) : !authLoading ? (
+                ) : (
+                    filteredTodos.length > 0 && !showTaskCardLoader && !authLoading &&
                     filteredTodos.map((todo, index) => (
                         <TaskCard
                             key={todo._id}
@@ -561,7 +566,8 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                             onDeleteTask={askUserConfirmation}
                         />
                     ))
-                ) : (
+                )}
+                {authLoading && (
                     <div className='home-logo-loader'>
                         <div className='home-logo loading'>
                             <img src='./ZenTaskLogo.png' alt='ZenTask' />
@@ -582,17 +588,21 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                         <div className='loader' style={{ width: 30, height: 30 }} />
                     </div>
                 )}
-                {filteredTodos.length === 0 && showTaskCardLoader && <TaskCardLoader count={4} />}
+                {filteredTodos.length === 0 &&
+                     showTaskCardLoader && <TaskCardLoader count={4} />
+                }
             </div>
 
-            {filteredTodos.length > 0 && !authLoading && (
-                <Pagination
-                    currentPage={currentPage}
-                    totalItems={totalTodos}
-                    itemsPerPage={limit}
-                    onPageChange={setCurrentPage}
-                />
-            )}
+            {filteredTodos.length > 0 &&
+                !authLoading &&
+                !showTaskCardLoader && (
+                    <Pagination
+                        currentPage={currentPage}
+                        totalItems={totalTodos}
+                        itemsPerPage={limit}
+                        onPageChange={setCurrentPage}
+                    />
+                )}
 
             <TaskDeleteModal
                 isOpen={openTaskDeleteModal.id}
