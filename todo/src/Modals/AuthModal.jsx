@@ -7,11 +7,10 @@ import {Lock, User, Eye, EyeOff, CheckCircle, AlertCircle} from "lucide-react"
 
 import useModalClose from "../Hooks/useModalClose"
 
-import { useAuth } from "../Context/AuthContext"
 import { useTheme } from "../Context/ThemeContext"
 
 
-const AuthModal = ({ onModalClose }) => {
+const AuthModal = ({ onModalClose, onSignUpAnIn }) => {
 
     const [isSignIn, setIsSignIn] = useState(true)
     const [showPassword, setShowPassword] = useState(false)
@@ -27,8 +26,6 @@ const AuthModal = ({ onModalClose }) => {
     const [loading, setLoading] = useState(false)
 
     const { isDarkMode } = useTheme()
-
-    const { signInAndUp } = useAuth()
 
     const modalRef = useRef(null)
     useModalClose(modalRef, onModalClose, !loading, false)
@@ -80,6 +77,7 @@ const AuthModal = ({ onModalClose }) => {
             toast.error("Please check the errors and try again!")
             return
         }
+        setLoading(false)
 
         setErrors({});
 
@@ -88,19 +86,8 @@ const AuthModal = ({ onModalClose }) => {
             password: formData.password,
         }
         
+        setTimeout(() => onSignUpAnIn(userDetails, isSignIn), 200)
         setLoading(true)
-
-        const isSuccess = await signInAndUp(userDetails, isSignIn)
-        setLoading(false)
-
-        if (isSuccess) {
-            setSuccessMessage(
-                isSignIn
-                    ? `Welcome back, ${formData.username}!`
-                    : `Account created successfully for ${formData.username}!`
-            )
-            onModalClose()
-        }
     }
 
     const toggleMode = () => {

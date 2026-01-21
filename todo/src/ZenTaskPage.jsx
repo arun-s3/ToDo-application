@@ -23,7 +23,7 @@ function ZenTaskPageContent() {
 
     const [openSignInModal, setOpenSignInModal] = useState(false)
 
-    const { user, isGuest, authLoading, logout } = useAuth()
+    const { user, isGuest, authLoading, signInAndUp, logout } = useAuth()
 
     const { isDarkMode, toggleTheme } = useTheme()
 
@@ -48,6 +48,11 @@ function ZenTaskPageContent() {
     useEffect(() => {
         setCurrentView('all')
     }, [isGuest, user]) 
+
+    const signInOrUp = async (userDetails, isSignIn) => {
+        setOpenSignInModal(false)
+        await signInAndUp(userDetails, isSignIn)
+    }
 
 
     return (
@@ -103,7 +108,10 @@ function ZenTaskPageContent() {
 
             {openSignInModal && !user && (
                 <ModalPortal>
-                    <AuthModal onModalClose={() => setOpenSignInModal(false)} />
+                    <AuthModal
+                        onModalClose={() => setOpenSignInModal(false)}
+                        onSignUpAnIn={signInOrUp}
+                    />
                 </ModalPortal>
             )}
         </div>

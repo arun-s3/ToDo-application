@@ -25,7 +25,6 @@ export const AuthProvider = ({ children }) => {
     setIsGuest(true)
     setGuestId(currentGuestId)
     setUser(null)
-    setAuthReady(true)
   }
 
   const loadUser = async () => {
@@ -37,7 +36,6 @@ export const AuthProvider = ({ children }) => {
         setUser(response.data.user)
         setIsGuest(false)
         setGuestId(null)
-        setAuthReady(true)
       }else{
         loadUserAsGuest()
       }
@@ -47,6 +45,7 @@ export const AuthProvider = ({ children }) => {
       loadUserAsGuest()
     }
     finally {
+      setAuthReady(true)
       setAuthLoading(false)
     }
   }
@@ -54,6 +53,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     loadUser()
   }, [])
+
+  useEffect(() => {
+      console.log("authLoading---->", authLoading)
+  }, [authLoading])
+
+  useEffect(() => {
+      console.log("authReady---->", authReady)
+  }, [authReady])
 
   const migrateGuest = async()=> {
     if (!authReady) return  
@@ -102,15 +109,17 @@ export const AuthProvider = ({ children }) => {
       const response = await api.get(`/signout`)
       if(response.status === 200){
         loadUserAsGuest()
-        setAuthLoading(false)
       }
     }
     catch(error){
       console.error("Error while logging out", error)
       toast.error("Error while logging out. Please check your network")
-      setAuthLoading(false)
+    } 
+    finally{
+        setAuthLoading(false)
     }
   }
+  
 
   return (
     <AuthContext.Provider

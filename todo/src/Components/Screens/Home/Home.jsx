@@ -61,8 +61,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
 
     const addingDemoRef = useRef(false)
 
-    const MIN_LOADER_TIME = 150
-
     const getTaskQueryOptions = () => {
         const activeTabMap = {
             today: "dueToday",
@@ -82,7 +80,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
     }
 
     const getTasks = async (taskQueryOptions) => {
-        const start = Date.now()
         try {
             if (isGuest && !guestId) return
             if (!authReady) return  
@@ -106,12 +103,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                 toast.error("Something went wrong! Please check your network and retry again later.")
             }
         } finally {
-            const elapsed = Date.now() - start
-            const transition = Math.max(MIN_LOADER_TIME - elapsed, 0)
-
-            setTimeout(() => {
-                setShowTaskCardLoader(false)
-            }, transition)
+            setShowTaskCardLoader(false)
         }
     }
 
@@ -460,7 +452,10 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
         })
         processLocalTodos(updatedTodos)
         await handleToggleStarTask(currentTodos, taskId) 
-    }
+    } 
+
+    const shouldShowHero =
+        !authLoading && authReady && (overallTodos === 0 || (todos.length > 0 && todos.every((todo) => todo.isDemo)))
 
     const filteredTodos = useMemo(() => {
         let hasSeenDemoTask = false
@@ -517,11 +512,9 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                 </span>
             )}
 
-            {(overallTodos === 0 || (todos.length > 0 && todos.every((todo) => todo.isDemo))) && !authLoading && (
-                <HeroSection onCreateTask={createNewTask} />
-            )}
+            {shouldShowHero && <HeroSection onCreateTask={createNewTask} />}
 
-            {filteredTodos.length > 0 && !authLoading && (
+            {filteredTodos.length > 0 && (
                 <FilterBar
                     sortOption={sortBy}
                     onSortByChange={setSortBy}
@@ -553,6 +546,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                     filteredTodos.length > 0 &&
                     !showTaskCardLoader &&
                     !authLoading &&
+                    authReady &&
                     filteredTodos.map((todo, index) => (
                         <TaskCard
                             key={todo._id}
