@@ -550,7 +550,9 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                         <h2>No tasks in this category</h2>
                     </div>
                 ) : (
-                    filteredTodos.length > 0 && !showTaskCardLoader && !authLoading &&
+                    filteredTodos.length > 0 &&
+                    !showTaskCardLoader &&
+                    !authLoading &&
                     filteredTodos.map((todo, index) => (
                         <TaskCard
                             key={todo._id}
@@ -588,21 +590,17 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                         <div className='loader' style={{ width: 30, height: 30 }} />
                     </div>
                 )}
-                {filteredTodos.length === 0 &&
-                     showTaskCardLoader && <TaskCardLoader count={4} />
-                }
+                {filteredTodos.length === 0 && showTaskCardLoader && <TaskCardLoader count={4} />}
             </div>
 
-            {filteredTodos.length > 0 &&
-                !authLoading &&
-                !showTaskCardLoader && (
-                    <Pagination
-                        currentPage={currentPage}
-                        totalItems={totalTodos}
-                        itemsPerPage={limit}
-                        onPageChange={setCurrentPage}
-                    />
-                )}
+            {filteredTodos.length > 0 && !authLoading && !showTaskCardLoader && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalTodos}
+                    itemsPerPage={limit}
+                    onPageChange={setCurrentPage}
+                />
+            )}
 
             <TaskDeleteModal
                 isOpen={openTaskDeleteModal.id}

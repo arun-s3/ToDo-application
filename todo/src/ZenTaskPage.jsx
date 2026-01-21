@@ -23,7 +23,7 @@ function ZenTaskPageContent() {
 
     const [openSignInModal, setOpenSignInModal] = useState(false)
 
-    const { user, setUser, isGuest, migrateGuest, authLoading, logout } = useAuth()
+    const { user, isGuest, authLoading, logout } = useAuth()
 
     const { isDarkMode, toggleTheme } = useTheme()
 
@@ -103,15 +103,7 @@ function ZenTaskPageContent() {
 
             {openSignInModal && !user && (
                 <ModalPortal>
-                    <AuthModal
-                        onModalClose={() => setOpenSignInModal(false)}
-                        onSignUpOrIn={(userData) => setUser(userData)}
-                        onMigrateGuest={() => {
-                            if (isGuest) {
-                                migrateGuest()
-                            }
-                        }}
-                    />
+                    <AuthModal onModalClose={() => setOpenSignInModal(false)} />
                 </ModalPortal>
             )}
         </div>

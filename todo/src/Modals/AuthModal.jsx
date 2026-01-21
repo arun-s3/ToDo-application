@@ -5,11 +5,13 @@ import { api } from "../api/axiosInstance"
 import { toast } from 'sonner'
 import {Lock, User, Eye, EyeOff, CheckCircle, AlertCircle} from "lucide-react"
 
-import { useTheme } from "../Context/ThemeContext"
 import useModalClose from "../Hooks/useModalClose"
 
+import { useAuth } from "../Context/AuthContext"
+import { useTheme } from "../Context/ThemeContext"
 
-const AuthModal = ({ onModalClose, onSignUpOrIn, onMigrateGuest }) => {
+
+const AuthModal = ({ onModalClose }) => {
 
     const [isSignIn, setIsSignIn] = useState(true)
     const [showPassword, setShowPassword] = useState(false)
@@ -25,6 +27,8 @@ const AuthModal = ({ onModalClose, onSignUpOrIn, onMigrateGuest }) => {
     const [loading, setLoading] = useState(false)
 
     const { isDarkMode } = useTheme()
+
+    const { signInAndUp } = useAuth()
 
     const modalRef = useRef(null)
     useModalClose(modalRef, onModalClose, !loading, false)
@@ -70,40 +74,6 @@ const AuthModal = ({ onModalClose, onSignUpOrIn, onMigrateGuest }) => {
         setSuccessMessage("")
     }
 
-    const submitDetails = async (userDetails) => {
-        setLoading(true)
-        try {
-            const response = await api.post(`/${isSignIn ? "signin" : "signup"}`, { userDetails });
-
-            if (response && response?.data?.success) {
-                
-                onMigrateGuest()
-
-                onSignUpOrIn(response.data.user)
-                setLoading(false)
-
-                if(!isSignIn){
-                    toast.success("Registered successfully!")
-                }
-
-                return true
-            }
-        } catch (error) {
-            console.error("Signup error:", error)
-
-            if (error.response?.data?.message) {
-                toast.error(error.response.data.message)
-            } else {
-                toast.error(
-                    "Something went wrong! Please check your network and retry again later."
-                )
-            }
-
-            setLoading(false)
-            return false
-        }
-    }
-
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (Object.keys(errors).length !== 0) {
@@ -117,7 +87,11 @@ const AuthModal = ({ onModalClose, onSignUpOrIn, onMigrateGuest }) => {
             username: formData.username,
             password: formData.password,
         }
-        const isSuccess = await submitDetails(userDetails)
+        
+        setLoading(true)
+
+        const isSuccess = await signInAndUp(userDetails, isSignIn)
+        setLoading(false)
 
         if (isSuccess) {
             setSuccessMessage(

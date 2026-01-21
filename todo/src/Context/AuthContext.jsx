@@ -69,6 +69,33 @@ export const AuthProvider = ({ children }) => {
     setIsGuest(false)
   }
 
+  const signInAndUp = async (userDetails, isSignIn) => {
+      setAuthLoading(true)
+      try {
+          const response = await api.post(`/${isSignIn ? "signin" : "signup"}`, { userDetails })
+          if (response && response?.data?.success) {
+              if (isGuest) {
+                  await migrateGuest()
+              }
+              setUser(response.data.user)
+              if (!isSignIn) {
+                  toast.success("Registered successfully!")
+              }
+              return true
+          }
+      } catch (error) {
+          console.error("Signup/Signin error:", error)
+          if (error.response?.data?.message) {
+              toast.error(error.response.data.message)
+          } else {
+              toast.error("Something went wrong! Please check your network and retry again later.")
+          }
+          return false
+      } finally {
+        setAuthLoading(false)
+      }
+  }
+
   const logout = async () => {
     try{
       setAuthLoading(true)
@@ -89,11 +116,10 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
-        setUser,
         isGuest,
         guestId,
+        signInAndUp,
         logout,
-        migrateGuest,
         authReady,
         authLoading
       }}
