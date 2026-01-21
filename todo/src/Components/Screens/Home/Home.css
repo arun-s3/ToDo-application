@@ -237,15 +237,18 @@
   margin: 0 auto;
   padding: 0 4rem;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-
-  opacity: 0;
+  
+  opacity: 0.9;
   transform: translateY(6px);
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .all-tasks.visible {
-    opacity: 1;
     transform: translateY(0);
+}
+
+.all-tasks.fullyOpaque {
+    opacity: 1;
 }
 
 .empty-state {

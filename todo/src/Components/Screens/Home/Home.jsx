@@ -531,13 +531,13 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
             )}
 
             <div
-                className={`all-tasks ${!showTaskCardLoader ? "visible" : ""}`}
+                className={`all-tasks ${filteredTodos.length > 0 && !authLoading ? "visible" : ""} ${!showTaskCardLoader ? "fullyOpaque" : ""}`}
                 style={
                     filteredTodos.length === 0 || (filteredTodos.length === 1 && filteredTodos[0].isDemo)
                         ? { display: "inline-block" }
                         : {}
                 }>
-                {filteredTodos.length === 0 && !showTaskCardLoader && !authLoading ? (
+                {filteredTodos.length === 0 && !authLoading ? (
                     <div className='empty-state'>
                         <h2>No tasks in this category</h2>
                     </div>
