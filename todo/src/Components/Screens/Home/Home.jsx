@@ -55,7 +55,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
 
     const [openGuestModeModal, setOpenGuestModeModal] = useState(false)
 
-    const { isGuest, guestId, user, authReady, authLoading } = useAuth() 
+    const { isGuest, guestId, user, authReady, authLoading, isAuthStabilizing, setIsAuthStabilizing } = useAuth() 
 
     const { isDarkMode } = useTheme()
 
@@ -103,6 +103,9 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
             }
         } finally {
             setShowTaskCardLoader(false)
+            if(isAuthStabilizing){
+                setIsAuthStabilizing(false)
+            }
         }
     }
 
@@ -490,9 +493,10 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                     className='add-task-btn'
                     onClick={() => createNewTask()}
                     title='Create a new task'
-                    disabled={authLoading || showTaskCardLoader}>
-                    <Plus size={20} />
-                    <span>Add Task</span>
+                    disabled={authLoading || showTaskCardLoader}
+                >
+                        <Plus size={20} />
+                        <span>Add Task</span>
                 </button>
             </div>
 
@@ -559,7 +563,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                         />
                     ))
                 )}
-                {authLoading && (
+                {(authLoading || isAuthStabilizing) && (
                     <div className='home-logo-loader'>
                         <div className='home-logo loading'>
                             <img src='./ZenTaskLogo.png' alt='ZenTask' />

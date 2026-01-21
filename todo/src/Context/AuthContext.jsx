@@ -15,6 +15,8 @@ export const AuthProvider = ({ children }) => {
   const [authReady, setAuthReady] = useState(true)
   const [authLoading, setAuthLoading] = useState(false)
 
+  const [isAuthStabilizing, setIsAuthStabilizing] = useState(true)
+
   const loadUserAsGuest = ()=> {
     let currentGuestId = localStorage.getItem("guestId")
     if (!currentGuestId) {
@@ -88,6 +90,7 @@ export const AuthProvider = ({ children }) => {
               if (!isSignIn) {
                   toast.success("Registered successfully!")
               }
+              setIsAuthStabilizing(true)
               return true
           }
       } catch (error) {
@@ -108,6 +111,7 @@ export const AuthProvider = ({ children }) => {
       setAuthLoading(true)
       const response = await api.get(`/signout`)
       if(response.status === 200){
+        setIsAuthStabilizing(true)
         loadUserAsGuest()
       }
     }
@@ -122,19 +126,20 @@ export const AuthProvider = ({ children }) => {
   
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isGuest,
-        guestId,
-        signInAndUp,
-        logout,
-        authReady,
-        authLoading
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+      <AuthContext.Provider
+          value={{
+              user,
+              isGuest,
+              guestId,
+              signInAndUp,
+              logout,
+              authReady,
+              authLoading,
+              isAuthStabilizing, 
+              setIsAuthStabilizing,
+          }}>
+          {children}
+      </AuthContext.Provider>
   )
 }
 
