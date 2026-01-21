@@ -82,7 +82,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
     const getTasks = async (taskQueryOptions) => {
         try {
             if (isGuest && !guestId) return
-            if (!authReady) return  
             const response = await api.post("/tasks", { taskQueryOptions })
 
             if (response && response?.data?.success) {
@@ -546,7 +545,6 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
                     filteredTodos.length > 0 &&
                     !showTaskCardLoader &&
                     !authLoading &&
-                    authReady &&
                     filteredTodos.map((todo, index) => (
                         <TaskCard
                             key={todo._id}
