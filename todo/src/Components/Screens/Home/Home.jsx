@@ -518,7 +518,7 @@ export default function Home({ activeTab = "all", restoreTab, isDemoTaskLockedRe
 
             {shouldShowHero && <HeroSection onCreateTask={createNewTask} />}
 
-            {filteredTodos.length > 0 && (
+            {( filteredTodos.length > 0 || (filteredTodos.length === 0 && showTaskCardLoader) ) && !authLoading && !isAuthStabilizing && (
                 <FilterBar
                     sortOption={sortBy}
                     onSortByChange={setSortBy}

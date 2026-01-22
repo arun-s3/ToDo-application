@@ -29,8 +29,8 @@ const isLogin = async (req, res, next) => {
 }
 
 const isLogout = (req, res, next) => {
-  if (!req.cookies.jwt) return next();
-  res.status(400).json({ message: "Already logged in" })
+    if (!req.cookies.jwt) return next();
+    res.status(400).json({ message: "Already logged in" })
 }
 
 

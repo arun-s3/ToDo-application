@@ -124,7 +124,6 @@ function CreateTask({ onAddTask, onUpdateTask, editTask, isModalOpen, onModalClo
                     <div className="modal-overlay" ref={modalRef}>
                         <div
                             className="modal-content"
-                            // onClick={(e) => e.stopPropagation()}
                         >
                             <div className="modal-header">
                                 <h3> {editTask ? "Update Your Task" : "Create New Task"} </h3>

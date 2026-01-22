@@ -121,10 +121,10 @@ function ZenTaskPageContent() {
 
 export default function ZenTaskPage() {
 
-  return (
-      <ThemeProvider>
-          <ZenTaskPageContent />
-      </ThemeProvider>
-  )
+    return (
+        <ThemeProvider>
+            <ZenTaskPageContent />
+        </ThemeProvider>
+    )
 }
 
