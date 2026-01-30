@@ -1,0 +1,425 @@
+Absolutely — here’s a comprehensive, detailed feature breakdown of ZenTask that you can use for documentation, landing pages, pitch decks, README, or interview answers. I’ll include core features, edge-case behaviors, loader design, UX decisions, and motivations behind each part.
+
+⭐️ ZenTask — Full Feature Overview
+
+ZenTask is a modern, intuitive task management application designed to help users organize work, track progress, and stay productive. It supports both authenticated users and guest users, giving a smooth experience even before signing in.
+
+🧠 1. Authentication & Identity
+✅ Guest Mode
+
+Before a user signs in, ZenTask automatically:
+
+Creates a guestId using crypto.randomUUID()
+
+Stores it in localStorage (guestId)
+
+Assigns temporary demo tasks
+
+Persists guest tasks via the API with the x-guest-id header
+
+Benefits:
+
+Zero friction first experience
+
+Users can immediately interact and test
+
+Tasks are preserved until migration
+
+✅ Sign In / Sign Up
+
+ZenTask supports:
+
+Credential submission via secure API
+
+Automatic migration of guest tasks upon sign-in
+
+Removal of guestId on migration
+
+Persistent user data
+
+Auth State Flags:
+
+authLoading — UI loader for network activity
+
+authReady — user identity has been determined
+
+isAppHydrating / isAuthStabilizing — transition loader while UI catches up
+
+This prevents:
+
+Flash of incorrect UI (hero / task list)
+
+Mid-UX flickers during auth transitions
+
+📍 2. Initial UI States & Loader Design
+🌀 Auth Stabilizing Loader
+
+Used during:
+
+App startup (initial auth check)
+
+Sign-in / Sign-out
+
+Fetch transitions
+
+Visual Design:
+
+Soft pulsing ZenTask logo
+
+Faint “Preparing your workspace…” text
+
+Works in both light/dark mode
+
+Intentional animation pacing (1.8s cycle)
+
+Purpose:
+
+Avoids abrupt content changes
+
+Eliminates flash of hero or stale tasks
+
+Communicates backend latency gracefully
+
+🏠 3. Home & Hero Experience
+📌 Hero Section (Empty State)
+
+Shown when:
+
+No tasks exist (new user/guest)
+
+Only demo tasks exist and not yet seen
+
+Key UX Elements:
+
+Title: “Your Productivity Starts Here”
+
+Quick Tips (Star, Set Priorities, Add Deadlines, Use Tags)
+
+Feature Highlights (Dashboard, Smart Organization, Real-Time)
+
+Step-by-Step Instructions
+
+Notices for Guest Mode & Migration
+
+CTA to create the first task
+
+Loaded With:
+
+Animations (card fade-ins)
+
+Visual icons (Lucide icons)
+
+Light/Dark theming
+
+🗂 4. Task Management Core
+📄 Task List
+
+Paginated (default limit 5)
+
+Filterable & sortable
+
+Searchable
+
+Demo filtering logic (show only one demo if not seen)
+
+Maintains stable UI during server fetches
+
+📊 Sorting Options
+
+Users can reorder tasks by:
+
+date-desc (newest first)
+
+date-asc (oldest first)
+
+priority-high
+
+priority-low
+
+starred
+
+deadline earliest
+
+deadline-latest
+
+Sorting is implemented:
+
+On backend for fetch
+
+Locally via sortTasksLocally for quick UI transitions
+
+Priority uses a priorityRank (1–3) system for consistency.
+
+🧰 5. Task CRUD & Optimistic UI
+⬆️ Create
+
+Optimistic insertion with temporary ID
+
+UI update immediately
+
+Reconciliation with backend response
+
+✏️ Edit
+
+Inline editable fields (title/desc)
+
+Submit updates via API
+
+Rollback on failure
+
+🗑 Delete
+
+Interactive modal confirmation
+
+Demo task special handling:
+
+If deleted, mark hasSeenDemoTask = true
+
+Prevent re-injection
+
+☑️ Toggle Done
+
+Instant local UI update
+
+Patch to backend
+
+Removes from list if filtered by done state
+
+⭐️ Toggle Star
+
+Local optimistic UI change
+
+API patch
+
+Synchronization state (starSyncing)
+
+🎯 6. Smart Filters & Local Enhancements
+📍 Filter Logic
+
+getFilteredTasks() delivers:
+
+All non-demo tasks
+
+Demo task shown once if not seen
+
+Supports search + tag rules
+
+Demo Logic:
+Handled via localStorage hasSeenDemoTask or user flag
+Ensures users don’t repeatedly see demo content.
+
+⚡ Local Sorting
+
+sortTasksLocally() handles reordering without re-fetching:
+
+Uses priorityRank, not string compare
+
+Intuitive deadline sorting
+
+Starred tasks first
+
+🚦 7. Progress & Checklist UI
+📊 Checklist Support
+
+Partial progress bars
+
+Completion ratio
+
+Expand/collapse behavior
+
+Toggle individual checklist items
+
+📈 Progress Section
+
+Shows:
+
+% completed
+
+Animated progress fill
+
+Real-time UI response
+
+🏷 8. Metadata & Badges
+
+Tasks display:
+
+Deadline (formatted nicely)
+
+Priority badge (color coded)
+
+Tag count
+
+Tag chips
+
+Status icons
+
+Badges are:
+
+Readable
+
+Consistent UI
+
+Semantic for accessibility
+
+🎨 9. Theming & Dark Mode
+⚙️ Fully supported
+
+Components adapt to isDarkMode
+
+CSS overrides ensure contrast and visual comfort
+
+Logo loader, hero, skeletons, badges adjust colors
+
+Priority & tag colors alter subtly in dark mode
+
+Dark Mode Enhancements:
+
+Softer shadows
+
+Muted backgrounds
+
+Shimmer effects slightly darker
+
+Skeleton gradients tailored
+
+🪩 10. Loading Indicators All Around
+
+ZenTask uses tiered loaders for clarity:
+
+🔹 AuthStabilizingLoader
+
+Global skeleton / fade-in logo
+Used during auth transitions
+
+🔹 Skeleton TaskCardLoader
+
+List placeholders where tasks appear
+Mimics full task card structure
+
+🔹 Spinner Loader
+
+Small loader during backend re-fetch
+Shows above task list
+
+🔹 Local UI Shimmers
+
+Used inside task card placeholders
+Indicates ongoing state (e.g., starSyncing)
+
+📡 11. Resilience & Error Handling
+✅ Axios Safe Catch
+
+Robust error parsing:
+
+error?.response?.data?.message || error?.message
+
+
+Avoids:
+
+Crash on undefined
+
+Unhandled promise rejections
+
+📌 Toast Notifications
+
+Used consistently for user feedback:
+
+Success messages (e.g., registration)
+
+Failure alerts
+
+🛡 12. Backend Design Constraints
+🧱 Schema Design
+
+isGuest vs userId
+
+isDemo flags
+
+Unique partial filter indexes
+
+priorityRank synchronized on save
+
+This ensures:
+
+One demo per user/guest
+
+Stable sorting
+
+Efficient queries
+
+🧩 13. Performance & UX Decisions
+⏱ Smooth Transitions
+
+Minimum loader time to prevent flicker
+
+Delay logic avoids UI jumps
+
+Deferred pagination updates
+
+📦 General UX Approach
+
+No layout jumps
+No intermediate wrong content
+Instant yet accurate updates
+
+🎓 Summary: Experience Flow
+
+First Visit
+
+Guest mode activated
+
+GuestID assigned
+
+Demo task injected (if none seen)
+
+Skeleton loaders show while fetching
+
+Task Interaction
+
+CRUD, filters, search
+
+Local sorting
+
+Immediate UI feedback
+
+User Sign-In
+
+Auth loader
+
+Task migration
+
+User tasks load
+
+No flicker
+
+User Sign-Out
+
+Auth loader
+
+Guest mode fallback
+
+UI resets cleanly
+
+🏆 What Makes ZenTask Special
+
+🌟 Frictionless first-time experience
+🌟 Seamless guest → logged-in transition
+🌟 Intentional loader design
+🌟 Thoughtful demo logic (no spammy repeats)
+🌟 Optimistic UI + rollback support
+🌟 Clean skeletons + purposeful animations
+🌟 Dark mode support everywhere
+🌟 Accurate error handling and feedback
+🌟 Production-grade auth & data fetch flows
+
+If you want, I can also prepare:
+
+A marketing page description
+
+A feature checklist for your portfolio
+
+A technical architecture diagram
+
+A README.md ready for GitHub
+
+Just tell me! 🚀
