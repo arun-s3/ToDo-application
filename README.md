@@ -23,7 +23,7 @@ The project explores practical challenges like:
 
 ### 🏠 Landing Experience
 
-**Clear value proposition + motivation to start as guest (with dark mode shown)**
+**Clear value proposition + motivation to start as guest**
 
 ![Hero section](./screenshots/hero1.png)
 ![Hero section (dark mode)](./screenshots/hero2-darkmode.png)
@@ -32,7 +32,7 @@ The project explores practical challenges like:
 
 ### 👤 Guest Mode & Demo Logic
 
-**Zero-friction entry with controlled demo data**
+**Zero-friction entry with controlled demo data & guest intercepton modal**
 
 ![Guest demo task](./screenshots/guest-mode-demoTask.png)
 ![Guest interception modal](./screenshots/guest-interception-modal.png)
@@ -50,7 +50,7 @@ The project explores practical challenges like:
 
 ### 📋 Core Task Management
 
-**Optimistic UI, inline editing, and confirmations (with dark mode)**
+**Optimistic UI with rollback safety and **in-flight sync locking** with any edit , inline editing, and confirmations**
 
 ![Task list (dark mode)](./screenshots/task-list-darkMode.png)
 ![Create task modal](./screenshots/create-task-modal.png)
@@ -66,9 +66,9 @@ The project explores practical challenges like:
 
 ---
 
-### ⚡ Searching, Sorting, Limiting & Pagination
+### ⚡ Sorting, Searching, Filtering, Limiting & Pagination
 
-**Server + local hybrid handling for instant UX**
+**Server + local hybrid handling for instant UX & optimistic UI with rollback safety and **in-flight sync locking**.**
 
 ![Task filters](./screenshots/tasks-filters.png)
 ![Pagination](./screenshots/pagination.png)
@@ -77,12 +77,11 @@ The project explores practical challenges like:
 
 ### 📊 Dashboard & Insights
 
-**Real-time productivity metrics from user data (with dark mode)**
+**Real-time productivity metrics from user data**
 
 ![Dashboard overview](./screenshots/dashboard1.png)
 ![Dashboard charts](./screenshots/dashboard2.png)
 ![Dashboard loader (dark mode)](./screenshots/dashboard-loader-darkMode.png)
-![Dashboard (dark mode)](./screenshots/dashboard-darkMode.png)
 
 ---
 
@@ -91,8 +90,9 @@ The project explores practical challenges like:
 **Layered loaders for predictable UX**
 
 ![Skeleton loader](./screenshots/skeleton-loader.png)
-![Skeleton loader (dark mode)](./screenshots/skeleton-loader-darkMode.png)
 ![Background refetch spinner](./screenshots/spinner-loader.png)
+
+---
 
 ## ✨ Features
 
@@ -128,7 +128,9 @@ This avoids:
 * Automatic rollback on failure
 * Support for done, starred, priority, deadlines, checklist(add/ delete) and tags
 * Inline edits
-* Confirmation modals before deleting tasks
+* Intentional modal system for auth, guest interception, task creation/editing, and task deletion confirmations
+* Consistent toast feedback (success, error, sync states) for all async actions
+
 
  ..................................................................................................
 
@@ -144,7 +146,7 @@ This avoids the “annoying demo task” problem while still being helpful.
 
 ..................................................................................................
 
-### ⚡ Sorting, Filtering, Limiting & Search
+### ⚡ Sorting, Filtering, Limiting & Search with Pagination
 
 Sort by:
 
@@ -158,8 +160,8 @@ Filter by:
 Limit results by:
 
 * 2 / 4 / 6 / 8 / 10 / 20 / 30 tasks per page
-  
-Sorting and filtering are handled both **server-side and locally** for instant UI response.
+
+Sorting and filtering are handled both **server-side and locally** for instant UI response and uses **in-flight sync locking**.
 
 ..................................................................................................
 
@@ -232,6 +234,7 @@ Designed to stay readable and usable across all screen sizes.
 * Stable sorting, filtering, limiting, pagination, and debounced search input
 * Proper dark mode implementation
 * Aggregated data visualization for dashboards
+* Controlled modal flows to prevent accidental actions and guide guest → auth transitions
 
 This project intentionally focuses on problems that appear in real deployments:
 
@@ -247,12 +250,15 @@ This project intentionally focuses on problems that appear in real deployments:
 * React
 * JavaScript (ES6+)
 * CSS (custom, no UI framework)
+* Recharts (data visualizations)
+* Sonner (toast notifications)
 
 ### Backend
 
 * Node.js
 * Express.js
 * MongoDB & Mongoose
+* JWT-based authentication
 
 ### Deployment
 
