@@ -4,7 +4,7 @@ A clean task management application focused on real-world authentication flows, 
 
 Built with an emphasis on predictable UX and edge-case handling, ZenTask supports:
 
-* 🚀 Demo task logic, inline task editing, dark mode, sorting, search, pagination, progress tracking, checklist management, and productivity dashboards — while maintaining clear state transitions during sign-in, sign-out, initial data loading, and optimistic UI with rollback safety.
+* 🚀 Demo task logic, inline task editing, dark mode, sorting, search, pagination, progress tracking, checklist management, and productivity dashboards — while maintaining clear state transitions during sign-in, sign-out, initial data loading, and optimistic UI with rollback safety and **in-flight sync locking**.
 
 The project explores practical challenges like:
 
@@ -18,10 +18,12 @@ The project explores practical challenges like:
 * **Backend API** : Deployed on Render
 
 ---
+
 ## 🖼️ Screenshots
 
 ### 🏠 Landing Experience
-**Clear value proposition + motivation to start as guest**
+
+**Clear value proposition + motivation to start as guest (with dark mode shown)**
 
 ![Hero section](./screenshots/hero1.png)
 ![Hero section (dark mode)](./screenshots/hero2-darkmode.png)
@@ -29,6 +31,7 @@ The project explores practical challenges like:
 ---
 
 ### 👤 Guest Mode & Demo Logic
+
 **Zero-friction entry with controlled demo data**
 
 ![Guest demo task](./screenshots/guest-mode-demoTask.png)
@@ -37,6 +40,7 @@ The project explores practical challenges like:
 ---
 
 ### 🔐 Authentication Flow
+
 **Stable auth transitions without UI flicker**
 
 ![Auth stabilizing loader](./screenshots/auth-loader.png)
@@ -45,7 +49,8 @@ The project explores practical challenges like:
 ---
 
 ### 📋 Core Task Management
-**Optimistic UI, inline editing, and confirmations**
+
+**Optimistic UI, inline editing, and confirmations (with dark mode)**
 
 ![Task list (dark mode)](./screenshots/task-list-darkMode.png)
 ![Create task modal](./screenshots/create-task-modal.png)
@@ -54,13 +59,15 @@ The project explores practical challenges like:
 ---
 
 ### 🧩 Checklists & Progress
+
 **Subtasks with live progress feedback**
 
 ![Checklist with progress](./screenshots/checklist-darkMode.png)
 
 ---
 
-### ⚡ Sorting, Filtering & Pagination
+### ⚡ Searching, Sorting, Limiting & Pagination
+
 **Server + local hybrid handling for instant UX**
 
 ![Task filters](./screenshots/tasks-filters.png)
@@ -69,22 +76,23 @@ The project explores practical challenges like:
 ---
 
 ### 📊 Dashboard & Insights
-**Real-time productivity metrics from user data**
+
+**Real-time productivity metrics from user data (with dark mode)**
 
 ![Dashboard overview](./screenshots/dashboard1.png)
 ![Dashboard charts](./screenshots/dashboard2.png)
 ![Dashboard loader (dark mode)](./screenshots/dashboard-loader-darkMode.png)
+![Dashboard (dark mode)](./screenshots/dashboard-darkMode.png)
 
 ---
 
 ### 🌀 Loading System (Intentional States)
+
 **Layered loaders for predictable UX**
 
 ![Skeleton loader](./screenshots/skeleton-loader.png)
+![Skeleton loader (dark mode)](./screenshots/skeleton-loader-darkMode.png)
 ![Background refetch spinner](./screenshots/spinner-loader.png)
-
-
-
 
 ## ✨ Features
 
@@ -115,11 +123,12 @@ This avoids:
 ### 📋 Task Management
 
 * Create / edit / delete with **optimistic UI**
+* UI actions disabled during in-flight sync to prevent race conditions
 * Instant feedback with backend reconciliation
 * Automatic rollback on failure
-* Support for done, starred, priority, deadlines, and tags
+* Support for done, starred, priority, deadlines, checklist(add/ delete) and tags
 * Inline edits
-* Confirmation modals before destructive actions
+* Confirmation modals before deleting tasks
 
  ..................................................................................................
 
@@ -135,7 +144,7 @@ This avoids the “annoying demo task” problem while still being helpful.
 
 ..................................................................................................
 
-### ⚡ Sorting, Filtering & Search
+### ⚡ Sorting, Filtering, Limiting & Search
 
 Sort by:
 
@@ -144,7 +153,12 @@ Sort by:
 Filter by:
 
 * Status, search query(tags, title, desc), high priority, due today
+* Debounced search input to avoid excessive renders and API calls
 
+Limit results by:
+
+* 2 / 4 / 6 / 8 / 10 / 20 / 30 tasks per page
+  
 Sorting and filtering are handled both **server-side and locally** for instant UI response.
 
 ..................................................................................................
@@ -169,6 +183,7 @@ All charts are derived from real task data and update automatically.
 ### 📊 Progress & Checklists
 
 * Per-task checklists with expand/collapse
+* Checklist supports adding, editing, deleting, and toggling items.
 * Live progress percentage
 * Animated progress bars
 
@@ -196,6 +211,8 @@ ZenTask uses **layered loaders** , each with a purpose:
 
 This hierarchy prevents confusion and improves perceived performance.
 
+> Actions are temporarily disabled during background sync to preserve state integrity.
+
 ..................................................................................................
 
 ### 📱 Responsive & Minimal UI
@@ -210,9 +227,9 @@ Designed to stay readable and usable across all screen sizes.
 * No UI flicker during auth changes
 * Handling **slow backend responses** (Render cold starts)
 * Fine-grained loaders instead of global blocking spinners
-* Optimistic UI with rollback safety
+* Optimistic UI with rollback safety and sync locking
 * Demo logic that never feels spammy
-* Stable sorting, filtering, and pagination
+* Stable sorting, filtering, limiting, pagination, and debounced search input
 * Proper dark mode implementation
 * Aggregated data visualization for dashboards
 
